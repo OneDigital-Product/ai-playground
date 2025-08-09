@@ -1,0 +1,12 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AppResolver from "../../components/islands/AppResolver.tsx";
+
+const { app } = Astro.params;
+---
+
+<Layout>
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    {app ? <AppResolver client:load slug={app} /> : <p>Invalid app slug.</p>}
+  </main>
+</Layout>

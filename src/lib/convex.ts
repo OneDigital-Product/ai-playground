@@ -1,5 +1,5 @@
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import { ConvexAuthProvider, useAuthActions } from "@convex-dev/auth/react";
 import React, { type FunctionComponent, type ReactNode } from "react";
 
 const PUBLIC_CONVEX_URL = import.meta.env.PUBLIC_CONVEX_URL as string;
@@ -11,7 +11,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return React.createElement(ConvexAuthProvider as any, { client, children });
 }
 
-// Wrap a component with both Convex and Auth providers so it can use hooks.
 export function withAuthAndConvexProvider<P = any>(
   Component: FunctionComponent<P>,
 ) {
@@ -27,7 +26,6 @@ export function withAuthAndConvexProvider<P = any>(
   };
 }
 
-// Legacy: only Convex provider (no auth context)
 export function withConvexProvider<P = any>(Component: FunctionComponent<P>) {
   return function WithConvexProvider(props: P) {
     return React.createElement(
@@ -38,5 +36,11 @@ export function withConvexProvider<P = any>(Component: FunctionComponent<P>) {
   };
 }
 
-export { useAuthActions } from "@convex-dev/auth/react";
-export { useConvexAuth } from "convex/react";
+export { useAuthActions };
+export {
+  useConvexAuth,
+  useQuery,
+  useMutation,
+  useAction,
+  useConvex,
+} from "convex/react";

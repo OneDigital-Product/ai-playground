@@ -45,4 +45,8 @@ function AppResolver({ slug }: { slug: string }) {
   );
 }
 
-export default withAuthAndConvexProvider(AppResolver);
+import { withErrorBoundary } from "./ErrorBoundary";
+
+export default withAuthAndConvexProvider(
+  withErrorBoundary(AppResolver, { boundaryId: "AppResolver" }),
+);

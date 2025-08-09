@@ -4,6 +4,7 @@ import BaseIsland from "./BaseIsland";
 import type { Result } from "neverthrow";
 import { ResultAsync } from "neverthrow";
 import { useState, type FormEvent } from "react";
+import { withErrorBoundary } from "./ErrorBoundary";
 
 const api: any = generatedApi as any;
 
@@ -15,7 +16,7 @@ type Message = {
   displayName?: string;
 };
 
-export default function ChatApp() {
+function ChatAppImpl() {
   const list = useQuery(api.messages?.list, {} as any) as Message[] | undefined;
   const send = useMutation(api.messages?.send as any) as (args: {
     content: string;
@@ -103,3 +104,6 @@ export default function ChatApp() {
     </BaseIsland>
   );
 }
+
+const ChatApp = withErrorBoundary(ChatAppImpl, { boundaryId: "ChatApp" });
+export default ChatApp;
