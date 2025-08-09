@@ -182,9 +182,11 @@ Guiding principles:
 
 ### Task 25: Deployment Configuration
 
-- Add `vercel.json` or `netlify.toml`
-- Configure build command and environment variables
+- Install and configure Vercel adapter: `npx astro add vercel`
+- Update `astro.config.mjs` to use Vercel adapter for serverless deployment
+- Configure build command and environment variables in Vercel dashboard
 - Set up Convex production deployment
+- Deploy using Vercel CLI or GitHub integration
 
 ### Task 26: CORS & Security Headers
 
