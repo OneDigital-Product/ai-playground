@@ -1,12 +1,243 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import AppsList from "../components/islands/AppsList.tsx";
 ---
 
 <Layout>
-  <main class="max-w-3xl mx-auto px-4 py-8">
-    <h2 class="text-2xl font-bold mb-6">Welcome to AI Playground</h2>
-    <p class="mb-6">Explore available apps below when signed in.</p>
-    <AppsList client:load />
-  </main>
+  <style>
+    :root {
+      --primary-color: #00344F;
+      --bg-color: #E75B5B;
+      --text-dark: #1a1a1a;
+    }
+
+    .spawnbeam-container {
+      background: var(--bg-color);
+      min-height: 100vh;
+      padding: 2rem;
+      font-family: 'Courier New', monospace;
+    }
+
+    .header-section {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem 1rem;
+      border-top: 4px double var(--text-dark);
+      border-bottom: 4px double var(--text-dark);
+    }
+
+    .title {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      margin: 1rem 0 0.5rem;
+      font-weight: 400;
+    }
+
+    .invitation-box {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid var(--text-dark);
+      padding: 1.5rem;
+      margin: 2rem auto;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .invitation-text {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 0.5rem 1.5rem;
+      background: var(--text-dark);
+      color: var(--bg-color);
+      border: none;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    .persona-section {
+      margin: 3rem 0;
+      padding: 1.5rem;
+      border-top: 2px solid var(--text-dark);
+    }
+
+    .persona-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .persona-marker {
+      width: 2rem;
+      height: 1rem;
+      background: var(--text-dark);
+    }
+
+    .persona-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      font-family: 'Courier New', monospace;
+    }
+
+    .persona-description {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-dark);
+      padding-left: 3rem;
+      max-width: 800px;
+    }
+
+    .highlight {
+      background: var(--text-dark);
+      color: var(--bg-color);
+      padding: 0.1rem 0.3rem;
+      margin: 0 0.2rem;
+    }
+
+    .footer-section {
+      margin-top: 4rem;
+      padding: 2rem;
+      text-align: center;
+      border-top: 4px double var(--text-dark);
+    }
+
+    .footer-text {
+      font-size: 0.8rem;
+      color: var(--text-dark);
+      letter-spacing: 0.05em;
+    }
+
+    .decorative-lines {
+      margin: 3rem 0;
+      height: 200px;
+      background: repeating-linear-gradient(
+        180deg,
+        var(--text-dark),
+        var(--text-dark) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      opacity: 0.3;
+    }
+  </style>
+
+  <div class="spawnbeam-container">
+    <div class="header-section">
+      <h1 class="title">SPAWNBEAM</h1>
+      <p class="subtitle">Engineering serendipity.</p>
+      <p class="subtitle">An invitation-only experiment.</p>
+      
+      <div class="invitation-box">
+        <p class="invitation-text">
+          Hi, I'm Zio. I'm conducting an experiment to see what serendipitous<br/>
+          magic can emerge when 100 exceptional founders, vibe hackers, and<br/>
+          builders come together to forge real and lasting relationships.
+        </p>
+        <div class="button-group">
+          <button class="btn">Enter Serendip</button>
+          <button class="btn">Enter</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="persona-section">
+      <div class="persona-header">
+        <div class="persona-marker"></div>
+        <h2 class="persona-title">/growth-ops</h2>
+      </div>
+      <p class="persona-description">
+        <span class="highlight">━━━━</span> is a growth and operations specialist with a background
+        spanning engineering, marketing, and management. She's helped build
+        and grow founder-focused platforms like<span class="highlight">█████</span>, working at the
+        intersection of growth, systems, and community. Passionate about
+        entrepreneurship, hospitality, and the 'vibe' wave, she believes
+        lasting growth is built on two things: efficient systems and
+        unscalable details that make people feel seen.
+      </p>
+    </div>
+
+    <div class="persona-section">
+      <div class="persona-header">
+        <div class="persona-marker"></div>
+        <h2 class="persona-title">/athlete-to-vibe-coder</h2>
+      </div>
+      <p class="persona-description">
+        <span class="highlight">━━━━</span> is a founder at the intersection of psychology and technology,
+        focused on solving overlooked problems with practical, human-centered
+        solutions. While playing pro hockey in Paris, he built products for
+        clients - running ads, designing websites, and rapidly prototyping
+        ideas. Despite no formal coding background, he uses AI to build full-
+        stack SaaS products, including a platform that helps content creators
+        expand their impact. With a psychology degree from Middlebury College
+        and experience in private equity consulting,<span class="highlight">█████</span> brings an
+        analytical perspective and a deep understanding of human behavior to
+        every project.
+      </p>
+    </div>
+
+    <div class="persona-section">
+      <div class="persona-header">
+        <div class="persona-marker"></div>
+        <h2 class="persona-title">/uiux-virtuoso</h2>
+      </div>
+      <p class="persona-description">
+        <span class="highlight">━━━━</span> has been in the UX & UI space for over a decade. He has
+        consulted for a variety of clients, from startups to dozens of Fortune
+        500 companies, including Amazon, Nike, Chase, Feeding America, The
+        Pokémon Company International, and more. He holds a masters degree
+        from Northwestern University with a focus in information design &
+        strategy and human-computer interaction. Taking his passion for
+        experience design and fusing it with his entrepreneurial spirit,
+        <span class="highlight">█████</span> dove head first into leveraging the recent advancements in AI
+        tools to begin creating ideas that he's been passionate about,
+        primarily in the positive impact space.
+      </p>
+    </div>
+
+    <div class="persona-section">
+      <div class="persona-header">
+        <div class="persona-marker"></div>
+        <h2 class="persona-title">/serendipity-engineer</h2>
+      </div>
+      <p class="persona-description">
+        <span class="highlight">━━━━</span> is a senior software engineer from Silicon Valley with over a
+        decade of experience spanning Fortune 100 companies to early-stage
+        startups.<br/>
+        Founder of @PAWNBEAM and<span class="highlight">█████</span>.
+      </p>
+    </div>
+
+    <div class="decorative-lines"></div>
+
+    <div class="footer-section">
+      <p class="footer-text">Wb2sro © 2025. All rights reserved.</p>
+    </div>
+  </div>
 </Layout>
