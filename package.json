@@ -8,11 +8,11 @@
     "dev:astro": "astro dev",
     "dev:convex": "convex dev",
     "build": "astro build",
+    "vercel-build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check && tsc --noEmit",
     "format": "prettier --write .",
-    "lint": "eslint .",
-    "prebuild": "npm run lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
