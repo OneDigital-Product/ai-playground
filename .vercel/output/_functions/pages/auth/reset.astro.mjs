@@ -11,7 +11,6 @@ const api = api$1;
 function AuthChangePassword() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const changePassword = useAction(api.password.changePassword);
-  const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState(null);
@@ -29,7 +28,7 @@ function AuthChangePassword() {
     }
     setSubmitting(true);
     try {
-      await changePassword({ email, currentPassword, newPassword });
+      await changePassword({ currentPassword, newPassword });
       setSuccess("Password updated.");
       setCurrentPassword("");
       setNewPassword("");
@@ -41,24 +40,9 @@ function AuthChangePassword() {
   }
   return /* @__PURE__ */ jsxs("div", { className: "mx-auto w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-sm", children: [
     /* @__PURE__ */ jsx("h2", { className: "mb-1 text-2xl font-bold", children: "Change password" }),
-    /* @__PURE__ */ jsx("p", { className: "mb-6 text-sm text-gray-600", children: "Enter your email, current password, and a new password." }),
+    /* @__PURE__ */ jsx("p", { className: "mb-6 text-sm text-gray-600", children: "Enter your current password and a new password." }),
+    " ",
     /* @__PURE__ */ jsxs("form", { onSubmit, className: "space-y-4", children: [
-      /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
-        /* @__PURE__ */ jsx("label", { htmlFor: "email", className: "text-sm font-medium text-gray-700", children: "Email" }),
-        /* @__PURE__ */ jsx(
-          "input",
-          {
-            id: "email",
-            name: "email",
-            type: "email",
-            value: email,
-            onChange: (e) => setEmail(e.target.value),
-            placeholder: "you@onedigital.com",
-            className: "w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none",
-            required: true
-          }
-        )
-      ] }),
       /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
         /* @__PURE__ */ jsx(
           "label",

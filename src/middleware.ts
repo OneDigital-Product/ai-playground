@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "astro";
 
-// Basic security headers and permissive CORS for Convex client requests if needed.
+// Security headers and restricted CORS
 export const onRequest: MiddlewareHandler = async (context, next) => {
   const response = await next();
 
@@ -13,15 +13,9 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
     "geolocation=(), microphone=(), camera=(), payment=()",
   );
 
-  // Basic CSP suitable for MVP; adjust as needed
-  // Allow connections to Convex URL while keeping a conservative CSP baseline
+  // CSP: allow connections to Convex URL
   const convexUrl = import.meta.env.PUBLIC_CONVEX_URL || "";
-  const connectSrc = [
-    "'self'",
-    "https:",
-    "http:",
-    convexUrl ? new URL(convexUrl).origin : null,
-  ]
+  const connectSrc = ["'self'", convexUrl ? new URL(convexUrl).origin : null]
     .filter(Boolean)
     .join(" ");
 
@@ -37,23 +31,35 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
     ].join("; "),
   );
 
-  // Minimal CORS (allow same-origin by default). If you host Convex separately, you can widen this.
+  // Restricted CORS: only allow the app and Convex origins
   const origin = context.request.headers.get("Origin");
+  const allowedOrigins = new Set<string>();
   if (origin) {
-    response.headers.set("Vary", "Origin");
-    response.headers.set("Access-Control-Allow-Origin", origin);
-    response.headers.set("Access-Control-Allow-Credentials", "true");
-    response.headers.set(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Requested-With",
-    );
-    response.headers.set(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-    );
+    try {
+      const siteUrl = new URL(context.url.origin).origin;
+      allowedOrigins.add(siteUrl);
+    } catch {}
+    if (convexUrl) {
+      try {
+        allowedOrigins.add(new URL(convexUrl).origin);
+      } catch {}
+    }
+
+    if (origin && allowedOrigins.has(origin)) {
+      response.headers.set("Vary", "Origin");
+      response.headers.set("Access-Control-Allow-Origin", origin);
+      response.headers.set("Access-Control-Allow-Credentials", "true");
+      response.headers.set(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, X-Requested-With",
+      );
+      response.headers.set(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+      );
+    }
   }
 
-  // Handle CORS preflight quickly
   if (context.request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: response.headers });
   }

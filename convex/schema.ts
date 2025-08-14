@@ -9,19 +9,19 @@ export default defineSchema({
     slug: v.string(),
     name: v.string(),
     active: v.boolean(),
-    admins: v.array(v.string()),
+    admins: v.array(v.id("users")),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_slug", ["slug"]),
 
   messages: defineTable({
-    userId: v.string(),
+    userId: v.id("users"),
     content: v.string(),
     createdAt: v.number(),
   }).index("by_created", ["createdAt"]),
 
   userProfiles: defineTable({
-    userId: v.string(),
+    userId: v.id("users"),
     email: v.string(),
     displayName: v.optional(v.string()),
     isAdmin: v.boolean(),

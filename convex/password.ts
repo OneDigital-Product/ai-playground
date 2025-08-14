@@ -1,4 +1,5 @@
 import { action } from "./_generated/server";
+import { api as generatedApi } from "./_generated/api";
 import { v } from "convex/values";
 import {
   getAuthUserId,
@@ -8,13 +9,14 @@ import {
   invalidateSessions,
 } from "@convex-dev/auth/server";
 
+const api: any = generatedApi as any;
+
 export const changePassword = action({
   args: {
-    email: v.string(),
     currentPassword: v.string(),
     newPassword: v.string(),
   },
-  handler: async (ctx, { email, currentPassword, newPassword }) => {
+  handler: async (ctx, { currentPassword, newPassword }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
@@ -23,6 +25,11 @@ export const changePassword = action({
     }
 
     // Verify current password belongs to the same authenticated user
+    // Derive email from the authenticated user's profile
+    const email = await ctx.runQuery(api.users.getCurrentUserEmail, {});
+    if (!email)
+      throw new Error("Authenticated user not found or missing email");
+
     const result = await retrieveAccount(ctx, {
       provider: "password",
       account: { id: email, secret: currentPassword },

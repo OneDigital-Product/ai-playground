@@ -16,12 +16,7 @@ const onRequest$1 = async (context, next) => {
     "geolocation=(), microphone=(), camera=(), payment=()"
   );
   const convexUrl = "http://localhost:5173/fake-convex";
-  const connectSrc = [
-    "'self'",
-    "https:",
-    "http:",
-    new URL(convexUrl).origin 
-  ].filter(Boolean).join(" ");
+  const connectSrc = ["'self'", new URL(convexUrl).origin ].filter(Boolean).join(" ");
   response.headers.set(
     "Content-Security-Policy",
     [
@@ -34,18 +29,32 @@ const onRequest$1 = async (context, next) => {
     ].join("; ")
   );
   const origin = context.request.headers.get("Origin");
+  const allowedOrigins = /* @__PURE__ */ new Set();
   if (origin) {
-    response.headers.set("Vary", "Origin");
-    response.headers.set("Access-Control-Allow-Origin", origin);
-    response.headers.set("Access-Control-Allow-Credentials", "true");
-    response.headers.set(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-Requested-With"
-    );
-    response.headers.set(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    );
+    try {
+      const siteUrl = new URL(context.url.origin).origin;
+      allowedOrigins.add(siteUrl);
+    } catch {
+    }
+    {
+      try {
+        allowedOrigins.add(new URL(convexUrl).origin);
+      } catch {
+      }
+    }
+    if (origin && allowedOrigins.has(origin)) {
+      response.headers.set("Vary", "Origin");
+      response.headers.set("Access-Control-Allow-Origin", origin);
+      response.headers.set("Access-Control-Allow-Credentials", "true");
+      response.headers.set(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, X-Requested-With"
+      );
+      response.headers.set(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+      );
+    }
   }
   if (context.request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: response.headers });
