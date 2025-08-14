@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
-import { withConvexProvider } from "../lib/convex.tsx";
+import { withConvexProvider } from "../lib/convex";
 
 export default withConvexProvider(function CommentForm() {
   const createComment = useMutation(api.comments.create);
