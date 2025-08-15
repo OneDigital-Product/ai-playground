@@ -15,9 +15,16 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   // CSP: allow connections to Convex URL
   const convexUrl = import.meta.env.PUBLIC_CONVEX_URL || "";
-  const connectSrc = ["'self'", convexUrl ? new URL(convexUrl).origin : null]
-    .filter(Boolean)
-    .join(" ");
+  let connectSrc = "'self'";
+  
+  if (convexUrl) {
+    try {
+      const convexOrigin = new URL(convexUrl).origin;
+      connectSrc = `'self' ${convexOrigin}`;
+    } catch (e) {
+      console.warn("Invalid PUBLIC_CONVEX_URL:", convexUrl);
+    }
+  }
 
   response.headers.set(
     "Content-Security-Policy",
@@ -33,19 +40,26 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   // Restricted CORS: only allow the app and Convex origins
   const origin = context.request.headers.get("Origin");
-  const allowedOrigins = new Set<string>();
+  
   if (origin) {
+    const allowedOrigins = new Set<string>();
+    
     try {
       const siteUrl = new URL(context.url.origin).origin;
       allowedOrigins.add(siteUrl);
-    } catch {}
+    } catch (e) {
+      console.warn("Failed to parse site URL:", e);
+    }
+    
     if (convexUrl) {
       try {
         allowedOrigins.add(new URL(convexUrl).origin);
-      } catch {}
+      } catch (e) {
+        console.warn("Failed to parse Convex URL:", e);
+      }
     }
 
-    if (origin && allowedOrigins.has(origin)) {
+    if (allowedOrigins.has(origin)) {
       response.headers.set("Vary", "Origin");
       response.headers.set("Access-Control-Allow-Origin", origin);
       response.headers.set("Access-Control-Allow-Credentials", "true");
