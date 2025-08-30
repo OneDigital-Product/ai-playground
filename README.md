@@ -1,58 +1,60 @@
-# Turborepo Tailwind CSS starter
+# Monorepo Overview
 
-This Turborepo starter is maintained by the Turborepo core team.
+Product apps and shared packages managed with Turborepo and pnpm workspaces. All apps use Next.js (App Router) and TypeScript.
 
-## Using this example
+## Folder Structure
 
-Run the following command:
-
-```sh
-npx create-turbo@latest -e with-tailwind
+```
+.
+├─ apps/
+│  ├─ web/            Next.js app for end users (App Router)
+│  ├─ admin/          Next.js admin app (App Router)
+│  ├─ docs/           Next.js docs site (App Router)
+│  └─ host/           @product/host gateway/proxy (Next.js)
+│
+├─ packages/
+│  ├─ ui/             Shared React UI (shadcn/ui style, Tailwind v4, ui- prefix)
+│  ├─ eslint-config/  Shared ESLint config
+│  ├─ tailwind-config/Shared Tailwind v4 config
+│  └─ typescript-config/ Shared tsconfig presets
+│
+├─ scripts/           Dev helpers (e.g., dev-proxy.sh)
+├─ turbo.json         Turborepo task pipeline
+├─ pnpm-workspace.yaml Workspace package globs
+└─ README.md          You are here
 ```
 
-## What's inside?
+Notes
+- UI components live in `packages/ui` and are consumed via `transpilePackages`. Tailwind v4 runs with a `ui-` class prefix to avoid collisions.
+- Run all apps with `pnpm dev` or filter per app with `pnpm --filter <name> dev`.
 
-This Turborepo includes the following packages/apps:
+## How `apps/host` Works (Gateway)
 
-### Apps and Packages
+`apps/host` is a lightweight Next.js gateway that owns the primary domain and proxies to child apps. It keeps the top-level routes stable while apps can be deployed independently.
 
-- `docs`: a [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `web`: another [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `ui`: a stub React component library with [Tailwind CSS](https://tailwindcss.com/) shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Routing behavior (see `apps/host/next.config.ts`):
+- Redirects: in production, `/` → `/app`.
+- Rewrites:
+  - `/app/*` → `WEB_ORIGIN/app/*`
+  - `/admin/*` → `ADMIN_ORIGIN/admin/*`
+  - `/reporting/*` → `REPORTING_ORIGIN/*`
+- Health check: `GET /healthz` returns `{ ok: true }`.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+Environment variables (set in `apps/host/.env` or dashboard):
 
-### Building packages/ui
-
-This example is set up to produce compiled styles for `ui` components into the `dist` directory. The component `.tsx` files are consumed by the Next.js apps directly using `transpilePackages` in `next.config.ts`. This was chosen for several reasons:
-
-- Make sharing one `tailwind.config.ts` to apps and packages as easy as possible.
-- Make package compilation simple by only depending on the Next.js Compiler and `tailwindcss`.
-- Ensure Tailwind classes do not overwrite each other. The `ui` package uses a `ui-` prefix for it's classes.
-- Maintain clear package export boundaries.
-
-Another option is to consume `packages/ui` directly from source without building. If using this option, you will need to update the `tailwind.config.ts` in your apps to be aware of your package locations, so it can find all usages of the `tailwindcss` class names for CSS compilation.
-
-For example, in [tailwind.config.ts](packages/tailwind-config/tailwind.config.ts):
-
-```js
-  content: [
-    // app content
-    `src/**/*.{js,ts,jsx,tsx}`,
-    // include packages if not transpiling
-    "../../packages/ui/*.{js,ts,jsx,tsx}",
-  ],
+```
+WEB_ORIGIN=https://web-<id>.vercel.app      # or http://localhost:3001
+ADMIN_ORIGIN=https://admin-<id>.vercel.app   # or http://localhost:3002
+REPORTING_ORIGIN=https://aks.example.com     # or http://localhost:4000
 ```
 
-If you choose this strategy, you can remove the `tailwindcss` and `autoprefixer` dependencies from the `ui` package.
+Local development
+- Full proxy setup: `pnpm dev:proxy` starts `web:3001`, `admin:3002`, `host:3000`.
+- Host only: `pnpm --filter @product/host dev` (expects env vars above).
+- Test at `http://localhost:3000`: `/app`, `/admin`, `/reporting`, `/healthz`.
 
-### Utilities
+Deployment tips
+- Root Directory: `apps/host`. Configure `WEB_ORIGIN`, `ADMIN_ORIGIN`, and `REPORTING_ORIGIN` in your hosting environment.
+- No basePath. Rewrites are origin-driven, which supports preview deploys.
 
-This Turborepo has some additional tools already setup for you:
-
-- [Tailwind CSS](https://tailwindcss.com/) for styles
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+For additional details, see `apps/host/README.md`.
