@@ -1,8 +1,17 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "builds": [
-    { "src": "apps/web/package.json", "use": "@vercel/next" }
+    { "src": "apps/web/package.json", "use": "@vercel/next" },
+    { "src": "apps/admin/package.json", "use": "@vercel/next" },
+    { "src": "apps/docs/package.json", "use": "@vercel/next" }
   ],
   "routes": [
+    { "src": "/admin", "dest": "apps/admin" },
+    { "src": "/admin/(.*)", "dest": "apps/admin/$1" },
+
+    { "src": "/docs", "dest": "apps/docs" },
+    { "src": "/docs/(.*)", "dest": "apps/docs/$1" },
+
     { "src": "/(.*)", "dest": "apps/web/$1" }
   ]
 }
