@@ -1,8 +1,6 @@
 {
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter web build",
   "builds": [
-    { "src": "apps/web/next.config.ts", "use": "@vercel/next" }
+    { "src": "apps/web/package.json", "use": "@vercel/next" }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "apps/web/$1" }
