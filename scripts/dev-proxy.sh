@@ -25,8 +25,16 @@ EOF
 fi
 
 cleanup() {
-  echo "\nShutting down dev processes..."
-  jobs -p | xargs -r kill || true
+  echo
+  echo "Shutting down dev processes..."
+  # Kill any started child processes (portable, no GNU xargs)
+  local pids=()
+  [[ -n "${WEB_PID-}" ]] && pids+=("$WEB_PID")
+  [[ -n "${ADMIN_PID-}" ]] && pids+=("$ADMIN_PID")
+  [[ -n "${HOST_PID-}" ]] && pids+=("$HOST_PID")
+  if [ "${#pids[@]}" -gt 0 ]; then
+    kill "${pids[@]}" 2>/dev/null || true
+  fi
 }
 trap cleanup EXIT INT TERM
 
@@ -46,8 +54,15 @@ echo "Starting host gateway on :3000"
 pnpm $PNPM_FILTER @product/host dev &
 HOST_PID=$!
 
-# Wait until any process exits
-wait -n "$WEB_PID" "$ADMIN_PID" "$HOST_PID" || true
+# Wait until any process exits (portable alternative to 'wait -n')
+while :; do
+  for pid in "$WEB_PID" "$ADMIN_PID" "$HOST_PID"; do
+    if ! kill -0 "$pid" 2>/dev/null; then
+      break 2
+    fi
+  done
+  sleep 1
+done
 
 echo "One process exited; terminating others..."
 exit 0
