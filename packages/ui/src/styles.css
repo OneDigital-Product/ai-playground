@@ -1,2 +1,3 @@
-/* Component-level styles for the UI package */
-@import "tailwindcss" prefix(ui);
+/* Shared UI styles; rely on workspace tailwind config */
+@import "tailwindcss";
+@import "@repo/tailwind-config";
