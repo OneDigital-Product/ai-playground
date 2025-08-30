@@ -113,6 +113,40 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
+  apps/host:
+    dependencies:
+      next:
+        specifier: 15.5.2
+        version: 15.5.2(react-dom@19.1.0)(react@19.1.0)
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: 19.1.0
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3
+        version: 3.3.1
+      '@types/node':
+        specifier: ^20
+        version: 20.19.11
+      '@types/react':
+        specifier: ^19
+        version: 19.1.0
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.1.1(@types/react@19.1.0)
+      eslint:
+        specifier: ^9
+        version: 9.33.0
+      eslint-config-next:
+        specifier: 15.5.2
+        version: 15.5.2(eslint@9.33.0)(typescript@5.9.2)
+      typescript:
+        specifier: ^5
+        version: 5.9.2
+
   apps/web:
     dependencies:
       '@repo/ui':
