@@ -10,7 +10,8 @@ function ConvexDemoInner() {
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
-      sendMessage({ body: newMessage.trim() });
+      // Provide a default author to satisfy backend validation
+      sendMessage({ body: newMessage.trim(), author: "anonymous" });
       setNewMessage("");
     }
   };

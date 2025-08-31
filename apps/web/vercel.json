@@ -1,4 +1,8 @@
 {
   "ignoreCommand": "node ../../scripts/turbo-ignore.js",
-  "buildCommand": "npx convex deploy --cmd 'pnpm build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL"
+  "buildCommand": "npx convex deploy --cmd 'pnpm build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL",
+  "rewrites": [
+    { "source": "/app", "destination": "/" },
+    { "source": "/app/(.*)", "destination": "/$1" }
+  ]
 }
