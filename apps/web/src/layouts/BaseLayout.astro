@@ -17,7 +17,9 @@ const { title = "Web App", description = "Web application" } = Astro.props as Pr
     <meta property="og:description" content={description} />
     <meta name="twitter:card" content="summary" />
     <link rel="icon" type="image/svg+xml" href="/app/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" href="/app/rss.xml" />
     <title>{title}</title>
+    <slot name="head" />
   </head>
   <body>
     <slot />

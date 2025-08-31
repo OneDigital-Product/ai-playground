@@ -11,7 +11,9 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
+    "@astrojs/mdx": "^4.3.4",
     "@astrojs/react": "^4.3.0",
+    "@astrojs/rss": "^4.0.12",
     "@repo/backend": "workspace:^",
     "@repo/ui": "workspace:*",
     "astro": "^5.13.5",

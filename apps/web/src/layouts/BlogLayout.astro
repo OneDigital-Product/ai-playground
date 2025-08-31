@@ -1,0 +1,19 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props as Props;
+---
+
+<BaseLayout {title} {description}>
+  <main class="mx-auto max-w-3xl p-6 prose">
+    <slot />
+  </main>
+  <!-- Forward head slot so pages can inject meta tags -->
+  <slot name="head" slot="head" />
+</BaseLayout>
+
