@@ -30,7 +30,10 @@ yarn-error.log*
 .env.production.local
 
 # turbo
-.turbo
+.turbo/cache
+.turbo/cookies
+.turbo/daemon
+.turbo/preferences
 
 # ui
 dist/

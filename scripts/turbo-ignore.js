@@ -86,6 +86,67 @@ function gitQuiet(args, opts = {}) {
   return { status: res.status ?? res.signal ?? 1, stdout: res.stdout || '', stderr: res.stderr || '' };
 }
 
+function shouldTriggerForLockfileChanges(root, appPkg) {
+  try {
+    // Get all dependencies for this app
+    const allDeps = new Set([
+      ...Object.keys(appPkg.dependencies || {}),
+      ...Object.keys(appPkg.devDependencies || {}),
+      ...Object.keys(appPkg.peerDependencies || {})
+    ]);
+
+    if (allDeps.size === 0) {
+      return false; // No deps = no lockfile concerns
+    }
+
+    // Get the lockfile diff
+    const lockfileDiff = gitQuiet(['diff', 'HEAD^', 'HEAD', 'pnpm-lock.yaml'], { cwd: root });
+    
+    if (lockfileDiff.status !== 0 || !lockfileDiff.stdout) {
+      // No lockfile changes or can't read diff
+      return false;
+    }
+
+    const diffContent = lockfileDiff.stdout;
+    
+    // First, check if this app's specific section in the lockfile changed
+    const appRelativeDir = path.relative(root, path.dirname(path.join(root, appPkg.name === 'web' ? 'apps/web' : 
+      appPkg.name === 'docs' ? 'apps/docs' : 
+      appPkg.name === 'admin' ? 'apps/admin' : 
+      appPkg.name === '@product/host' ? 'apps/host' : 'unknown')));
+    
+    // Look for changes in this specific app's lockfile section
+    if (diffContent.includes(`${appRelativeDir}:`)) {
+      log(`≫ lockfile change in app-specific section: ${appRelativeDir}`);
+      return true;
+    }
+    
+    // Also check for changes to shared workspace dependencies that this app uses
+    for (const dep of allDeps) {
+      if (dep.startsWith('@repo/') || dep.startsWith('workspace:')) {
+        const patterns = [
+          `"${dep}":`,           // Direct dependency entry
+          `/${dep}@`,            // Package reference
+          `/${dep}/`,            // Package path
+          `'${dep}':`,           // Alternative quote style
+          ` ${dep}@`,            // Version reference
+        ];
+        
+        if (patterns.some(pattern => diffContent.includes(pattern))) {
+          log(`≫ lockfile change affects workspace dependency: ${dep}`);
+          return true;
+        }
+      }
+    }
+
+    return false;
+  } catch (e) {
+    // Fail safe: if we can't analyze, assume it affects this app
+    log(`≫ lockfile analysis failed (${e.message}), assuming affected`);
+    return true;
+  }
+}
+
 (function main() {
   try {
     const root = repoRoot();
@@ -104,10 +165,15 @@ function gitQuiet(args, opts = {}) {
       paths.push(rel);
     }
 
-    // Also include core files that should trigger rebuilds for all apps
-    ['pnpm-lock.yaml', 'turbo.json'].forEach((f) => {
-      if (existsSync(path.join(root, f))) paths.push(f);
-    });
+    // Include turbo.json as it affects all apps, but handle pnpm-lock.yaml smartly
+    if (existsSync(path.join(root, 'turbo.json'))) {
+      paths.push('turbo.json');
+    }
+    
+    // Smart lockfile analysis: only include if changes affect this app's dependencies
+    if (existsSync(path.join(root, 'pnpm-lock.yaml')) && shouldTriggerForLockfileChanges(root, pkg)) {
+      paths.push('pnpm-lock.yaml');
+    }
 
     log(`≫ turbo-ignore (zero-download): checking paths -> ${paths.join(', ')}`);
 
