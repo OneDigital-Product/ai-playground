@@ -29,11 +29,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# turbo
-.turbo/cache
-.turbo/cookies
-.turbo/daemon
-.turbo/preferences
+# turbo - ignore all generated files and cache, but keep config
+.turbo/
+!.turbo/config.json
 
 # ui
 dist/
