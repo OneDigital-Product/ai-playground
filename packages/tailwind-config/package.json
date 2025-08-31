@@ -5,7 +5,8 @@
   "private": true,
   "exports": {
     ".": "./shared-styles.css",
-    "./postcss": "./postcss.config.js"
+    "./postcss": "./postcss.config.js",
+    "./postcss.config.js": "./postcss.config.js"
   },
   "dependencies": {
     "tw-animate-css": "^1.3.5"

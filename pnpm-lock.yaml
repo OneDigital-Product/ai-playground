@@ -210,6 +210,9 @@ importers:
       eslint:
         specifier: ^9
         version: 9.33.0
+      tailwindcss:
+        specifier: ^4.1.5
+        version: 4.1.5
       typescript:
         specifier: ^5
         version: 5.9.2
