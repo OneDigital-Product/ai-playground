@@ -1,17 +1,21 @@
 ---
 export interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title = "Web App" } = Astro.props;
+const { title = "Web App", description = "Web application" } = Astro.props as Props;
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Web application" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
     <link rel="icon" type="image/svg+xml" href="/app/favicon.svg" />
     <title>{title}</title>
   </head>
