@@ -1,5 +1,5 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogLayout from "../../layouts/BlogLayout.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
@@ -19,40 +19,54 @@ if (!entry) {
   Astro.response.status = 404;
 }
 
+const sorted = [...allPosts].sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+const index = sorted.findIndex((p) => p.slug === slug);
+const prevPost = index > 0 ? sorted[index - 1] : undefined; // newer
+const nextPost = index >= 0 && index < sorted.length - 1 ? sorted[index + 1] : undefined; // older
+
 const { title, description, pubDate, updatedDate, tags = [] } = entry?.data ?? {};
 const canonical = `/app/blog/${slug}`;
 const rendered = entry ? await entry.render() : null;
 ---
 
-<BaseLayout title={entry ? `${title} — Blog` : "Post not found"} description={description}>
-  <main class="mx-auto max-w-3xl p-6">
-    {entry ? (
-      <article class="max-w-none">
-        <header class="mb-6">
-          <h1 class="text-3xl font-bold mb-2">{title}</h1>
-          <p class="text-sm text-neutral-500">
-            {new Date(pubDate).toLocaleDateString()}
-            {updatedDate ? ` · Updated ${new Date(updatedDate).toLocaleDateString()}` : ""}
-          </p>
-          {tags.length > 0 && (
-            <ul class="mt-2 flex flex-wrap gap-2 text-xs text-neutral-600">
-              {tags.map((t) => (
-                <li class="rounded-full bg-neutral-100 px-2 py-1">{t}</li>
-              ))}
-            </ul>
-          )}
-        </header>
+<BlogLayout title={entry ? `${title} — Blog` : "Post not found"} description={description}>
+  {entry ? (
+    <article class="max-w-none">
+      <header class="mb-6">
+        <h1 class="text-3xl font-bold mb-2">{title}</h1>
+        <p class="text-sm text-neutral-500">
+          {new Date(pubDate).toLocaleDateString()}
+          {updatedDate ? ` · Updated ${new Date(updatedDate).toLocaleDateString()}` : ""}
+        </p>
+        {tags.length > 0 && (
+          <ul class="mt-2 flex flex-wrap gap-2 text-xs text-neutral-600">
+            {tags.map((t) => (
+              <li class="rounded-full bg-neutral-100 px-2 py-1">{t}</li>
+            ))}
+          </ul>
+        )}
+      </header>
 
-        {rendered && <rendered.Content />}
-      </article>
-    ) : (
-      <section>
-        <h1 class="text-2xl font-semibold mb-2">Post not found</h1>
-        <p class="mb-4">We couldn't find that blog post. It may have been moved or deleted.</p>
-        <a class="text-blue-600 hover:underline" href="/app">Go back home</a>
-      </section>
-    )}
-  </main>
+      {rendered && <rendered.Content />}
+
+      <nav class="mt-8 flex items-center justify-between">
+        {prevPost ? (
+          <a href={`/app/blog/${prevPost.slug}`} class="text-blue-600 hover:underline">← Previous: {prevPost.data.title}</a>
+        ) : <span />}
+        {nextPost && (
+          <a href={`/app/blog/${nextPost.slug}`} class="text-blue-600 hover:underline">Next: {nextPost.data.title} →</a>
+        )}
+      </nav>
+    </article>
+  ) : (
+    <section>
+      <h1 class="text-2xl font-semibold mb-2">Post not found</h1>
+      <p class="mb-4">We couldn't find that blog post. It may have been moved or deleted.</p>
+      <a class="text-blue-600 hover:underline" href="/app">Go back home</a>
+    </section>
+  )}
 
   <head slot="head">
     <link rel="canonical" href={canonical} />
@@ -69,5 +83,5 @@ const rendered = entry ? await entry.render() : null;
       </>
     )}
   </head>
-</BaseLayout>
+</BlogLayout>
 

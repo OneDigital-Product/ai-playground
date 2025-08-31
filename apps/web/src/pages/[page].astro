@@ -1,0 +1,58 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths({ paginate }) {
+  const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+    (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+  );
+  return paginate(posts, { pageSize: 6 });
+}
+
+const { page } = Astro.props;
+---
+
+<BaseLayout title="Welcome" description="Latest updates and articles">
+  <main class="mx-auto max-w-3xl p-6">
+    <section class="mb-10">
+      <h1 class="text-4xl font-bold mb-2">Welcome 👋</h1>
+      <p class="text-neutral-600">Explore our latest updates and deep dives below.</p>
+    </section>
+
+    <section aria-labelledby="blog-heading">
+      <h2 id="blog-heading" class="text-2xl font-semibold mb-4">Latest Posts</h2>
+      <ul class="space-y-6">
+        {page.data.map((post) => {
+          const { title, description, pubDate } = post.data;
+          const href = `/app/blog/${post.slug}`;
+          return (
+            <li class="border rounded-lg p-4 hover:shadow-sm transition">
+              <article>
+                <header class="mb-2">
+                  <h3 class="text-xl font-semibold"><a href={href} class="hover:underline">{title}</a></h3>
+                  <p class="text-sm text-neutral-500">{pubDate.toLocaleDateString()}</p>
+                </header>
+                <p class="text-neutral-700 mb-3">{description}</p>
+                <a href={href} class="text-blue-600 hover:underline">Read More →</a>
+              </article>
+            </li>
+          );
+        })}
+      </ul>
+
+      <nav class="flex items-center justify-between mt-8">
+        {page.url.prev ? (
+          <a href={page.url.prev} class="text-blue-600 hover:underline">← Previous</a>
+        ) : <span />}
+        {page.url.next && (
+          <a href={page.url.next} class="text-blue-600 hover:underline">Next →</a>
+        )}
+      </nav>
+    </section>
+
+    <nav class="mt-10">
+      <a href="/app/convex-demo" class="text-blue-500 hover:underline">Convex Demo</a>
+    </nav>
+  </main>
+</BaseLayout>
+
