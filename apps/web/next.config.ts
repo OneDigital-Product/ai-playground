@@ -4,7 +4,7 @@ const isPreview = process.env.VERCEL_ENV === "preview";
 
 const nextConfig: NextConfig = {
   basePath: "/app",
-  transpilePackages: ["@repo/ui"],
+  transpilePackages: ["@repo/ui", "@repo/backend"],
   async redirects() {
     return isPreview
       ? [
@@ -22,7 +22,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  transpilePackages: ["@repo/ui"],
 };
 
 export default nextConfig;

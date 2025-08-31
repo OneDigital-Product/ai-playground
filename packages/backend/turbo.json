@@ -1,0 +1,7 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "dev": { "cache": false, "persistent": true },
+    "build": { "outputs": ["convex/_generated/**"] }
+  }
+}
