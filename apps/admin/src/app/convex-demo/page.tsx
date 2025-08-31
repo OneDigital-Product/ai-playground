@@ -14,8 +14,8 @@ export default function ConvexDemo() {
     <div style={{ padding: 16 }}>
       <h1>Convex Demo (Admin)</h1>
       <ul>
-        {messages.map((m) => (
-          <li key={m._id as any}>
+        {messages.map((m: { _id: string; author: string; body: string }) => (
+          <li key={m._id}>
             <strong>{m.author}:</strong> {m.body}
           </li>
         ))}

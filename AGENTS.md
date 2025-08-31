@@ -65,6 +65,8 @@ Notes
 
 ## Coding Style & Naming Conventions
 - Language: TypeScript (strict). Indentation: 2 spaces.
+- Type safety: No `any` types. Do not use explicit `any` in apps or packages; prefer precise types, generics, `unknown`, and narrowing. The `@typescript-eslint/no-explicit-any` rule is enforced — do not disable it.
+
 - Formatting: Prettier 3 with `prettier-plugin-tailwindcss`; run `pnpm format` before PRs.
 - Linting: Shared configs in `@repo/eslint-config` with Next.js and React rules; no unused warnings in CI.
 - React/Next: React 19 + Next 15. Use functional components and hooks.
