@@ -70,6 +70,8 @@ export type IntakeCreate = {
   notesGeneral?: string;
   sectionsChangedFlags?: SectionsFlags;
   sectionsIncludedFlags?: SectionsFlags;
+  // Optional map of section descriptions keyed by A–Q
+  sectionDescriptions?: Record<string, string>;
 };
 
 export type Intake = {
@@ -140,6 +142,31 @@ export const intakeCreateSchema = z.object({
   notesGeneral: z.string().optional(),
   sectionsChangedFlags: sectionsSchema.optional(),
   sectionsIncludedFlags: sectionsSchema.optional(),
+  // Record of section descriptions keyed by section code A–Q
+  sectionDescriptions: z
+    .record(
+      z.enum([
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+      ]),
+      z.string()
+    )
+    .optional(),
 });
 
 // Section payload schema (matches database with snake_case)
