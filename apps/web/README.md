@@ -1,43 +1,77 @@
-# Astro Starter Kit: Minimal
+# Web App (Astro + React)
 
-```sh
-pnpm create astro@latest -- --template minimal
-```
+This app is the user-facing site built with Astro 5 and React 19. It consumes shared UI primitives from `@repo/ui` and the Tailwind v4 theme from `@repo/tailwind-config`.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands (scoped)
 
-## 🚀 Project Structure
+- Dev: `pnpm --filter web dev` (runs on port 3001)
+- Build: `pnpm --filter web build`
+- Preview: `pnpm --filter web preview`
+- Lint: `pnpm --filter web lint`
+- Type check: `pnpm --filter web check-types`
 
-Inside of your Astro project, you'll see the following folders and files:
+## Base Path and Routing
+
+- The site is served under `/app` (see `astro.config.mjs` `base: "/app"`).
+- Use relative links when possible; for absolute paths prefix with `/app/...`.
+- Layout references: favicon `/app/favicon.svg`, feed `/app/rss.xml` in `src/layouts/BaseLayout.astro`.
+
+## Styling and UI
+
+- Global CSS imports Tailwind v4 and the shared theme in `src/styles/global.css`:
+  - `@import "tailwindcss";`
+  - `@import "@repo/tailwind-config";`
+- PostCSS configuration is shared via `postcss.config.js` (re-exports from `@repo/tailwind-config`).
+- Use shared primitives from `@repo/ui`:
+  - Astro + React island example:
+    ```astro
+    ---
+    import { Button } from "@repo/ui/components/ui/button";
+    ---
+    <Button client:load>Click me</Button>
+    ```
+  - React island example:
+    ```tsx
+    import { Button } from "@repo/ui/components/ui/button";
+
+    export function ActionCTA() {
+      return <Button>Continue</Button>;
+    }
+    ```
+- App-specific components live in `src/components`. Promote only generic primitives to `packages/ui`.
+
+## Environment Variables
+
+- Place env files in `apps/web/.env*`. Use `apps/web/.env.local` for local-only values (do not commit).
+- `astro.config.mjs` sets `envPrefix: ["VITE_", "PUBLIC_", "NEXT_PUBLIC_"]`. Use `PUBLIC_`/`NEXT_PUBLIC_` to expose variables to the client.
+- Convex URL is provided as `NEXT_PUBLIC_CONVEX_URL` in deploys (see Vercel section below).
+
+## Vercel
+
+- `vercel.json`:
+  - `ignoreCommand`: `node ../../scripts/turbo-ignore.js` to skip unaffected builds.
+  - `rewrites` to make the app available at `/app`.
+  - `buildCommand`: `npx convex deploy --cmd 'pnpm build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL` which deploys Convex, injects `NEXT_PUBLIC_CONVEX_URL`, then runs the Astro build.
+
+## Project Structure (high-level)
 
 ```text
-/
+apps/web/
 ├── public/
 ├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+│   ├── components/
+│   ├── layouts/
+│   ├── pages/
+│   └── styles/global.css
+├── astro.config.mjs
+├── postcss.config.js
+├── package.json
+└── vercel.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Development Notes
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Prefer small React islands hydrated via `client:*` directives.
+- Keep Tailwind classes aligned with shared tokens; do not add a local Tailwind config.
+- Strict TypeScript: avoid `any`; prefer precise types or `unknown` with narrowing.
+- Run lint and type checks before PRs.

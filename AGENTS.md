@@ -5,10 +5,14 @@
 - Documentation lookups: use the Context7 MCP server whenever you need framework or library docs.
 
 ## Project Structure & Module Organization
-- `apps/`: Next.js apps — `web` (user), `admin`, `docs`, and `@product/host` (gateway/proxy). Each uses the `app/` directory.
+- `apps/`: Frontend apps —
+  - `web` (user): Astro 5 + React 19, served under base path `/app`.
+  - `admin`, `docs`, `@product/host` (gateway/proxy): Next.js 15 (App Router).
 - `packages/`: Shared code and configs — `ui` (React components), `eslint-config`, `tailwind-config`, `typescript-config`.
 - `scripts/`: Developer helpers (e.g., `scripts/dev-proxy.sh`).
 - Monorepo is managed by Turborepo and pnpm workspaces.
+
+For deeper `apps/web` guidance, see `apps/web/AGENTS.md`.
 
 ## Shared UI Components (shadcn/ui + Tailwind v4)
 
@@ -25,7 +29,8 @@ How to consume in apps
 - Components: Import from the UI package subpaths:
   - Example: `import { Button } from "@repo/ui/components/ui/button"`
   - Utilities: `import { cn } from "@repo/ui/lib/utils"`
-- Next config: Keep `transpilePackages: ["@repo/ui"]` set in each app’s `next.config.ts`.
+- Next apps: Keep `transpilePackages: ["@repo/ui", "@repo/backend"]` set in each app’s `next.config.ts`.
+- Astro app (`apps/web`): no `transpilePackages`; import components directly and include the shared CSS theme.
 
 Adding or updating components
 - Preferred source: Use the shadcn/ui MCP server to generate components.
@@ -57,7 +62,7 @@ Notes
 - Develop all: `pnpm dev` (runs `turbo run dev`).
 - Single app: `pnpm --filter web dev` (swap `web|admin|@product/host|docs`).
 - Local proxy: `pnpm dev:proxy` — starts `web:3001`, `admin:3002`, `host:3000`. Create `apps/host/.env` (see `apps/host/.env.local.example`).
-- Build: `pnpm build` (Next builds and `packages/ui` artifacts).
+- Build: `pnpm build` (Astro + Next builds and `packages/ui` artifacts).
 - Start (per app): `pnpm --filter @product/host start`.
 - Lint: `pnpm lint` (ESLint, max warnings 0 in apps).
 - Type-check: `pnpm check-types` (tsc --noEmit across packages/apps).
@@ -69,7 +74,7 @@ Notes
 
 - Formatting: Prettier 3 with `prettier-plugin-tailwindcss`; run `pnpm format` before PRs.
 - Linting: Shared configs in `@repo/eslint-config` with Next.js and React rules; no unused warnings in CI.
-- React/Next: React 19 + Next 15. Use functional components and hooks.
+- Frameworks: React 19 across apps; Next 15 for Next apps (admin/docs/host); Astro 5 for `apps/web`. Use functional components and hooks.
 - Files: `.ts/.tsx`; component files typically lowercase (e.g., `turborepo-logo.tsx`).
 - Tailwind: v4 shared theme via `@repo/tailwind-config`; no class prefix.
 
@@ -90,8 +95,10 @@ Use this concise checklist when adding new apps to keep builds fast and caching 
 
 - Vercel project setup
   - Root Directory: apps/web | apps/docs | apps/admin | apps/host
-  - Build Command: default (Turbo auto-detected)
   - Install Command: pnpm install
+  - Build Command:
+    - Next apps: default (Turbo auto-detected).
+    - Web (Astro): configured in `apps/web/vercel.json` to run Convex deploy and inject `NEXT_PUBLIC_CONVEX_URL` before `pnpm build`.
 
 - Required per-app vercel.json (skip unaffected builds)
   - In each app directory, add:
@@ -103,9 +110,13 @@ Use this concise checklist when adding new apps to keep builds fast and caching 
 }
 ```
 
+- Web app specifics (`apps/web/vercel.json`):
+  - `rewrites` to serve from `/app`.
+  - `buildCommand`: `npx convex deploy --cmd 'pnpm build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL`.
+
 - Turborepo best practices
   - package.json name matches workspace; internal deps use workspace:*
-  - turbo.json outputs: Next [".next/**", "!.next/cache/**"]; libs ["dist/**"]
+  - turbo.json outputs: Next [".next/**", "!.next/cache/**"]; Astro ["dist/**"]; libs ["dist/**"]
   - Optional: globalDependencies ["pnpm-lock.yaml", "pnpm-workspace.yaml"], globalEnv ["NODE_ENV", "VERCEL_ENV"]
 
 - Verify behavior
