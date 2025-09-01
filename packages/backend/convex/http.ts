@@ -28,7 +28,7 @@ http.route({
 
     try {
       const blob = await request.blob();
-      const result = await ctx.runAction(api.functions.uploads.uploadFile as any, {
+      const result = await ctx.runAction(api.functions.uploads.uploadFile, {
         intakeId,
         kind,
         file: blob,
@@ -64,8 +64,8 @@ http.route({
     }
     try {
       const download = await ctx.runAction(
-        api.functions.uploads.getDownloadUrl as any,
-        { uploadId: id as any }
+        api.functions.uploads.getDownloadUrl,
+        { uploadId: id as unknown as import("./_generated/dataModel").Id<"uploads"> }
       );
       if (!download?.url) {
         return new Response(JSON.stringify({ error: "File not found" }), {
@@ -102,7 +102,14 @@ http.route({
       }
     };
 
-    const filters: any = {};
+    type ExportFilters = {
+      status?: string[];
+      complexityBand?: string[];
+      requestorName?: string;
+      planYear?: number;
+      requestedProductionTime?: string[];
+    };
+    const filters: ExportFilters = {};
     const status = parseJsonArray(searchParams.get("status"));
     if (status) filters.status = status;
     const complexityBand = parseJsonArray(searchParams.get("complexityBand"));
@@ -118,14 +125,9 @@ http.route({
     );
     if (requestedProductionTime) filters.requestedProductionTime = requestedProductionTime;
 
-    const sortBy = (searchParams.get("sortBy") || "dateReceived") as any;
-    const order = (searchParams.get("order") || "desc") as any;
-
     try {
-      const csv = await ctx.runQuery(api.functions.intakes.exportCsv as any, {
+      const csv = await ctx.runQuery(api.functions.intakes.exportCsv, {
         filters: Object.keys(filters).length ? filters : undefined,
-        sortBy,
-        order,
       });
 
       const timestamp = new Date().toISOString().slice(0, 10);
@@ -148,4 +150,3 @@ http.route({
 });
 
 export default http;
-

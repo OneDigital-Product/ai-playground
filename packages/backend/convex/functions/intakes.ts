@@ -13,7 +13,8 @@ import {
   sectionsValidator,
   sectionCodeValidator
 } from "../validators/shared.js";
-import { applyFiltersAndSorting } from "./helpers/listFilters.js";
+import { applyFiltersAndSorting, type ListArgs } from "./helpers/listFilters.js";
+import type { Doc } from "../_generated/dataModel.js";
 
 // Create intake
 export const create = mutation({
@@ -94,26 +95,7 @@ export const list = query({
     // Strategy: Prefer indexed lookups when a single selective filter is present.
     // Otherwise, fallback to full scan and filter in-memory (e.g., substring filters).
 
-    let results: Array<{
-      intakeId: string;
-      clientName: string;
-      planYear: number;
-      requestorName: string;
-      payrollStorageUrl: string;
-      guideType: "Update Existing Guide" | "New Guide Build";
-      communicationsAddOns: "None" | "OE Letter" | "OE Presentation" | "Both" | "Other";
-      requestedProductionTime: "Standard" | "Rush";
-      notesGeneral?: string | undefined;
-      status: "NOT_STARTED" | "STARTED" | "ROADBLOCK" | "READY_FOR_QA" | "DELIVERED_TO_CONSULTANT";
-      sectionsChangedFlags: any;
-      sectionsIncludedFlags: any;
-      complexityScore: number;
-      complexityBand: "Minimal" | "Low" | "Medium" | "High";
-      dateReceived: string;
-      createdAt: string;
-      updatedAt: string;
-      _id: any;
-    }> = [];
+    let results: Array<Doc<"intakes">> = [];
 
     // Helper to de-duplicate by _id when unioning queries
     const dedupeById = (arr: typeof results) => {
@@ -129,12 +111,12 @@ export const list = query({
     if (hasSingle(args.status)) {
       results = await ctx.db
         .query("intakes")
-        .withIndex("by_status", (q) => q.eq("status", args.status![0] as any))
+        .withIndex("by_status", (q) => q.eq("status", args.status![0]!))
         .collect();
     } else if (hasSingle(args.complexityBand)) {
       results = await ctx.db
         .query("intakes")
-        .withIndex("by_complexityBand", (q) => q.eq("complexityBand", args.complexityBand![0] as any))
+        .withIndex("by_complexityBand", (q) => q.eq("complexityBand", args.complexityBand![0]!))
         .collect();
     } else if (typeof args.planYear === "number") {
       results = await ctx.db
@@ -149,10 +131,10 @@ export const list = query({
     // 2) If multiple values provided for an indexed field, union queries for each value
     if (hasMany(args.status)) {
       let union: typeof results = [];
-      for (const s of args.status as string[]) {
+      for (const s of args.status as NonNullable<typeof args.status>) {
         const chunk = await ctx.db
           .query("intakes")
-          .withIndex("by_status", (q) => q.eq("status", s as any))
+          .withIndex("by_status", (q) => q.eq("status", s))
           .collect();
         union = union.concat(chunk);
       }
@@ -160,10 +142,10 @@ export const list = query({
     }
     if (hasMany(args.complexityBand)) {
       let union: typeof results = [];
-      for (const b of args.complexityBand as string[]) {
+      for (const b of args.complexityBand as NonNullable<typeof args.complexityBand>) {
         const chunk = await ctx.db
           .query("intakes")
-          .withIndex("by_complexityBand", (q) => q.eq("complexityBand", b as any))
+          .withIndex("by_complexityBand", (q) => q.eq("complexityBand", b))
           .collect();
         union = union.concat(chunk);
       }
@@ -171,7 +153,7 @@ export const list = query({
     }
 
     // 3) Apply remaining filters (and re-apply indexable ones for conjunction), then sort
-    return applyFiltersAndSorting(results as any, args as any) as any;
+    return applyFiltersAndSorting(results, args as unknown as ListArgs);
   },
 });
 
@@ -476,7 +458,7 @@ export const exportCsv = query({
     // Sort
     const sortBy = args.sortBy || "dateReceived";
     const order = args.order || "desc";
-    intakes = sortForExport(intakes as any, sortBy as any, order as any) as any;
+    intakes = sortForExport(intakes, sortBy, order);
 
     // CSV header and rows
     const headers = [

@@ -41,14 +41,14 @@ export default function DashboardPage() {
   // Fetch data
   const stats = useQuery(api.functions.intakes.stats, {});
   const intakes = useQuery(api.functions.intakes.list, {
-    status: filters.status.length ? (filters.status as any) : undefined,
-    complexityBand: filters.complexityBand.length ? (filters.complexityBand as any) : undefined,
+    status: filters.status.length ? filters.status : undefined,
+    complexityBand: filters.complexityBand.length ? filters.complexityBand : undefined,
     requestorName: filters.requestorName || undefined,
     planYear: filters.planYear,
-    requestedProductionTime: filters.requestedProductionTime.length ? (filters.requestedProductionTime as any) : undefined,
+    requestedProductionTime: filters.requestedProductionTime.length ? filters.requestedProductionTime : undefined,
     sortBy: sortField,
     order: sortOrder,
-  } as any);
+  });
 
   const handleFiltersChange = useCallback((newFilters: FiltersType) => {
     setFilters(newFilters);

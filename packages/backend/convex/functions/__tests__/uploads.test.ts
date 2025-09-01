@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { test } from "node:test";
 import assert from "node:assert";
 import {
@@ -35,10 +34,10 @@ test("validateUploadInput accepts allowed types under limit", () => {
 });
 
 test("performDeleteWithMocks calls storage.delete and remover with correct args", async () => {
-  const calls: any[] = [];
-  const storage = { delete: async (key: string) => calls.push(["delete", key]) };
-  const remover = async (args: any) => calls.push(["remove", args]);
-  const upload = { storedKey: "storage:abc123", _id: "upload123" };
+  const calls: Array<["delete" | "remove", unknown]> = [];
+  const storage = { delete: async (key: string) => { calls.push(["delete", key]); } };
+  const remover = async (args: { uploadId: string }) => { calls.push(["remove", args]); };
+  const upload: { storedKey: string; _id: string } = { storedKey: "storage:abc123", _id: "upload123" };
 
   await performDeleteWithMocks(storage, remover, upload);
 
@@ -47,4 +46,3 @@ test("performDeleteWithMocks calls storage.delete and remover with correct args"
     ["remove", { uploadId: "upload123" }],
   ]);
 });
-

@@ -65,23 +65,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get sort parameters
-    const sortBy = (searchParams.get('sortBy') || 'dateReceived') as
-      | 'clientName'
-      | 'requestorName'
-      | 'guideType'
-      | 'communicationsAddOns'
-      | 'complexityBand'
-      | 'dateReceived'
-      | 'status'
-      | 'requestedProductionTime';
-    const order = (searchParams.get('order') || 'desc') as 'asc' | 'desc';
-
     // Fetch CSV string from Convex (server handles filters and sorting)
     const csvContent = await fetchQuery(api.functions.intakes.exportCsv, {
       filters: Object.keys(filters).length > 0 ? filters : undefined,
-      sortBy,
-      order,
     });
 
     // Generate filename with timestamp

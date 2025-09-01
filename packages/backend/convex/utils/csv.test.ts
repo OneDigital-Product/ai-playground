@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { test } from "node:test";
 import assert from "node:assert";
 import { escapeCsv, sortForExport } from "./csv.js";
@@ -36,4 +35,3 @@ test("sortForExport - case-insensitive string sorting", () => {
   const desc = sortForExport(items, "clientName", "desc");
   assert.deepStrictEqual(desc.map((i) => i.clientName), ["gamma", "beta", "Alpha"]);
 });
-

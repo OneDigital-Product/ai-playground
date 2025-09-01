@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateIntakeCreate } from "@/lib/schemas";
+import { validateIntakeCreate, type IntakeCreate, type SectionsFlags } from "@/lib/schemas";
 import { ConvexHttpClient } from "convex/browser";
 import type { FunctionReference } from "convex/server";
 import { api } from "@repo/backend/convex/_generated/api";
@@ -19,9 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(validation.error, { status: 400 });
     }
 
-    const data = validation.data as typeof validation.data & {
-      sectionDescriptions?: Record<string, string>;
-    };
+    const data = validation.data;
 
     // Additional validation for requestor name
     if (!REQUESTOR_NAMES.includes(data.requestorName as RequestorName)) {
@@ -37,17 +35,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Create intake via Convex
-    const { sectionDescriptions = {}, ...intakeArgs } = data;
+    const { sectionDescriptions = {}, ...rest } = data;
+    const intakeArgs: Omit<IntakeCreate, "sectionDescriptions"> = rest;
 
     const createResult = await convex.mutation(
       api.functions.intakes.create as FunctionReference<"mutation">,
-      intakeArgs as any
+      intakeArgs
     );
 
     // Create initial sections if marked changed and have descriptions
-    const changedFlags = (intakeArgs as any).sectionsChangedFlags as
-      | Record<string, boolean>
-      | undefined;
+    const changedFlags: SectionsFlags | undefined =
+      intakeArgs.sectionsChangedFlags;
 
     if (changedFlags) {
       const sections = Object.entries(changedFlags)

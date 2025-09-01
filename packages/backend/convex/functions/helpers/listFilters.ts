@@ -1,5 +1,3 @@
-import { v } from "convex/values";
-
 export type ListArgs = {
   status?: string[];
   complexityBand?: string[];
@@ -18,7 +16,16 @@ export type ListArgs = {
   order?: "asc" | "desc";
 };
 
-export type IntakeItem = Record<string, any>;
+export type IntakeItem = {
+  status?: string;
+  complexityBand?: string;
+  requestorName: string;
+  planYear: number;
+  requestedProductionTime?: string;
+  dateReceived: string;
+  // Allow access by dynamic sort keys
+  [key: string]: unknown;
+};
 
 export function applyFiltersAndSorting<T extends IntakeItem>(
   items: T[],
@@ -50,8 +57,10 @@ export function applyFiltersAndSorting<T extends IntakeItem>(
   const sortBy = args.sortBy || "dateReceived";
   const order = args.order || "desc";
   results.sort((a, b) => {
-    let aVal: string | number = a[sortBy as keyof T] as any;
-    let bVal: string | number = b[sortBy as keyof T] as any;
+    const aValUnknown: unknown = a[sortBy as keyof T] as unknown;
+    const bValUnknown: unknown = b[sortBy as keyof T] as unknown;
+    let aVal: string | number = typeof aValUnknown === "number" ? aValUnknown : String(aValUnknown ?? "");
+    let bVal: string | number = typeof bValUnknown === "number" ? bValUnknown : String(bValUnknown ?? "");
 
     if (sortBy === "dateReceived") {
       aVal = new Date(aVal as string).getTime();
@@ -69,4 +78,3 @@ export function applyFiltersAndSorting<T extends IntakeItem>(
 
   return results;
 }
-

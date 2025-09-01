@@ -16,14 +16,16 @@ export function escapeCsv(value: string | number | null | undefined): string {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-export function sortForExport<T extends Record<string, any>>(
+export function sortForExport<T extends Record<string, unknown>>(
   items: T[],
   sortBy: SortField,
   order: SortOrder
 ): T[] {
   return [...items].sort((a, b) => {
-    let aVal: string | number = a[sortBy as keyof T] as any;
-    let bVal: string | number = b[sortBy as keyof T] as any;
+    const aRaw = a[sortBy as keyof T] as unknown;
+    const bRaw = b[sortBy as keyof T] as unknown;
+    let aVal: string | number = typeof aRaw === "number" ? aRaw : String(aRaw ?? "");
+    let bVal: string | number = typeof bRaw === "number" ? bRaw : String(bRaw ?? "");
 
     if (sortBy === "dateReceived") {
       aVal = new Date(aVal as string).getTime();
@@ -39,4 +41,3 @@ export function sortForExport<T extends Record<string, any>>(
     return order === "asc" ? cmp : -cmp;
   });
 }
-

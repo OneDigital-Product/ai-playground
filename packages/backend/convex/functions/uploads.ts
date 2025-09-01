@@ -37,9 +37,9 @@ export function validateUploadInput(file: { size: number; type: string }) {
 
 // Test helper to simulate delete without Convex ctx
 export async function performDeleteWithMocks(
-  storage: { delete: (key: string) => Promise<any> | any },
-  remover: (args: { uploadId: any }) => Promise<any> | any,
-  upload: { storedKey: string; _id: any }
+  storage: { delete: (key: string) => Promise<void> | void },
+  remover: (args: { uploadId: string }) => Promise<void> | void,
+  upload: { storedKey: string; _id: string }
 ) {
   await storage.delete(upload.storedKey);
   await remover({ uploadId: upload._id });
@@ -50,7 +50,7 @@ export const uploadFile = action({
   args: {
     intakeId: v.string(),
     kind: uploadKindValidator,
-    file: v.any(), // File blob
+    file: v.any(), // File blob (Blob)
   },
   handler: async (ctx, args) => {
     const { file, intakeId, kind } = args;

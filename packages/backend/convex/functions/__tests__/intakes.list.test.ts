@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { test } from "node:test";
 import assert from "node:assert";
 import { applyFiltersAndSorting } from "../helpers/listFilters.js";
@@ -70,4 +69,3 @@ test("sorting: clientName asc and dateReceived desc", () => {
   const byDateDesc = applyFiltersAndSorting(sample, { sortBy: "dateReceived", order: "desc" });
   assert.deepStrictEqual(byDateDesc.map((i) => i.intakeId), ["EG-2025-CCCC", "EG-2025-BBBB", "EG-2025-AAAA"]);
 });
-
