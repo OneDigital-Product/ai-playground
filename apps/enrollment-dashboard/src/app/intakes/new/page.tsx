@@ -1,6 +1,6 @@
 import { Button } from "@repo/ui/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import Link from "next/link";
+import { IntakeForm } from "@/components/intake-form";
 
 export default function NewIntakePage() {
   return (
@@ -17,16 +17,7 @@ export default function NewIntakePage() {
         </Button>
       </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Intake Request Form</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Intake form will be implemented in the next phase.
-          </p>
-        </CardContent>
-      </Card>
+      <IntakeForm />
     </main>
   );
 }
