@@ -13,6 +13,7 @@ import {
   sectionsValidator,
   sectionCodeValidator
 } from "../validators/shared.js";
+import { applyFiltersAndSorting } from "./helpers/listFilters.js";
 
 // Create intake
 export const create = mutation({
@@ -169,44 +170,8 @@ export const list = query({
       results = dedupeById(union);
     }
 
-    // 3) Apply remaining non-indexable filters
-    if (args.requestorName) {
-      const needle = args.requestorName.toLowerCase();
-      results = results.filter((intake) =>
-        intake.requestorName.toLowerCase().includes(needle)
-      );
-    }
-
-    if (args.requestedProductionTime && args.requestedProductionTime.length > 0) {
-      const set = new Set(args.requestedProductionTime);
-      results = results.filter((intake) => set.has(intake.requestedProductionTime));
-    }
-
-    // 4) Apply sorting
-    const sortBy = args.sortBy || "dateReceived";
-    const order = args.order || "desc";
-
-    results.sort((a, b) => {
-      let aVal: string | number = a[sortBy as keyof typeof a] as string | number;
-      let bVal: string | number = b[sortBy as keyof typeof b] as string | number;
-
-      // Handle date fields explicitly
-      if (sortBy === "dateReceived") {
-        aVal = new Date(aVal as string).getTime();
-        bVal = new Date(bVal as string).getTime();
-      } else {
-        if (typeof aVal === "string") aVal = aVal.toLowerCase();
-        if (typeof bVal === "string") bVal = bVal.toLowerCase();
-      }
-
-      let comparison = 0;
-      if (aVal < bVal) comparison = -1;
-      if (aVal > bVal) comparison = 1;
-
-      return order === "asc" ? comparison : -comparison;
-    });
-
-    return results;
+    // 3) Apply remaining filters (and re-apply indexable ones for conjunction), then sort
+    return applyFiltersAndSorting(results as any, args as any) as any;
   },
 });
 
