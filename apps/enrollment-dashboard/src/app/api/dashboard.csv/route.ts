@@ -3,77 +3,6 @@ import { fetchQuery } from 'convex/nextjs';
 import { api } from '@repo/backend/convex/_generated/api';
 import { Status, ComplexityBand, ProductionTime } from '../../../lib/schemas';
 
-// CSV column headers matching Express app
-const CSV_HEADERS = [
-  'Intake ID',
-  'Client Name', 
-  'Plan Year',
-  'Requestor Name',
-  'Status',
-  'Complexity Band',
-  'Complexity Score',
-  'Guide Type',
-  'Communications Add-ons',
-  'Requested Production Time',
-  'Date Received',
-  'Payroll Storage URL',
-  'General Notes'
-];
-
-// Escape CSV field value
-function escapeCsvField(value: string | number | null | undefined): string {
-  if (value === null || value === undefined) {
-    return '';
-  }
-  
-  const stringValue = String(value);
-  
-  // If the field contains comma, quote, or newline, wrap in quotes and escape quotes
-  if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-    return `"${stringValue.replace(/"/g, '""')}"`;
-  }
-  
-  return stringValue;
-}
-
-// Type for intake data from Convex export
-interface IntakeExportData {
-  intakeId: string;
-  clientName: string;
-  planYear: number;
-  requestorName: string;
-  status: string;
-  complexityBand: string;
-  complexityScore: number;
-  guideType: string;
-  communicationsAddOns: string;
-  requestedProductionTime: string;
-  dateReceived: string;
-  payrollStorageUrl: string;
-  notesGeneral: string;
-}
-
-// Convert intake data to CSV row
-function intakeToCSVRow(intake: IntakeExportData): string {
-  const fields = [
-    intake.intakeId,
-    intake.clientName,
-    intake.planYear,
-    intake.requestorName,
-    intake.status,
-    intake.complexityBand,
-    intake.complexityScore,
-    intake.guideType,
-    intake.communicationsAddOns,
-    intake.requestedProductionTime,
-    new Date(intake.dateReceived).toLocaleDateString('en-US'),
-    intake.payrollStorageUrl,
-    intake.notesGeneral || ''
-  ];
-  
-  return fields.map(escapeCsvField).join(',');
-}
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -137,45 +66,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Get sort parameters
-    const sortBy = searchParams.get('sortBy') || 'dateReceived';
-    const order = searchParams.get('order') || 'desc';
+    const sortBy = (searchParams.get('sortBy') || 'dateReceived') as
+      | 'clientName'
+      | 'requestorName'
+      | 'guideType'
+      | 'communicationsAddOns'
+      | 'complexityBand'
+      | 'dateReceived'
+      | 'status'
+      | 'requestedProductionTime';
+    const order = (searchParams.get('order') || 'desc') as 'asc' | 'desc';
 
-    // Fetch filtered data from Convex
-    const csvData = await fetchQuery(api.functions.intakes.exportCsv, {
-      filters: Object.keys(filters).length > 0 ? filters : undefined
+    // Fetch CSV string from Convex (server handles filters and sorting)
+    const csvContent = await fetchQuery(api.functions.intakes.exportCsv, {
+      filters: Object.keys(filters).length > 0 ? filters : undefined,
+      sortBy,
+      order,
     });
-
-    // Apply sorting (since exportCsv doesn't sort)
-    if (csvData && csvData.length > 0) {
-      csvData.sort((a: IntakeExportData, b: IntakeExportData) => {
-        let aVal: string | number = a[sortBy as keyof IntakeExportData] as string | number;
-        let bVal: string | number = b[sortBy as keyof IntakeExportData] as string | number;
-        
-        // Handle date fields
-        if (sortBy === 'dateReceived') {
-          aVal = new Date(aVal as string).getTime();
-          bVal = new Date(bVal as string).getTime();
-        } else if (typeof aVal === 'string') {
-          aVal = aVal.toLowerCase();
-        }
-        
-        if (typeof bVal === 'string' && sortBy !== 'dateReceived') {
-          bVal = bVal.toLowerCase();
-        }
-
-        let comparison = 0;
-        if (aVal < bVal) comparison = -1;
-        if (aVal > bVal) comparison = 1;
-
-        return order === 'asc' ? comparison : -comparison;
-      });
-    }
-
-    // Build CSV content
-    const csvContent = [
-      CSV_HEADERS.join(','),
-      ...(csvData || []).map(intakeToCSVRow)
-    ].join('\n');
 
     // Generate filename with timestamp
     const timestamp = new Date().toISOString().slice(0, 10);

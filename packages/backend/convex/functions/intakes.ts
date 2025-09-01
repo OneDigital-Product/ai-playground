@@ -469,55 +469,106 @@ export const exportCsv = query({
       planYear: v.optional(v.number()),
       requestedProductionTime: v.optional(v.array(v.string())),
     })),
+    sortBy: v.optional(
+      v.union(
+        v.literal("clientName"),
+        v.literal("requestorName"),
+        v.literal("guideType"),
+        v.literal("communicationsAddOns"),
+        v.literal("complexityBand"),
+        v.literal("dateReceived"),
+        v.literal("status"),
+        v.literal("requestedProductionTime")
+      )
+    ),
+    order: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
   },
   handler: async (ctx, args) => {
-    // Get filtered intakes using the list query logic
+    // Pull all and filter like list; export scale is typically small enough
     let intakes = await ctx.db.query("intakes").collect();
-    
+
     const filters = args.filters || {};
-    
-    // Apply same filters as list function
+
     if (filters.status && filters.status.length > 0) {
-      intakes = intakes.filter(intake => filters.status!.includes(intake.status));
+      intakes = intakes.filter((i) => filters.status!.includes(i.status));
     }
-    
     if (filters.complexityBand && filters.complexityBand.length > 0) {
-      intakes = intakes.filter(intake => filters.complexityBand!.includes(intake.complexityBand));
+      intakes = intakes.filter((i) => filters.complexityBand!.includes(i.complexityBand));
     }
-    
     if (filters.requestorName) {
-      intakes = intakes.filter(intake => 
-        intake.requestorName.toLowerCase().includes(filters.requestorName!.toLowerCase())
-      );
+      const needle = filters.requestorName.toLowerCase();
+      intakes = intakes.filter((i) => i.requestorName.toLowerCase().includes(needle));
     }
-    
-    if (filters.planYear) {
-      intakes = intakes.filter(intake => intake.planYear === filters.planYear);
+    if (typeof filters.planYear === "number") {
+      intakes = intakes.filter((i) => i.planYear === filters.planYear);
     }
-    
     if (filters.requestedProductionTime && filters.requestedProductionTime.length > 0) {
-      intakes = intakes.filter(intake => 
-        filters.requestedProductionTime!.includes(intake.requestedProductionTime)
-      );
+      const set = new Set(filters.requestedProductionTime);
+      intakes = intakes.filter((i) => set.has(i.requestedProductionTime));
     }
-    
-    // Format data for CSV export
-    const csvData = intakes.map(intake => ({
-      intakeId: intake.intakeId,
-      clientName: intake.clientName,
-      planYear: intake.planYear,
-      requestorName: intake.requestorName,
-      status: intake.status,
-      complexityBand: intake.complexityBand,
-      complexityScore: intake.complexityScore,
-      guideType: intake.guideType,
-      communicationsAddOns: intake.communicationsAddOns,
-      requestedProductionTime: intake.requestedProductionTime,
-      dateReceived: intake.dateReceived,
-      payrollStorageUrl: intake.payrollStorageUrl,
-      notesGeneral: intake.notesGeneral || '',
-    }));
-    
-    return csvData;
+
+    // Sort
+    const sortBy = args.sortBy || "dateReceived";
+    const order = args.order || "desc";
+    intakes.sort((a, b) => {
+      let aVal: string | number = a[sortBy as keyof typeof a] as any;
+      let bVal: string | number = b[sortBy as keyof typeof b] as any;
+      if (sortBy === "dateReceived") {
+        aVal = new Date(aVal as string).getTime();
+        bVal = new Date(bVal as string).getTime();
+      } else {
+        if (typeof aVal === "string") aVal = aVal.toLowerCase();
+        if (typeof bVal === "string") bVal = bVal.toLowerCase();
+      }
+      let cmp = 0;
+      if (aVal < bVal) cmp = -1;
+      if (aVal > bVal) cmp = 1;
+      return order === "asc" ? cmp : -cmp;
+    });
+
+    // CSV header and rows
+    const headers = [
+      "Intake ID",
+      "Client Name",
+      "Plan Year",
+      "Requestor Name",
+      "Status",
+      "Complexity Band",
+      "Complexity Score",
+      "Guide Type",
+      "Communications Add-ons",
+      "Requested Production Time",
+      "Date Received",
+      "Payroll Storage URL",
+      "General Notes",
+    ];
+
+    const escapeCsv = (value: string | number | null | undefined) => {
+      if (value === null || value === undefined) return "";
+      const s = String(value);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+
+    const rows = intakes.map((i) =>
+      [
+        i.intakeId,
+        i.clientName,
+        i.planYear,
+        i.requestorName,
+        i.status,
+        i.complexityBand,
+        i.complexityScore,
+        i.guideType,
+        i.communicationsAddOns,
+        i.requestedProductionTime,
+        i.dateReceived,
+        i.payrollStorageUrl,
+        i.notesGeneral || "",
+      ]
+        .map(escapeCsv)
+        .join(",")
+    );
+
+    return [headers.join(","), ...rows].join("\n");
   },
 });
