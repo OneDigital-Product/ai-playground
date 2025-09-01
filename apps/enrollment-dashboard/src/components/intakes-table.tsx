@@ -12,7 +12,25 @@ import {
 } from "@repo/ui/components/ui/table";
 import { Button } from "@repo/ui/components/ui/button";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@repo/ui/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@repo/ui/components/ui/dropdown-menu";
+import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, MoreHorizontal, Trash2 } from "lucide-react";
 import { StatusSelect, Status } from "./status-select";
 import { ComplexityBadge } from "./complexity-badge";
 import { Intake } from "../lib/schemas";
@@ -34,11 +52,13 @@ interface IntakesTableProps {
   intakes: Intake[];
   filters: DashboardFilters;
   onStatusChange?: () => void;
+  onIntakeDeleted?: () => void;
 }
 
-export function IntakesTable({ intakes, filters, onStatusChange }: IntakesTableProps) {
+export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted }: IntakesTableProps) {
   const [sortField, setSortField] = useState<SortField>("dateReceived");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [deletingIntakeId, setDeletingIntakeId] = useState<string | null>(null);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -132,6 +152,40 @@ export function IntakesTable({ intakes, filters, onStatusChange }: IntakesTableP
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleDeleteIntake = async (intakeId: string) => {
+    setDeletingIntakeId(intakeId);
+    
+    try {
+      const response = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete intake');
+      }
+      
+      // Call the callback to refresh the list
+      onIntakeDeleted?.();
+      
+      // Show success toast if available
+      if (window.__toastInstance) {
+        window.__toastInstance.success('Intake deleted successfully');
+      }
+    } catch (error) {
+      console.error('Delete intake error:', error);
+      
+      // Show error toast if available
+      if (window.__toastInstance) {
+        window.__toastInstance.error(
+          error instanceof Error ? error.message : 'Failed to delete intake'
+        );
+      }
+    } finally {
+      setDeletingIntakeId(null);
+    }
   };
 
 
@@ -285,11 +339,55 @@ export function IntakesTable({ intakes, filters, onStatusChange }: IntakesTableP
                 />
               </TableCell>
               <TableCell>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/enrollment-dashboard/intakes/${intake.intakeId}`}>
-                    <ExternalLink className="h-4 w-4" />
-                  </Link>
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/enrollment-dashboard/intakes/${intake.intakeId}`}>
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Details
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Intake
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Intake</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this intake for{' '}
+                            <strong>{intake.clientName}</strong>? This will permanently delete 
+                            the intake, all associated sections, and uploaded files. This action 
+                            cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteIntake(intake.intakeId)}
+                            disabled={deletingIntakeId === intake.intakeId}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            {deletingIntakeId === intake.intakeId ? 'Deleting...' : 'Delete Intake'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}

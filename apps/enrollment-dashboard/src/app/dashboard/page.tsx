@@ -41,6 +41,11 @@ export default function DashboardPage() {
     // No manual refresh needed due to Convex real-time updates
   }, []);
 
+  const handleIntakeDeleted = useCallback(() => {
+    // The useQuery hooks will automatically refetch when data changes
+    // No manual refresh needed due to Convex real-time updates
+  }, []);
+
   const handleExportCSV = useCallback(async () => {
     setIsExporting(true);
     
@@ -157,6 +162,7 @@ export default function DashboardPage() {
                 intakes={intakes}
                 filters={filters}
                 onStatusChange={handleStatusChange}
+                onIntakeDeleted={handleIntakeDeleted}
               />
             </div>
           )}

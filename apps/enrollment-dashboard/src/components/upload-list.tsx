@@ -27,7 +27,7 @@ import {
   Trash2, 
   MoreHorizontal, 
   FileText, 
-  Image, 
+  Image as ImageIcon, 
   Sheet 
 } from "lucide-react";
 import { useToast } from "./toast";
@@ -75,7 +75,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
 
   const getFileIcon = (mimeType: string) => {
     if (mimeType.startsWith("image/")) {
-      return <Image className="h-4 w-4" />;
+      return <ImageIcon className="h-4 w-4" />;
     }
     if (mimeType.includes("spreadsheet") || mimeType.includes("excel")) {
       return <Sheet className="h-4 w-4" />;

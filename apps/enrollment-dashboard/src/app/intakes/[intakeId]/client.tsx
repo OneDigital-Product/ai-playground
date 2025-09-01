@@ -1,11 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
-import { Card, CardContent } from "@repo/ui/components/ui/card";
+import { Card, CardContent, CardHeader } from "@repo/ui/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
 import { Alert, AlertDescription } from "@repo/ui/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Button } from "@repo/ui/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@repo/ui/components/ui/alert-dialog";
+import { AlertCircle, Trash2 } from "lucide-react";
 import { api } from "@repo/backend/convex/_generated/api";
 import { IntakeOverview } from "../../../components/intake-overview";
 import { IntakeSections } from "../../../components/intake-sections";
@@ -17,6 +30,7 @@ interface IntakeDetailClientProps {
 
 export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientProps) {
   const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch intake data
   const intake = useQuery(api.functions.intakes.get, { intakeId });
@@ -28,6 +42,42 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
   const handleRefresh = () => {
     // Force re-query by invalidating cache
     window.location.reload();
+  };
+
+  // Delete handler
+  const handleDeleteIntake = async () => {
+    setIsDeleting(true);
+    
+    try {
+      const response = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete intake');
+      }
+      
+      // Show success toast if available
+      if (window.__toastInstance) {
+        window.__toastInstance.success('Intake deleted successfully');
+      }
+      
+      // Navigate back to dashboard
+      router.push('/enrollment-dashboard/intakes');
+      
+    } catch (error) {
+      console.error('Delete intake error:', error);
+      
+      // Show error toast if available
+      if (window.__toastInstance) {
+        window.__toastInstance.error(
+          error instanceof Error ? error.message : 'Failed to delete intake'
+        );
+      }
+      
+      setIsDeleting(false);
+    }
   };
 
 
@@ -74,29 +124,79 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
   }
 
   return (
-    <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-6">
-      <TabsList className="grid w-full max-w-md grid-cols-2">
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="sections">
-          Sections {sections && sections.length > 0 && (
-            <span className="ml-1 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
-              {sections.length}
-            </span>
-          )}
-        </TabsTrigger>
-      </TabsList>
+    <div className="space-y-6">
+      {/* Header Actions */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">{intake.clientName}</h2>
+              <p className="text-sm text-muted-foreground">
+                Plan Year: {intake.planYear} • ID: {intake.intakeId}
+              </p>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  disabled={isDeleting}
+                  className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Intake
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Intake</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this intake for{' '}
+                    <strong>{intake.clientName}</strong> (Plan Year: {intake.planYear})? 
+                    This will permanently delete the intake, all associated sections, 
+                    and uploaded files. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteIntake}
+                    disabled={isDeleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete Intake'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Tabs value={currentTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="sections">
+            Sections {sections && sections.length > 0 && (
+              <span className="ml-1 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                {sections.length}
+              </span>
+            )}
+          </TabsTrigger>
+        </TabsList>
 
       <TabsContent value="overview" className="space-y-6">
         <IntakeOverview intake={intake} />
       </TabsContent>
 
-      <TabsContent value="sections" className="space-y-6">
-        <IntakeSections 
-          sections={sections || []} 
-          intake={intake} 
-          onRefresh={handleRefresh} 
-        />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="sections" className="space-y-6">
+          <IntakeSections 
+            sections={sections || []} 
+            intake={intake} 
+            onRefresh={handleRefresh} 
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
