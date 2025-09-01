@@ -132,3 +132,21 @@ export const getSection = query({
     return section;
   },
 });
+
+// Delete all sections for an intake (used in cascading deletion)
+export const deleteByIntake = mutation({
+  args: { intakeId: v.string() },
+  handler: async (ctx, args) => {
+    const sections = await ctx.db
+      .query("section_details")
+      .withIndex("by_intakeId", (q) => q.eq("intakeId", args.intakeId))
+      .collect();
+    
+    // Delete all sections
+    for (const section of sections) {
+      await ctx.db.delete(section._id);
+    }
+    
+    return { success: true, deletedCount: sections.length };
+  },
+});

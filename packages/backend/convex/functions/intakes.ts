@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { query, mutation } from "../_generated/server.js";
+import { query, mutation, action } from "../_generated/server.js";
+import { api } from "../_generated/api.js";
 import { generateIntakeId } from "../utils/idGenerator.js";
 import { calculateComplexity, type SectionsFlags } from "../utils/complexity.js";
 import {
@@ -235,8 +236,45 @@ export const updateComplexityFactors = mutation({
   },
 });
 
-// Delete intake
-export const deleteIntake = mutation({
+// Delete intake with cascading cleanup (action for storage operations)
+export const deleteIntake = action({
+  args: { intakeId: v.string() },
+  handler: async (ctx, args) => {
+    const intake = await ctx.runQuery(api.intakes.get, { intakeId: args.intakeId });
+    
+    if (!intake) {
+      throw new Error("Intake not found");
+    }
+    
+    // Get all uploads for this intake
+    const uploads = await ctx.runQuery(api.uploads.listByIntake, { intakeId: args.intakeId });
+    
+    // Delete all upload files from storage and database records
+    for (const upload of uploads) {
+      try {
+        // Delete file from storage
+        await ctx.storage.delete(upload.storedKey);
+        
+        // Delete upload record
+        await ctx.runMutation(api.uploads.remove, { uploadId: upload._id });
+      } catch (error) {
+        // Continue even if deletion fails (record might already be deleted)
+        console.warn(`Failed to delete upload ${upload._id}:`, error);
+      }
+    }
+    
+    // Delete all sections for this intake
+    await ctx.runMutation(api.sections.deleteByIntake, { intakeId: args.intakeId });
+    
+    // Delete the intake itself
+    await ctx.runMutation(api.intakes.remove, { intakeId: args.intakeId });
+    
+    return { success: true };
+  },
+});
+
+// Internal mutation for deleting intake record
+export const remove = mutation({
   args: { intakeId: v.string() },
   handler: async (ctx, args) => {
     const intake = await ctx.db
@@ -248,30 +286,7 @@ export const deleteIntake = mutation({
       throw new Error("Intake not found");
     }
     
-    // Delete related records first
-    const uploads = await ctx.db
-      .query("uploads")
-      .withIndex("by_intakeId", (q) => q.eq("intakeId", args.intakeId))
-      .collect();
-    
-    const sections = await ctx.db
-      .query("section_details")
-      .withIndex("by_intakeId", (q) => q.eq("intakeId", args.intakeId))
-      .collect();
-    
-    // Delete uploads
-    for (const upload of uploads) {
-      await ctx.db.delete(upload._id);
-    }
-    
-    // Delete sections
-    for (const section of sections) {
-      await ctx.db.delete(section._id);
-    }
-    
-    // Delete intake
     await ctx.db.delete(intake._id);
-    
     return { success: true };
   },
 });
