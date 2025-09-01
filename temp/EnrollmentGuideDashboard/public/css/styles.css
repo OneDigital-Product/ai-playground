@@ -1,0 +1,451 @@
+/* OneDigital Brand Colors */
+:root {
+  /* Primary OneDigital Colors */
+  --od-blue: #007BA2;
+  --od-blue-light: rgba(0, 123, 162, 0.1);
+  --od-blue-50: rgba(0, 123, 162, 0.05);
+  --od-blue-75: rgba(0, 123, 162, 0.75);
+  --od-blue-90: rgba(0, 123, 162, 0.9);
+  
+  --od-green: #8FB554;
+  --od-green-light: rgba(143, 181, 84, 0.1);
+  --od-green-50: rgba(143, 181, 84, 0.05);
+  --od-green-75: rgba(143, 181, 84, 0.75);
+  
+  --od-orange: #F49D20;
+  --od-orange-light: rgba(244, 157, 32, 0.1);
+  --od-orange-50: rgba(244, 157, 32, 0.05);
+  --od-orange-75: rgba(244, 157, 32, 0.75);
+  
+  --od-gray: #909198;
+  --od-gray-light: rgba(144, 145, 152, 0.1);
+  --od-gray-dark: #6b6c73;
+  --od-gray-darker: #4a4b52;
+  
+  /* OneDigital Navy for backgrounds */
+  --od-navy: #1e3a5f;
+}
+
+/* Body background styling */
+body {
+  background-color: var(--od-navy) !important;
+  min-height: 100vh;
+}
+
+html, body {
+  background-color: var(--od-navy) !important;
+  background: var(--od-navy) !important;
+}
+
+/* Override default Tailwind colors with OneDigital brand colors */
+.bg-primary { background-color: var(--od-blue); }
+.bg-primary-light { background-color: var(--od-blue-light); }
+.bg-primary-50 { background-color: var(--od-blue-50); }
+.text-primary { color: var(--od-blue); }
+.border-primary { border-color: var(--od-blue); }
+
+.bg-success { background-color: var(--od-green); }
+.bg-success-light { background-color: var(--od-green-light); }
+.text-success { color: var(--od-green); }
+.border-success { border-color: var(--od-green); }
+
+.bg-warning { background-color: var(--od-orange); }
+.bg-warning-light { background-color: var(--od-orange-light); }
+.text-warning { color: var(--od-orange); }
+.border-warning { border-color: var(--od-orange); }
+
+.bg-muted { background-color: var(--od-gray); }
+.bg-muted-light { background-color: var(--od-gray-light); }
+.text-muted { color: var(--od-gray); }
+.text-muted-dark { color: var(--od-gray-dark); }
+
+/* Navigation styling */
+.nav-primary {
+  background: linear-gradient(135deg, var(--od-blue) 0%, var(--od-blue-90) 100%);
+  box-shadow: 0 2px 10px rgba(0, 123, 162, 0.15);
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Default H1 styling - black text */
+h1 {
+  color: black !important;
+}
+
+/* Force white background for main content areas */
+.bg-white {
+  background-color: white !important;
+}
+
+main {
+  background-color: white !important;
+}
+
+/* Sort arrows styling */
+.sort-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  color: #6b7280 !important;
+  text-decoration: none !important;
+}
+
+.sort-header:hover {
+  color: #374151 !important;
+}
+
+.sort-arrow {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Ensure feather icons display properly */
+.feather {
+  width: 16px !important;
+  height: 16px !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  fill: none !important;
+}
+
+/* Table header link styling */
+th a {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+/* Button styles with OneDigital colors */
+.btn-primary {
+  background-color: var(--od-blue);
+  border-color: var(--od-blue);
+  color: white;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover:not(.loading) {
+  background-color: var(--od-blue-75);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 162, 0.3);
+}
+
+.btn-primary.loading {
+  background-color: var(--od-blue-75);
+  cursor: not-allowed;
+  position: relative;
+}
+
+.btn-primary.loading:disabled {
+  opacity: 0.8;
+}
+
+.btn-success {
+  background-color: var(--od-green);
+  border-color: var(--od-green);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: var(--od-green-75);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(143, 181, 84, 0.3);
+}
+
+.btn-warning {
+  background-color: var(--od-orange) !important;
+  border-color: var(--od-orange) !important;
+  color: white !important;
+}
+
+.btn-warning:hover {
+  background-color: var(--od-orange-75) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 157, 32, 0.3);
+}
+
+.btn-orange {
+  background-color: var(--od-orange) !important;
+  border-color: var(--od-orange) !important;
+  color: white !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-orange:hover {
+  background-color: var(--od-orange-75) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 157, 32, 0.3);
+}
+
+/* Card and section styling */
+.card-primary {
+  border-left: 4px solid var(--od-blue);
+  background: linear-gradient(135deg, var(--od-blue-50) 0%, white 100%);
+}
+
+.card-success {
+  border-left: 4px solid var(--od-green);
+  background: linear-gradient(135deg, var(--od-green-50) 0%, white 100%);
+}
+
+.card-warning {
+  border-left: 4px solid var(--od-orange);
+  background: linear-gradient(135deg, var(--od-orange-50) 0%, white 100%);
+}
+
+/* Status badges with OneDigital colors */
+.status-minimal { 
+  background-color: var(--od-green-light); 
+  color: var(--od-green);
+  border: 1px solid var(--od-green);
+}
+
+.status-low { 
+  background-color: var(--od-blue-light); 
+  color: var(--od-blue);
+  border: 1px solid var(--od-blue);
+}
+
+.status-moderate { 
+  background-color: var(--od-orange-light); 
+  color: var(--od-orange);
+  border: 1px solid var(--od-orange);
+}
+
+.status-high { 
+  background-color: rgba(220, 38, 38, 0.1); 
+  color: #dc2626;
+  border: 1px solid #dc2626;
+}
+
+/* Form styling */
+.form-input:focus {
+  outline: none;
+  border-color: var(--od-blue);
+  box-shadow: 0 0 0 3px var(--od-blue-light);
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--od-blue);
+  box-shadow: 0 0 0 3px var(--od-blue-light);
+}
+
+/* Toast notifications with brand colors */
+.toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: all 0.3s ease-in-out;
+    font-weight: 500;
+}
+
+.toast.success {
+    background-color: var(--od-green);
+    color: white;
+    border-left: 4px solid var(--od-green-75);
+}
+
+.toast.error {
+    background-color: #ef4444;
+    color: white;
+    border-left: 4px solid #dc2626;
+}
+
+.toast.info {
+    background-color: var(--od-blue);
+    color: white;
+    border-left: 4px solid var(--od-blue-75);
+}
+
+/* Spinner */
+.spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Form animations */
+.form-section {
+    transition: all 0.3s ease-in-out;
+    border-left: 3px solid transparent;
+}
+
+.form-section.expanded {
+    border-left-color: var(--od-blue);
+    background: linear-gradient(135deg, var(--od-blue-50) 0%, white 100%);
+}
+
+.form-section.collapsed {
+    max-height: 60px;
+    overflow: hidden;
+}
+
+.form-section.expanded {
+    max-height: 1000px;
+}
+
+/* Table styling with brand colors */
+.table-header {
+  background: linear-gradient(135deg, var(--od-blue) 0%, var(--od-blue-90) 100%);
+  color: white;
+}
+
+.table-row:hover {
+    background: linear-gradient(135deg, var(--od-blue-50) 0%, white 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 123, 162, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Status badge animations */
+.status-badge {
+    transition: all 0.2s ease-in-out;
+    font-weight: 600;
+}
+
+.status-badge:hover {
+    transform: scale(1.05);
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 2px solid white;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+}
+
+/* Form submission overlay */
+.form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.form-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.overlay-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 123, 162, 0.15);
+  text-align: center;
+  max-width: 300px;
+  border: 1px solid var(--od-blue-light);
+}
+
+.overlay-spinner {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(0, 123, 162, 0.1);
+  border-radius: 50%;
+  border-top: 3px solid var(--od-blue);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+/* Custom scrollbar with brand colors */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--od-gray-light);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--od-gray);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--od-gray-dark);
+}
+
+/* Focus styles with brand colors */
+.focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--od-blue-light);
+    border-color: var(--od-blue);
+}
+
+/* Hero section styling */
+.hero-gradient {
+  background: linear-gradient(135deg, var(--od-blue) 0%, var(--od-blue-90) 50%, var(--od-green) 100%);
+}
+
+/* Section headers */
+.section-header {
+  color: var(--od-blue);
+  border-bottom: 2px solid var(--od-blue-light);
+  font-weight: 700;
+}
+
+/* Links */
+.link-primary {
+  color: var(--od-blue);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.link-primary:hover {
+  border-bottom-color: var(--od-blue);
+  color: var(--od-blue-75);
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-full-width {
+        width: 100% !important;
+    }
+}

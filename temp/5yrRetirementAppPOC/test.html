@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+</head>
+<body>
+    <h1>Test Page</h1>
+    <p>If you can see this, the web server is working.</p>
+    
+    <h2>Test Form Submission</h2>
+    <button onclick="testFormSubmission()">Test Form Data</button>
+    <button onclick="goToResults()">Go to Results</button>
+    <button onclick="goToEngagement()">Go to Engagement</button>
+    
+    <h2>Debug Info</h2>
+    <div id="debug"></div>
+    
+    <script>
+        function testFormSubmission() {
+            // Create test data
+            const testData = {
+                eligibleEmployees: "100",
+                participants: "65",
+                avgAccountBalance: "50000",
+                avgSalary: "75000",
+                investmentReturn: "7",
+                employeeContribRate: "5.5",
+                employerContribRate: "3",
+                employer401kMatch: "3",
+                participantsMaxMatch: "75",
+                autoEscalation: "no",
+                maxAutoEscalationRate: "10",
+                recordKeeperFeeType: "basisPoints",
+                recordKeeperBasisPointsFee: "50",
+                advisorFeeType: "flatPerHead",
+                advisorFlatFee: "5000",
+                advisorPerHeadFee: "25",
+                tpaFlatFee: "3000",
+                tpaPerHeadFee: "15",
+                investmentBasisPointsFee: "75",
+                auditBasisPointsFee: "25",
+                feesPaidBy: "employee",
+                // Engagement-specific fields
+                enrollmentMethod: "opt-in",
+                defaultAutoContribRate: "3",
+                vestingSchedule: "3-year",
+                investmentOptions: "18",
+                avgTenure: "4.2",
+                avgAge: "38"
+            };
+            
+            // Store test data
+            localStorage.setItem('planSetupData', JSON.stringify(testData));
+            
+            document.getElementById('debug').innerHTML = 'Test data stored: ' + JSON.stringify(testData, null, 2);
+        }
+        
+        function goToResults() {
+            window.location.href = 'results.html';
+        }
+        
+        function goToEngagement() {
+            window.location.href = 'engagement.html';
+        }
+        
+        // Check if data exists
+        window.onload = function() {
+            const existingData = localStorage.getItem('planSetupData');
+            if (existingData) {
+                document.getElementById('debug').innerHTML = 'Existing data found: ' + existingData;
+            } else {
+                document.getElementById('debug').innerHTML = 'No existing data found';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<% const prefix = `${section.toLowerCase()}${planNum}_`; %>
+
+<% if (section === 'C') { %>
+    <!-- Medical Plan Block -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Plan Name</label>
+            <input type="text" name="<%= prefix %>plan_name" 
+                   value="<%= formData[prefix + 'plan_name'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Carrier</label>
+            <input type="text" name="<%= prefix %>carrier" 
+                   value="<%= formData[prefix + 'carrier'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Network Name</label>
+            <input type="text" name="<%= prefix %>network_name" 
+                   value="<%= formData[prefix + 'network_name'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Plan Type</label>
+            <select name="<%= prefix %>plan_type" class="w-full rounded-md border-gray-300 text-sm">
+                <option value="">Select Plan Type</option>
+                <option value="HDHP" <%= formData[prefix + 'plan_type'] === 'HDHP' ? 'selected' : '' %>>HDHP</option>
+                <option value="PPO" <%= formData[prefix + 'plan_type'] === 'PPO' ? 'selected' : '' %>>PPO</option>
+                <option value="EPO" <%= formData[prefix + 'plan_type'] === 'EPO' ? 'selected' : '' %>>EPO</option>
+                <option value="HMO" <%= formData[prefix + 'plan_type'] === 'HMO' ? 'selected' : '' %>>HMO</option>
+                <option value="Other" <%= formData[prefix + 'plan_type'] === 'Other' ? 'selected' : '' %>>Other</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Out-of-Network Available</label>
+            <select name="<%= prefix %>out_of_network_available" class="w-full rounded-md border-gray-300 text-sm">
+                <option value="">Select</option>
+                <option value="true" <%= formData[prefix + 'out_of_network_available'] === 'true' ? 'selected' : '' %>>Yes</option>
+                <option value="false" <%= formData[prefix + 'out_of_network_available'] === 'false' ? 'selected' : '' %>>No</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deductible - Individual ($)</label>
+            <input type="number" name="<%= prefix %>deductible_individual" 
+                   value="<%= formData[prefix + 'deductible_individual'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deductible - Family ($)</label>
+            <input type="number" name="<%= prefix %>deductible_family" 
+                   value="<%= formData[prefix + 'deductible_family'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Out-of-Pocket Max - Individual ($)</label>
+            <input type="number" name="<%= prefix %>oop_max_individual" 
+                   value="<%= formData[prefix + 'oop_max_individual'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Out-of-Pocket Max - Family ($)</label>
+            <input type="number" name="<%= prefix %>oop_max_family" 
+                   value="<%= formData[prefix + 'oop_max_family'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Coinsurance In-Network</label>
+            <input type="text" name="<%= prefix %>coinsurance_in_network" 
+                   value="<%= formData[prefix + 'coinsurance_in_network'] || '' %>"
+                   placeholder="e.g., after DED, 0%"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+    </div>
+    
+    <!-- Coverage Details -->
+    <div class="mt-4">
+        <h5 class="font-medium text-gray-700 mb-3">Coverage Details</h5>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Preventive Care</label>
+                <input type="text" name="<%= prefix %>coverage_preventive" 
+                       value="<%= formData[prefix + 'coverage_preventive'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Primary Care Visit</label>
+                <input type="text" name="<%= prefix %>coverage_primary_care" 
+                       value="<%= formData[prefix + 'coverage_primary_care'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Specialist Visit</label>
+                <input type="text" name="<%= prefix %>coverage_specialist" 
+                       value="<%= formData[prefix + 'coverage_specialist'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Urgent Care</label>
+                <input type="text" name="<%= prefix %>coverage_urgent_care" 
+                       value="<%= formData[prefix + 'coverage_urgent_care'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Room</label>
+                <input type="text" name="<%= prefix %>coverage_emergency_room" 
+                       value="<%= formData[prefix + 'coverage_emergency_room'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Inpatient Hospital</label>
+                <input type="text" name="<%= prefix %>coverage_inpatient_hospital" 
+                       value="<%= formData[prefix + 'coverage_inpatient_hospital'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pharmacy Details -->
+    <div class="mt-4">
+        <h5 class="font-medium text-gray-700 mb-3">Pharmacy Coverage</h5>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rx Network Name</label>
+                <input type="text" name="<%= prefix %>pharmacy_network_name" 
+                       value="<%= formData[prefix + 'pharmacy_network_name'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Generic Tier</label>
+                <input type="text" name="<%= prefix %>pharmacy_generic_tier" 
+                       value="<%= formData[prefix + 'pharmacy_generic_tier'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Brand Tier</label>
+                <input type="text" name="<%= prefix %>pharmacy_preferred_brand_tier" 
+                       value="<%= formData[prefix + 'pharmacy_preferred_brand_tier'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Non-Preferred Brand Tier</label>
+                <input type="text" name="<%= prefix %>pharmacy_non_preferred_brand_tier" 
+                       value="<%= formData[prefix + 'pharmacy_non_preferred_brand_tier'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+        </div>
+    </div>
+    
+    <!-- HSA/HRA Details -->
+    <div class="mt-4">
+        <h5 class="font-medium text-gray-700 mb-3">HSA/HRA Information</h5>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">HSA Eligible</label>
+                <select name="<%= prefix %>hsa_eligible" class="w-full rounded-md border-gray-300 text-sm">
+                    <option value="">Select</option>
+                    <option value="true" <%= formData[prefix + 'hsa_eligible'] === 'true' ? 'selected' : '' %>>Yes</option>
+                    <option value="false" <%= formData[prefix + 'hsa_eligible'] === 'false' ? 'selected' : '' %>>No</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">HSA Contribution - Individual ($)</label>
+                <input type="number" name="<%= prefix %>hsa_employer_contribution_individual" 
+                       value="<%= formData[prefix + 'hsa_employer_contribution_individual'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">HSA Contribution - Family ($)</label>
+                <input type="number" name="<%= prefix %>hsa_employer_contribution_family" 
+                       value="<%= formData[prefix + 'hsa_employer_contribution_family'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">IRS HSA Limits</label>
+                <input type="text" name="<%= prefix %>hsa_irs_limits" 
+                       value="<%= formData[prefix + 'hsa_irs_limits'] || '' %>"
+                       placeholder="Year/Individual/Family limits"
+                       class="w-full rounded-md border-gray-300 text-sm">
+            </div>
+        </div>
+    </div>
+
+<% } else if (section === 'D') { %>
+    <!-- Dental Plan Block -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Carrier</label>
+            <input type="text" name="<%= prefix %>carrier" 
+                   value="<%= formData[prefix + 'carrier'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Network Name</label>
+            <input type="text" name="<%= prefix %>network_name" 
+                   value="<%= formData[prefix + 'network_name'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deductible - Individual ($)</label>
+            <input type="number" name="<%= prefix %>deductible_individual" 
+                   value="<%= formData[prefix + 'deductible_individual'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deductible - Family Max ($)</label>
+            <input type="number" name="<%= prefix %>deductible_family_max" 
+                   value="<%= formData[prefix + 'deductible_family_max'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Annual Maximum ($)</label>
+            <input type="number" name="<%= prefix %>annual_maximum" 
+                   value="<%= formData[prefix + 'annual_maximum'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Double-up Maximum ($)</label>
+            <input type="number" name="<%= prefix %>double_up_maximum" 
+                   value="<%= formData[prefix + 'double_up_maximum'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Preventive Coverage</label>
+            <input type="text" name="<%= prefix %>preventive_coverage" 
+                   value="<%= formData[prefix + 'preventive_coverage'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Basic Coverage & Waits</label>
+            <input type="text" name="<%= prefix %>basic_coverage" 
+                   value="<%= formData[prefix + 'basic_coverage'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Major Coverage & Waits</label>
+            <input type="text" name="<%= prefix %>major_coverage" 
+                   value="<%= formData[prefix + 'major_coverage'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Orthodontia Coverage</label>
+            <input type="text" name="<%= prefix %>orthodontia_coverage" 
+                   value="<%= formData[prefix + 'orthodontia_coverage'] || '' %>"
+                   placeholder="Coverage %, lifetime max, waiting period"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+    </div>
+    
+    <!-- Premium Information -->
+    <div class="mt-4">
+        <h5 class="font-medium text-gray-700 mb-3">Premiums per Pay Period</h5>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Employee Only ($)</label>
+                <input type="number" name="<%= prefix %>premium_employee_only" 
+                       value="<%= formData[prefix + 'premium_employee_only'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">+One ($)</label>
+                <input type="number" name="<%= prefix %>premium_plus_one" 
+                       value="<%= formData[prefix + 'premium_plus_one'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Family ($)</label>
+                <input type="number" name="<%= prefix %>premium_family" 
+                       value="<%= formData[prefix + 'premium_family'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+        </div>
+    </div>
+
+<% } else if (section === 'E') { %>
+    <!-- Vision Plan Block -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Carrier</label>
+            <input type="text" name="<%= prefix %>carrier" 
+                   value="<%= formData[prefix + 'carrier'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Network Name</label>
+            <input type="text" name="<%= prefix %>network_name" 
+                   value="<%= formData[prefix + 'network_name'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Exam Copay ($)</label>
+            <input type="number" name="<%= prefix %>exam_copay" 
+                   value="<%= formData[prefix + 'exam_copay'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Exam Frequency (months)</label>
+            <input type="number" name="<%= prefix %>exam_frequency_months" 
+                   value="<%= formData[prefix + 'exam_frequency_months'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="1" max="60">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Lenses Copay ($)</label>
+            <input type="number" name="<%= prefix %>lenses_copay" 
+                   value="<%= formData[prefix + 'lenses_copay'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Lenses Frequency (months)</label>
+            <input type="number" name="<%= prefix %>lenses_frequency_months" 
+                   value="<%= formData[prefix + 'lenses_frequency_months'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="1" max="60">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Frames Allowance ($)</label>
+            <input type="number" name="<%= prefix %>frames_allowance" 
+                   value="<%= formData[prefix + 'frames_allowance'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Frames Frequency (months)</label>
+            <input type="number" name="<%= prefix %>frames_frequency_months" 
+                   value="<%= formData[prefix + 'frames_frequency_months'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="1" max="60">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contacts Allowance ($)</label>
+            <input type="number" name="<%= prefix %>contacts_allowance" 
+                   value="<%= formData[prefix + 'contacts_allowance'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contacts Frequency (months)</label>
+            <input type="number" name="<%= prefix %>contacts_frequency_months" 
+                   value="<%= formData[prefix + 'contacts_frequency_months'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="1" max="60">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contacts Fit & Follow-up Copay ($)</label>
+            <input type="number" name="<%= prefix %>contacts_fit_followup_copay" 
+                   value="<%= formData[prefix + 'contacts_fit_followup_copay'] || '' %>"
+                   class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+        </div>
+    </div>
+    
+    <!-- Premium Information -->
+    <div class="mt-4">
+        <h5 class="font-medium text-gray-700 mb-3">Premiums per Pay Period</h5>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Employee Only ($)</label>
+                <input type="number" name="<%= prefix %>premium_employee_only" 
+                       value="<%= formData[prefix + 'premium_employee_only'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">+Spouse ($)</label>
+                <input type="number" name="<%= prefix %>premium_plus_spouse" 
+                       value="<%= formData[prefix + 'premium_plus_spouse'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">+Children ($)</label>
+                <input type="number" name="<%= prefix %>premium_plus_children" 
+                       value="<%= formData[prefix + 'premium_plus_children'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Family ($)</label>
+                <input type="number" name="<%= prefix %>premium_family" 
+                       value="<%= formData[prefix + 'premium_family'] || '' %>"
+                       class="w-full rounded-md border-gray-300 text-sm" min="0" step="0.01">
+            </div>
+        </div>
+    </div>
+<% } %>
+

@@ -1,0 +1,99 @@
+<nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <!-- Logo / Brand -->
+                <div class="flex-shrink-0 flex items-center">
+                    <div class="h-8 w-8 bg-primary rounded-lg flex items-center justify-center mr-3">
+                        <i data-feather="clipboard" class="h-5 w-5 text-white"></i>
+                    </div>
+                    <h1 class="text-xl font-bold">Employee Communications Request Dashboard</h1>
+                </div>
+                
+                <!-- Main Navigation -->
+                <div class="hidden md:ml-8 md:flex md:space-x-8">
+                    <a href="/dashboard" 
+                       class="<%= (typeof title !== 'undefined' && title.includes('Dashboard')) ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-primary hover:border-primary' %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        <i data-feather="grid" class="w-4 h-4 mr-2"></i>
+                        Dashboard
+                    </a>
+                    <a href="/intakes/new" 
+                       class="<%= (typeof title !== 'undefined' && title.includes('New Intake')) ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-primary hover:border-primary' %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>
+                        New Intake
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Right side navigation -->
+            <div class="flex items-center space-x-4">
+                <!-- Stats indicator -->
+                <div class="hidden lg:flex items-center text-sm text-gray-500">
+                    <i data-feather="activity" class="w-4 h-4 mr-1"></i>
+                    <span id="live-stats">Loading...</span>
+                </div>
+                
+                <!-- User menu / Actions -->
+                <div class="flex items-center space-x-2">
+                    <!-- Quick export button -->
+                    <a href="/dashboard/export.csv" 
+                       class="text-muted hover:text-primary p-2 rounded-md hover:bg-primary-light transition-colors"
+                       title="Export CSV">
+                        <i data-feather="download" class="w-4 h-4"></i>
+                    </a>
+                    
+                    <!-- Settings/Profile dropdown placeholder -->
+                    <div class="relative">
+                        <button type="button" 
+                                class="text-gray-500 hover:text-gray-700 p-2 rounded-md hover:bg-gray-100 transition-colors"
+                                title="Admin Menu">
+                            <i data-feather="user" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center">
+                <button type="button" 
+                        class="text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700 p-2"
+                        onclick="toggleMobileMenu()">
+                    <i data-feather="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="md:hidden hidden border-t border-gray-200">
+        <div class="px-2 pt-2 pb-3 space-y-1 bg-white">
+            <a href="/dashboard" 
+               class="<%= (typeof title !== 'undefined' && title.includes('Dashboard')) ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50' %> block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
+                Dashboard
+            </a>
+            <a href="/intakes/new" 
+               class="<%= (typeof title !== 'undefined' && title.includes('New Intake')) ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50' %> block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
+                New Intake
+            </a>
+        </div>
+    </div>
+</nav>
+
+<script>
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    menu.classList.toggle('hidden');
+}
+
+// Initialize live stats (if on dashboard)
+document.addEventListener('DOMContentLoaded', function() {
+    const statsElement = document.getElementById('live-stats');
+    if (statsElement && window.location.pathname === '/dashboard') {
+        // Simple stats display
+        statsElement.textContent = 'System Active';
+    } else if (statsElement) {
+        statsElement.textContent = 'Ready';
+    }
+});
+</script>

@@ -1,0 +1,324 @@
+# Replit Prompt — Enrollment Guide Intake App (Manager Edition)
+
+You are a senior full‑stack engineer working in **Replit**. Build a production‑ready **internal web app** that helps our Enrollment Guides team **collect intake requests** and **track work** at scale.
+
+**No external integrations** (no Microsoft Forms/Power Automate). Focus on fast, reliable intake + a tracking dashboard that the manager can use to load‑balance and push work to Done.
+
+---
+
+## Objectives
+
+1. **Intake Form** that captures, per section, **whether anything changed** (beyond expected annual deltas like IRS HSA limits and employee payroll deductions).
+   • If **No change** → only ask for **where final payroll deductions are stored (URL)**, with an **optional screenshot/file upload**.
+   • If **Yes** → show **detailed fields** for that section (spec below), including multi‑plan blocks for Medical/Dental/Vision.
+   • Always include **General Notes** at the bottom.
+
+2. **Tracking Dashboard** of all requests with:
+   • **Complexity rating** (Minimal → Significant) computed from the intake.
+   • Sortable columns: **Name (Client)**, **Requestor**, **Complexity**, **Date Received**, **Status**.
+   • Inline **status updates** using these states: **Not Started, Started, Roadblock, Ready for QA, Delivered to Consultant**.
+   • Quick filters by Status, Complexity, Requestor, and Plan Year.
+
+3. **Data hygiene** & speed: server‑rendered UI (EJS + Tailwind), SQLite with strict validation (Zod), Multer for uploads. Provide **CSV export** of the dashboard.
+
+---
+
+## Tech Stack (required)
+
+* **Node.js 18+**, **Express.js**
+* **SQLite** via `better-sqlite3` (synchronous) with a tiny migration runner
+* **EJS** views + **TailwindCSS** for styling (keep it clean and fast)
+* **Multer** for uploads → store under `/data/uploads` (gitignored)
+* **Zod** for validation of all request bodies and JSON blobs
+* **Pino** logging
+* **express-session** with a single shared admin password (`ADMIN_PASSWORD`) for dashboard access
+
+---
+
+## Data Model (SQLite)
+
+Create migrations and Zod schemas. Timestamps in UTC ISO.
+
+### `intakes`
+
+* `id` INTEGER PK
+* `intake_id` TEXT UNIQUE (format `INTAKE-YYYYMMDD-XXXX`, base36 suffix)
+* `client_name` TEXT NOT NULL
+* `plan_year` INTEGER NOT NULL
+* `requestor_name` TEXT NOT NULL
+* `requestor_email` TEXT
+* `date_received` TEXT NOT NULL  — default now()
+* `status` TEXT CHECK IN ('NOT\_STARTED','STARTED','ROADBLOCK','READY\_FOR\_QA','DELIVERED\_TO\_CONSULTANT') DEFAULT 'NOT\_STARTED'
+* `complexity_band` TEXT CHECK IN ('MINIMAL','LOW','MODERATE','SIGNIFICANT') DEFAULT 'MINIMAL'
+* `complexity_score` INTEGER NOT NULL DEFAULT 0
+* `payroll_storage_url` TEXT  — where final payroll deductions are stored (for No‑change paths)
+* `notes_general` TEXT
+* `sections_changed_flags` TEXT NOT NULL  — JSON: { C\:boolean, D\:boolean, E\:boolean, F\:boolean, G\:boolean, H\:boolean, I\:boolean }
+* `created_at` TEXT NOT NULL
+* `updated_at` TEXT NOT NULL
+
+### `uploads`
+
+* `id` INTEGER PK
+* `intake_id` TEXT NOT NULL  — FK → intakes.intake\_id
+* `kind` TEXT CHECK IN ('GUIDE','PLAN\_DOC','PAYROLL\_SCREEN','OTHER') NOT NULL
+* `original_name` TEXT
+* `mime_type` TEXT
+* `bytes` INTEGER
+* `stored_path` TEXT NOT NULL
+* `created_at` TEXT NOT NULL
+
+### `section_details`
+
+Holds the **Yes** details for any section, including multi‑plan blocks.
+
+* `id` INTEGER PK
+* `intake_id` TEXT NOT NULL
+* `section_code` TEXT NOT NULL  — 'C1','C2','C3' (Medical per plan), 'D1'..'D3', 'E1'..'E3', 'F','G','H','I'
+* `payload` TEXT NOT NULL  — JSON per schemas below
+* `created_at` TEXT NOT NULL
+
+Indexes on `intakes(intake_id)`, `uploads(intake_id)`, `section_details(intake_id)`.
+
+---
+
+## Intake Form — Flow & Validation
+
+**Step 1 — Basics**
+
+* Client name (required)
+* Plan year (required)
+* Requestor name (required)
+* Requestor email (optional)
+
+**Step 2 — Gate (Change/No‑Change)** for sections **C..I**
+For each section prompt: *“Any changes beyond expected annual updates (e.g., IRS HSA limits, payroll deductions)?”*
+
+* **Choices:** Yes / No (default No)
+* **If No:** reveal **Payroll Deductions** mini‑form:
+  • Where are finalized payroll deductions stored? (Text/URL, required once per intake)
+  • Optional upload: payroll deduction screenshot (file upload, type: png/jpg/pdf)
+* **If Yes:** render the **detailed fields** for that section (schemas below). Validate with Zod; allow zero/empty values but require correct types.
+
+**Step 3 — General Notes** (multiline optional)
+
+**Step 4 — Review & Submit**
+Show a summary: changed sections, number of medical/dental/vision plans filled, missing recommended items. On submit:
+
+* Generate `intake_id`
+* Persist basics, flags, details (as JSON), and uploads
+* Compute **complexity** (see below)
+
+Uploads page/controls: accept multiple PLAN\_DOC, one PAYROLL\_SCREEN, one GUIDE; 25MB/file cap; show list with delete.
+
+---
+
+## Section Schemas (Zod) & UI Fields
+
+> **Important:** Only sections **C..I** are in this app. (A/B/J/K handled elsewhere.) For Medical/Dental/Vision, provide **three plan blocks** (1–3) by default with “Add another plan” that clones the block.
+
+### C. Medical (repeat per plan)
+
+**Gate:** Any changes? Yes/No
+**If Yes — Plan 1–3 blocks:**
+
+* Plan name (text)
+* Carrier (text)
+* Network name (text)
+* Plan type (select: HDHP, PPO, EPO, HMO, Other)
+* Out‑of‑network available (Yes/No)
+* Deductible — Individual (number)
+* Deductible — Family (number)
+* Out‑of‑Pocket Max — Individual (number)
+* Out‑of‑Pocket Max — Family (number)
+* Coinsurance in‑network (string, e.g., “after DED, 0%”)
+* Coverage — Preventive care (string)
+* Coverage — Primary care visit (string)
+* Coverage — Specialist visit (string)
+* Coverage — Urgent care (string)
+* Coverage — Emergency room (string)
+* Coverage — Inpatient hospital (string)
+* Coverage — Outpatient surgery (string)
+* Pharmacy — Rx network name (text)
+* Pharmacy — Generic tier (string)
+* Pharmacy — Preferred brand tier (string)
+* Pharmacy — Non‑preferred brand tier (string)
+* Pharmacy — Rx OOP Max — Individual (number)
+* Pharmacy — Rx OOP Max — Family (number)
+* HSA/HRA — HSA eligible (Yes/No)
+* HSA/HRA — Employer HSA contribution — Individual (number)
+* HSA/HRA — Employer HSA contribution — Family (number)
+* HSA/HRA — IRS HSA limits (free text: list year/ind/fam)
+* Notes — special considerations (free text)
+
+**If No — Payroll Deductions path:**
+
+* Where are finalized payroll deductions stored? (URL)
+* Optional: Upload screenshot of final payroll deductions table (file upload)
+* Optional note (text)
+
+### D. Dental (repeat per plan)
+
+**Gate:** Any changes? Yes/No
+**If Yes — Per plan (up to 3):**
+
+* Carrier; Network name (text)
+* Deductible — Individual (number)
+* Deductible — Family max (number)
+* Annual maximum (number)
+* Double‑up maximum (number, allow blank)
+* Preventive coverage (string)
+* Basic coverage (and waits) (string)
+* Major coverage (and waits) (string)
+* Orthodontia — coverage %, lifetime max, waiting period (string)
+* Premiums per pay period — Employee Only (number)
+* Premiums per pay period — +One (number)
+* Premiums per pay period — Family (number)
+
+**If No — Payroll Deductions path:** URL + optional screenshot + optional note
+
+### E. Vision (repeat per plan)
+
+**Gate:** Any changes? Yes/No
+**If Yes — Per plan (up to 3):**
+
+* Carrier; Network name (text)
+* Exam — copay (number); frequency (months, number)
+* Lenses — copay (number); frequency (months, number)
+* Frames — allowance (number); frequency (months, number)
+* Contacts — allowance (number); frequency (months, number); fit & follow‑up copay (number)
+* Premiums per pay period — Employee Only (number)
+* Premiums per pay period — +Spouse (number)
+* Premiums per pay period — +Children (number)
+* Premiums per pay period — Family (number)
+
+**If No — Payroll Deductions path:** URL + optional screenshot + optional note
+
+### F. Life & AD\&D
+
+**Gate:** Any changes? Yes/No
+**If Yes:**
+
+* Basic (by class): Multiple of salary (string); Max (number); Spouse amount (number); Child amount (number); AD\&D same as life (Yes/No)
+* Voluntary Life: Increments — employee/spouse/child (string); Guarantee issue — employee/spouse/child (string); Maximum — employee/spouse/child (string); EOI rules (string)
+* Optional note (text)
+
+**If No — Payroll Deductions path:** URL + optional screenshot + optional note
+
+### G. Disability (STD/LTD)
+
+**Gate:** Any changes? Yes/No
+**If Yes — Short‑Term Disability:** Percent income (number 0..1 or % string); Weekly max (number); Accident wait (days, number); Sickness wait (days, number); Max duration (weeks, number); Pre‑existing limitations (string)
+**If Yes — Long‑Term Disability:** Percent income (number 0..1 or % string); Monthly max (number); Elimination period (days, number); Max duration rule (string); Pre‑existing limitations (string)
+**Optional note** (text)
+
+**If No — Payroll Deductions path:** URL + optional screenshot + optional note
+
+### H. FSAs and DCAs
+
+**Gate:** Any changes? Yes/No
+**If Yes — FSA Full Purpose:** Max contribution (number); Rollover amount (number); Availability timing (string)
+**If Yes — FSA Limited Purpose:** Max contribution (number); Rollover amount (number); Availability timing (string); Eligibility notes (string)
+**If Yes — Dependent Care FSA:** Max contribution (number); Rollover allowed (Yes/No); Availability timing (string); Eligibility notes (string)
+**Optional note** (text)
+
+**If No — Payroll Deductions path:** URL + optional screenshot + optional note
+
+### I. EAP & Other Programs
+
+**Gate:** Any changes? Yes/No
+**If Yes:**
+
+* EAP: provider (text); sessions per issue/year (number); modality (text); availability (text); family access (Yes/No)
+* Telehealth: platforms (text); services included (text); costs by service (text)
+* Additional perks: list (text)
+* Optional note (text)
+
+**If No — Payroll Deductions path:** URL + optional screenshot + optional note
+
+---
+
+## Complexity Scoring
+
+Compute an integer **complexity\_score** then map to bands:
+
+* Base = 0
+* +2 for each section marked **Yes** (C..I)
+* +1 per **additional plan** provided beyond the first in Medical/Dental/Vision (e.g., C2/C3, D2/D3, E2/E3)
+* +1 if any section has >8 filled fields (dense change)
+* +1 if both STD and LTD changed under G
+
+**Band mapping:** 0–1 → **MINIMAL**; 2–3 → **LOW**; 4–6 → **MODERATE**; ≥7 → **SIGNIFICANT**.
+
+Show the band as a colored chip in the dashboard; show score on the intake detail page.
+
+---
+
+## Tracking Dashboard
+
+* **Route:** `GET /dashboard` (auth required)
+* **Columns (sortable)**: **Client (Name)**, **Requestor**, **Complexity (band)**, **Date Received**, **Status**
+* **Inline status change**: dropdown with **Not Started, Started, Roadblock, Ready for QA, Delivered to Consultant** (persist immediately; toast confirm)
+* **Filters**: Status (multi), Complexity band (multi), Requestor (search), Plan Year (select)
+* **Bulk actions** (optional): set status, set owner, export CSV
+* **Row click → Detail**: opens `/intakes/:intakeId`
+
+CSV export endpoint: `GET /dashboard/export.csv?filters=...`
+
+---
+
+## Routes & Controllers
+
+* `GET /` → redirect to `/dashboard`
+* `GET /intakes/new` → Intake wizard (Steps 1–3 on separate screens; Step 4 review)
+* `POST /intakes` → create; generate `intake_id`; compute `complexity_score` + band
+* `GET /intakes/:intakeId` → detail view with tabs: Overview | Sections | Uploads
+* `POST /intakes/:intakeId/status` → update status
+* `POST /intakes/:intakeId/sections/:code` → upsert section JSON
+* `POST /intakes/:intakeId/uploads` → multer upload (type filter: pdf, docx, xlsx, png, jpg; ≤25MB)
+* `DELETE /uploads/:id` → delete file
+* `GET /dashboard` → table with sort & filters
+* `GET /dashboard/export.csv` → CSV
+* `GET /login` / `POST /login` → simple admin login
+
+---
+
+## UI/UX Details
+
+* Keep forms **fast**: minimal JS; server‑rendered with progressive enhancement
+* Show **Change/No‑Change** radios first for each section; lazy‑render the detailed subform when Yes
+* Reusable **Plan block** component for Medical/Dental/Vision with Add/Remove buttons
+* Sticky table headers, column sort arrows, pill badges for status and complexity
+* Accessible forms: labels, aria‑describedby for errors; keyboard‑friendly
+* Auto‑save or save‑guard for long subforms (warning before navigate away)
+
+---
+
+## Validation & Error Handling
+
+* Zod schemas for: basics, flags `{C..I}`, and each section payload (C1..C3, D1..D3, E1..E3, F, G, H, I)
+* Coerce numeric fields; allow blanks where noted
+* File type/size guard at upload; friendly error messages; preserve entered values on re‑render
+
+---
+
+## Seed & Acceptance
+
+* Seed script creates 20 mixed intakes (varied statuses, plan counts, sections changed) so the dashboard shows real variation
+* Acceptance:
+
+  1. Create an intake with C & D changes, others No → see complexity ≥ LOW, dashboard sort works
+  2. Change status across all states; verify persistence and CSV export
+  3. Add multiple Medical plans; complexity increases; dashboard chip updates
+  4. Provide payroll storage URL on a No‑change section; appears in Overview
+
+---
+
+## Deliverables
+
+* Running Replit app with the above
+* SQL migrations and Zod schemas
+* Minimal tests for complexity mapping and CSV export
+* README with setup: `npm i && npm run migrate && npm run dev` and default admin password instructions
+
+> Build this so a non‑engineer can add an intake, update status, and export a CSV without touching code.

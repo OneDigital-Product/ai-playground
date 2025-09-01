@@ -1,0 +1,235 @@
+JIRA TICKET: Asset Growth Chart Implementation
+=====================================================
+
+TICKET ID: RPA-001
+PROJECT: 5-Year Retirement Plan Evaluation App
+COMPONENT: Financial Projections Module
+PRIORITY: High
+TYPE: Story
+STATUS: Completed
+
+SUMMARY
+-------
+Implement interactive asset growth chart with 25-year projection capabilities, multiple scenario modeling, and monthly compounding calculations for retirement plan evaluation.
+
+DESCRIPTION
+-----------
+The asset growth chart is a core visualization component that displays projected account balance growth over 25 years for multiple scenarios. It enables retirement plan consultants to demonstrate the impact of different plan design choices and engagement strategies on participant outcomes.
+
+ACCEPTANCE CRITERIA
+-------------------
+1. Chart displays 25-year projections with 5-year interval data points (Years 0, 5, 10, 15, 20, 25)
+2. Support for 4 distinct scenarios: Current Plan, Optimized, 10% Contribution, Auto-Enrollment
+3. Interactive tooltips showing exact balance values at each data point
+4. Responsive design that works on mobile devices for client presentations
+5. Professional styling consistent with app design system
+6. Export capability for client reports
+7. Real-time updates when input parameters change
+
+TECHNICAL REQUIREMENTS
+----------------------
+
+### Chart Library
+- Implementation: Chart.js (latest stable version via CDN)
+- Chart Type: Line chart with smooth curves (tension: 0.4)
+- Canvas Element: HTML5 canvas with context 2D
+
+### Data Structure
+```javascript
+chartData = {
+    labels: ['Year 0', 'Year 5', 'Year 10', 'Year 15', 'Year 20', 'Year 25'],
+    datasets: [
+        {
+            label: 'Current Plan (Status Quo)',
+            data: [balance_year_0, balance_year_5, ..., balance_year_25],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            pointRadius: 5
+        },
+        // ... additional scenarios
+    ]
+}
+```
+
+### Styling Requirements
+- Colors: Brand-consistent palette (#667eea, #27ae60, #e67e22, #f39c12)
+- Point Styling: 5px radius, white border, 2px border width
+- Hover Effects: 7px radius on hover, enhanced tooltips
+- Grid: Light gray (#rgba(0,0,0,0.1)), subtle appearance
+- Legend: Top positioning, point-style indicators
+- Responsive: maintainAspectRatio: false, responsive: true
+
+### Performance Requirements
+- Chart rendering: < 500ms for all scenarios
+- Data calculation: < 200ms for 25-year projection
+- Memory usage: < 10MB for chart instance
+- Browser compatibility: Modern browsers (ES6+ support)
+
+CALCULATION SPECIFICATIONS
+--------------------------
+
+### Core Financial Model
+**Monthly Compounding Formula:**
+```
+Monthly Return Rate = Annual Return Rate / 12
+Monthly Balance Growth = Previous Balance * (1 + Monthly Return Rate)
+```
+
+### Contribution Calculations
+**Employee Contributions:**
+```javascript
+monthlyEmployeeContrib = (employeeContribRate / 100) * avgSalary / 12
+```
+
+**Employer Contributions:**
+```javascript
+monthlyEmployerContrib = (employerContribRate / 100) * avgSalary / 12
+```
+
+**Employer Match Calculation:**
+```javascript
+maxMatchPerMonth = (employer401kMatch / 100) * avgSalary / 12
+actualMatchPerMonth = maxMatchPerMonth * (matchUtilization / 100)
+```
+
+### Scenario-Specific Logic
+
+#### Current Plan Scenario
+- Uses actual employee contribution rate from form input
+- Uses actual match utilization percentage
+- Baseline scenario for comparisons
+
+#### Optimized Scenario
+- Employee contribution rate = employer match rate (maximize free money)
+- Match utilization = 100% (assume perfect education)
+- Represents ideal engagement with current plan design
+
+#### 10% Contribution Scenario
+- Fixed 10% employee contribution rate (retirement planning best practice)
+- Enhanced match utilization = min(100%, current + 30%)
+- Models common financial advisor recommendation
+
+#### Auto-Enrollment Scenario
+- If current plan uses opt-in: contribution rate = default auto-enroll rate (3%)
+- If current plan uses auto-enroll: enhanced rate = current rate * 1.2
+- Match utilization boost = current utilization * 1.8 (capped at 100%)
+- Models behavioral impact of auto-enrollment
+
+### Auto-Escalation Logic
+```javascript
+if (autoEscalation && year > 0 && currentRate < maxRate) {
+    currentEmployeeRate = Math.min(currentRate + 1, maxAutoEscalationRate)
+}
+```
+
+### Fee Impact Calculations
+**Annual Fee Allocation:**
+```javascript
+// Investment fees always paid by employees
+annualFeesPerEmployee = investmentFee
+
+// Other fees based on allocation setting
+if (feesPaidBy === 'employee') {
+    annualFeesPerEmployee += recordKeeperFee + advisorFee + tpaFee + auditFee
+} else if (feesPaidBy === 'split') {
+    annualFeesPerEmployee += (recordKeeperFee + advisorFee + tpaFee + auditFee) / 2
+}
+
+// Per-participant fee impact
+annualFeePerPerson = participants > 0 ? annualFeesPerEmployee / participants : 0
+```
+
+### Monthly Calculation Loop
+```javascript
+for (let year = 0; year <= 25; year++) {
+    for (let month = 0; month < 12; month++) {
+        // Add monthly contributions
+        currentBalance += monthlyEmployeeContrib + monthlyEmployerContrib + monthlyMatchContrib
+        
+        // Apply monthly investment return
+        monthlyGrowth = currentBalance * monthlyReturnRate
+        currentBalance += monthlyGrowth
+    }
+    
+    // Deduct annual fees at year end
+    currentBalance -= annualFeePerPerson
+}
+```
+
+VALIDATION REQUIREMENTS
+-----------------------
+1. Balance values must be non-negative
+2. Contribution rates must be within 0-100% range
+3. Investment returns must be positive
+4. Fee calculations must account for participant count > 0
+5. Auto-escalation cannot exceed specified maximum rate
+6. Match calculations cannot exceed salary-based limits
+
+ERROR HANDLING
+--------------
+- Invalid input parameters: Display user-friendly error messages
+- Calculation overflow: Implement bounds checking
+- Chart rendering failures: Graceful degradation with error state
+- Missing data: Use sensible defaults with user notification
+
+TESTING REQUIREMENTS
+--------------------
+- Unit tests for all calculation functions
+- Integration tests for chart rendering
+- Cross-browser compatibility testing
+- Mobile responsive testing
+- Performance testing with large datasets
+- Edge case testing (zero values, extreme inputs)
+
+DEPENDENCIES
+------------
+- Chart.js library (CDN)
+- Modern browser with Canvas support
+- JavaScript ES6+ features
+- HTML5 form validation APIs
+
+DOCUMENTATION REQUIREMENTS
+--------------------------
+- Inline code comments for complex calculations
+- JSDoc documentation for public functions
+- README section explaining calculation methodology
+- User guide for interpreting chart results
+
+NON-FUNCTIONAL REQUIREMENTS
+---------------------------
+- Accessibility: WCAG 2.1 AA compliance
+- Security: Input validation, XSS prevention
+- Performance: Sub-second response times
+- Scalability: Handle plans up to 10,000 participants
+- Maintainability: Modular, well-documented code
+
+IMPLEMENTATION NOTES
+--------------------
+The asset growth chart serves as the primary visualization for demonstrating retirement plan value propositions to clients. The calculation engine must be mathematically accurate and align with industry-standard retirement planning methodologies. Special attention should be paid to the behavioral modeling aspects, as these differentiate the application from basic financial calculators.
+
+The chart component should integrate seamlessly with the existing form validation system and maintain state consistency across navigation between different analysis views.
+
+RELATED TICKETS
+---------------
+- RPA-002: Engagement Dashboard Implementation
+- RPA-003: Scenario Comparison Analytics
+- RPA-004: Export Functionality
+- RPA-005: Mobile Responsiveness
+
+COMPLETION CRITERIA
+-------------------
+- [ ] All acceptance criteria met
+- [ ] Code review completed
+- [ ] Unit tests passing (>95% coverage)
+- [ ] Cross-browser testing completed
+- [ ] Performance benchmarks met
+- [ ] Documentation updated
+- [ ] Stakeholder approval obtained
+
+---
+Created: 2025-01-04
+Updated: 2025-01-04
+Reporter: System
+Assignee: Development Team
+Epic: Retirement Plan Analytics Platform

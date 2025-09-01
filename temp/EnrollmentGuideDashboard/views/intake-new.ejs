@@ -1,0 +1,317 @@
+<%- include('partials/header', { title: 'New Intake Request' }) %>
+
+<div class="max-w-4xl mx-auto" style="background-color: white !important;">
+    <!-- Form Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Instructions for Submitting an Employee Communications Intake Request Form</h1>
+        <p class="text-gray-600 mt-2">Please complete all sections of the form to submit your request. Before beginning, ensure that all required plan documents are uploaded to D365. Incomplete documentation may lead to delays or a lower prioritization of your request.</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-lg rounded-lg p-6">
+        <form method="POST" action="/intakes" id="intakeForm">
+            
+            <!-- Basic Information Section -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="client_name" class="block text-sm font-medium text-gray-700 mb-1">
+                            Client Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="client_name" name="client_name" required
+                               value="<%= formData.client_name || '' %>"
+                               class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <% if (errors.client_name) { %>
+                            <p class="mt-1 text-sm text-red-600"><%= errors.client_name[0] %></p>
+                        <% } %>
+                    </div>
+                    
+                    <div>
+                        <label for="plan_year" class="block text-sm font-medium text-gray-700 mb-1">
+                            Plan Year <span class="text-red-500">*</span>
+                        </label>
+                        <select id="plan_year" name="plan_year" required
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Plan Year</option>
+                            <option value="2025" <%= formData.plan_year == '2025' ? 'selected' : '' %>>2025</option>
+                            <option value="2026" <%= formData.plan_year == '2026' ? 'selected' : '' %>>2026</option>
+                        </select>
+                        <% if (errors.plan_year) { %>
+                            <p class="mt-1 text-sm text-red-600"><%= errors.plan_year[0] %></p>
+                        <% } %>
+                    </div>
+                    
+                    <div>
+                        <label for="requestor_name" class="block text-sm font-medium text-gray-700 mb-1">
+                            Requestor Name <span class="text-red-500">*</span>
+                        </label>
+                        <select id="requestor_name" name="requestor_name" required
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Requestor</option>
+                            <option value="Tom" <%= formData.requestor_name === 'Tom' ? 'selected' : '' %>>Tom</option>
+                            <option value="Megan" <%= formData.requestor_name === 'Megan' ? 'selected' : '' %>>Megan</option>
+                            <option value="Jess" <%= formData.requestor_name === 'Jess' ? 'selected' : '' %>>Jess</option>
+                            <option value="Kate" <%= formData.requestor_name === 'Kate' ? 'selected' : '' %>>Kate</option>
+                            <option value="Ryan" <%= formData.requestor_name === 'Ryan' ? 'selected' : '' %>>Ryan</option>
+                            <option value="Sena" <%= formData.requestor_name === 'Sena' ? 'selected' : '' %>>Sena</option>
+                            <option value="Kim" <%= formData.requestor_name === 'Kim' ? 'selected' : '' %>>Kim</option>
+                            <option value="Other" <%= formData.requestor_name === 'Other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                        <% if (errors.requestor_name) { %>
+                            <p class="mt-1 text-sm text-red-600"><%= errors.requestor_name[0] %></p>
+                        <% } %>
+                    </div>
+                    
+
+                    <div>
+                        <label for="guide_type" class="block text-sm font-medium text-gray-700 mb-1">
+                            Guide Type <span class="text-red-500">*</span>
+                        </label>
+                        <select id="guide_type" name="guide_type" required
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Guide Type</option>
+                            <option value="Update Existing Guide" <%= formData.guide_type === 'Update Existing Guide' ? 'selected' : '' %>>Update Existing Guide</option>
+                            <option value="New Guide Build" <%= formData.guide_type === 'New Guide Build' ? 'selected' : '' %>>New Guide Build</option>
+                        </select>
+                        <% if (errors.guide_type) { %>
+                            <p class="mt-1 text-sm text-red-600"><%= errors.guide_type[0] %></p>
+                        <% } %>
+                    </div>
+
+                    <div>
+                        <label for="communications_add_ons" class="block text-sm font-medium text-gray-700 mb-1">
+                            Communications Add Ons <span class="text-red-500">*</span>
+                        </label>
+                        <select id="communications_add_ons" name="communications_add_ons" required
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Add Ons</option>
+                            <option value="None" <%= formData.communications_add_ons === 'None' ? 'selected' : '' %>>None</option>
+                            <option value="OE Letter" <%= formData.communications_add_ons === 'OE Letter' ? 'selected' : '' %>>OE Letter</option>
+                            <option value="OE Presentation" <%= formData.communications_add_ons === 'OE Presentation' ? 'selected' : '' %>>OE Presentation</option>
+                            <option value="Both" <%= formData.communications_add_ons === 'Both' ? 'selected' : '' %>>Both</option>
+                            <option value="Other" <%= formData.communications_add_ons === 'Other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                        <% if (errors.communications_add_ons) { %>
+                            <p class="mt-1 text-sm text-red-600"><%= errors.communications_add_ons[0] %></p>
+                        <% } %>
+                    </div>
+
+                    <div>
+                        <label for="payroll_storage_url" class="block text-sm font-medium text-gray-700 mb-1">
+                            Payroll Deduction Storage Location <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" id="payroll_storage_url" name="payroll_storage_url" required
+                               value="<%= formData.payroll_storage_url || '' %>"
+                               placeholder="File name in D365 where final sold deductions are marked"
+                               class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <% if (errors.payroll_storage_url) { %>
+                            <p class="mt-1 text-sm text-red-600"><%= errors.payroll_storage_url[0] %></p>
+                        <% } %>
+                    </div>
+
+                    <div>
+                        <label for="requested_production_time" class="block text-sm font-medium text-gray-700 mb-1">
+                            Requested Production Time <span class="text-red-600">*</span>
+                        </label>
+                        <select id="requested_production_time" name="requested_production_time" required
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Production Time</option>
+                            <option value="Standard" <%= formData.requested_production_time === 'Standard' ? 'selected' : '' %>>Standard</option>
+                            <option value="Rush" <%= formData.requested_production_time === 'Rush' ? 'selected' : '' %>>Rush</option>
+                        </select>
+                        <% if (errors.requested_production_time) { %>
+                            <p class="mt-1 text-sm text-red-600"><%= errors.requested_production_time[0] %></p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Changes -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Section Changes</h2>
+                <p class="text-sm text-gray-600 mb-6">
+                    For each section, indicate if there are any changes beyond expected annual updates 
+                    (e.g., IRS HSA limits, payroll deductions). Select "Yes" to expand detailed fields.
+                </p>
+                
+                <div class="space-y-6">
+                    <% Object.entries(sections).forEach(([code, section]) => { %>
+                        <div class="border border-gray-200 rounded-lg p-4" id="section-<%= code %>">
+                            <h3 class="font-medium text-gray-900 mb-3">Section <%= code %>: <%= section.name %></h3>
+                            
+                            <div class="space-y-4">
+                                <!-- Radio buttons for guide inclusion -->
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">Should this page be included in the guide?</p>
+                                    <div class="flex gap-4">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="section_<%= code %>_include_in_guide" value="yes" 
+                                                   <%= formData[`section_${code}_include_in_guide`] !== 'no' ? 'checked' : '' %>
+                                                   class="mr-2">
+                                            Yes
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="section_<%= code %>_include_in_guide" value="no"
+                                                   <%= formData[`section_${code}_include_in_guide`] === 'no' ? 'checked' : '' %>
+                                                   class="mr-2">
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Radio buttons for change selection -->
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">Any changes beyond expected annual updates?</p>
+                                    <div class="flex gap-4">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="section_<%= code %>_changed" value="yes"
+                                                   <%= formData[`section_${code}_changed`] === 'yes' ? 'checked' : '' %>
+                                                   class="mr-2" onchange="toggleSectionDetails('<%= code %>', true)">
+                                            Yes
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="section_<%= code %>_changed" value="no" 
+                                                   <%= formData[`section_${code}_changed`] !== 'yes' ? 'checked' : '' %>
+                                                   class="mr-2" onchange="toggleSectionDetails('<%= code %>', false)">
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- No Changes Section -->
+                                <div id="no-changes-<%= code %>" class="<%= formData[`section_${code}_changed`] === 'yes' ? 'hidden' : '' %>">
+                                    <div class="bg-gray-50 p-4 rounded-md">
+                                        <p class="text-sm text-gray-600">No changes needed for this section.</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Yes Changes Section - Simplified -->
+                                <div id="yes-changes-<%= code %>" class="<%= formData[`section_${code}_changed`] !== 'yes' ? 'hidden' : '' %>">
+                                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-md">
+                                        <h4 class="font-medium text-blue-900 mb-4">Section <%= code %>: <%= section.name %> Change Details</h4>
+                                        
+                                        <div class="bg-white p-4 rounded border border-blue-100">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Describe the Changes</label>
+                                                <textarea name="<%= code.toLowerCase() %>_change_description" rows="4"
+                                                          class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                          placeholder="Describe what changes are being made to Section <%= code %>..."><%= formData[`${code.toLowerCase()}_change_description`] || '' %></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- General Notes and Files -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Additional Information</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label for="notes_general" class="block text-sm font-medium text-gray-700 mb-2">
+                            General Notes
+                        </label>
+                        <textarea id="notes_general" name="notes_general" rows="4"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                  placeholder="Any additional information that would be helpful..."><%= formData.notes_general || '' %></textarea>
+                    </div>
+                    
+
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+                <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <span id="submitBtnText">Submit Intake Request</span>
+                    <span id="submitBtnSpinner" class="loading-spinner hidden"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="formOverlay" class="form-overlay">
+    <div class="overlay-content">
+        <div class="overlay-spinner"></div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Submitting Request</h3>
+        <p class="text-sm text-gray-600">Please wait while we process your intake request...</p>
+    </div>
+</div>
+
+<!-- JavaScript for toggling section details -->
+<script>
+function toggleSectionDetails(sectionCode, showDetails) {
+    const noChangesDiv = document.getElementById(`no-changes-${sectionCode}`);
+    const yesChangesDiv = document.getElementById(`yes-changes-${sectionCode}`);
+    
+    if (showDetails) {
+        noChangesDiv.classList.add('hidden');
+        yesChangesDiv.classList.remove('hidden');
+    } else {
+        noChangesDiv.classList.remove('hidden');
+        yesChangesDiv.classList.add('hidden');
+    }
+}
+
+// Initialize section states on page load
+document.addEventListener('DOMContentLoaded', function() {
+    <% Object.keys(sections).forEach(code => { %>
+        const section<%= code %>HasChanges = document.querySelector('input[name="section_<%= code %>_changed"]:checked')?.value === 'yes';
+        toggleSectionDetails('<%= code %>', section<%= code %>HasChanges);
+    <% }); %>
+
+    // Form submission loading animation
+    const form = document.getElementById('intakeForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitBtnText = document.getElementById('submitBtnText');
+    const submitBtnSpinner = document.getElementById('submitBtnSpinner');
+    const formOverlay = document.getElementById('formOverlay');
+    
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+        submitBtnText.textContent = 'Submitting...';
+        submitBtnSpinner.classList.remove('hidden');
+        
+        // Show overlay after a short delay for better UX
+        setTimeout(() => {
+            formOverlay.classList.add('active');
+        }, 300);
+        
+        // Don't disable form elements - this prevents data from being submitted
+    });
+    
+    // Handle form errors (if validation fails and page reloads)
+    if (window.location.search.includes('error') || document.querySelector('.text-red-600')) {
+        resetFormState();
+    }
+    
+    function resetFormState() {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+        submitBtnText.textContent = 'Submit Intake Request';
+        submitBtnSpinner.classList.add('hidden');
+        formOverlay.classList.remove('active');
+        
+        // Re-enable submit button only
+        const formElements = form.querySelectorAll('input, textarea, select');
+        formElements.forEach(element => {
+            element.disabled = false;
+        });
+    }
+    
+    // Initialize Feather Icons
+    feather.replace();
+});
+</script>
+
+<%- include('partials/footer') %>
