@@ -89,55 +89,122 @@ export const get = query({
 export const list = query({
   args: listFiltersValidator,
   handler: async (ctx, args) => {
-    let results = await ctx.db.query("intakes").collect();
-    
-    // Apply filters
-    if (args.status && args.status.length > 0) {
-      results = results.filter(intake => args.status!.includes(intake.status));
+    // Strategy: Prefer indexed lookups when a single selective filter is present.
+    // Otherwise, fallback to full scan and filter in-memory (e.g., substring filters).
+
+    let results: Array<{
+      intakeId: string;
+      clientName: string;
+      planYear: number;
+      requestorName: string;
+      payrollStorageUrl: string;
+      guideType: "Update Existing Guide" | "New Guide Build";
+      communicationsAddOns: "None" | "OE Letter" | "OE Presentation" | "Both" | "Other";
+      requestedProductionTime: "Standard" | "Rush";
+      notesGeneral?: string | undefined;
+      status: "NOT_STARTED" | "STARTED" | "ROADBLOCK" | "READY_FOR_QA" | "DELIVERED_TO_CONSULTANT";
+      sectionsChangedFlags: any;
+      sectionsIncludedFlags: any;
+      complexityScore: number;
+      complexityBand: "Minimal" | "Low" | "Medium" | "High";
+      dateReceived: string;
+      createdAt: string;
+      updatedAt: string;
+      _id: any;
+    }> = [];
+
+    // Helper to de-duplicate by _id when unioning queries
+    const dedupeById = (arr: typeof results) => {
+      const map = new Map<string, (typeof results)[number]>();
+      for (const r of arr) map.set(String(r._id), r);
+      return Array.from(map.values());
+    };
+
+    const hasSingle = (arr?: unknown[]) => Array.isArray(arr) && arr.length === 1;
+    const hasMany = (arr?: unknown[]) => Array.isArray(arr) && arr.length > 1;
+
+    // 1) Use most selective index if possible
+    if (hasSingle(args.status)) {
+      results = await ctx.db
+        .query("intakes")
+        .withIndex("by_status", (q) => q.eq("status", args.status![0] as any))
+        .collect();
+    } else if (hasSingle(args.complexityBand)) {
+      results = await ctx.db
+        .query("intakes")
+        .withIndex("by_complexityBand", (q) => q.eq("complexityBand", args.complexityBand![0] as any))
+        .collect();
+    } else if (typeof args.planYear === "number") {
+      results = await ctx.db
+        .query("intakes")
+        .withIndex("by_planYear", (q) => q.eq("planYear", args.planYear!))
+        .collect();
+    } else {
+      // Fallback: full scan
+      results = await ctx.db.query("intakes").collect();
     }
-    
-    if (args.complexityBand && args.complexityBand.length > 0) {
-      results = results.filter(intake => args.complexityBand!.includes(intake.complexityBand));
+
+    // 2) If multiple values provided for an indexed field, union queries for each value
+    if (hasMany(args.status)) {
+      let union: typeof results = [];
+      for (const s of args.status as string[]) {
+        const chunk = await ctx.db
+          .query("intakes")
+          .withIndex("by_status", (q) => q.eq("status", s as any))
+          .collect();
+        union = union.concat(chunk);
+      }
+      results = dedupeById(union);
     }
-    
+    if (hasMany(args.complexityBand)) {
+      let union: typeof results = [];
+      for (const b of args.complexityBand as string[]) {
+        const chunk = await ctx.db
+          .query("intakes")
+          .withIndex("by_complexityBand", (q) => q.eq("complexityBand", b as any))
+          .collect();
+        union = union.concat(chunk);
+      }
+      results = dedupeById(union);
+    }
+
+    // 3) Apply remaining non-indexable filters
     if (args.requestorName) {
-      results = results.filter(intake => 
-        intake.requestorName.toLowerCase().includes(args.requestorName!.toLowerCase())
+      const needle = args.requestorName.toLowerCase();
+      results = results.filter((intake) =>
+        intake.requestorName.toLowerCase().includes(needle)
       );
     }
-    
-    if (args.planYear) {
-      results = results.filter(intake => intake.planYear === args.planYear);
-    }
-    
+
     if (args.requestedProductionTime && args.requestedProductionTime.length > 0) {
-      results = results.filter(intake => 
-        args.requestedProductionTime!.includes(intake.requestedProductionTime)
-      );
+      const set = new Set(args.requestedProductionTime);
+      results = results.filter((intake) => set.has(intake.requestedProductionTime));
     }
-    
-    // Apply sorting
-    const sortBy = args.sortBy || 'dateReceived';
-    const order = args.order || 'desc';
-    
+
+    // 4) Apply sorting
+    const sortBy = args.sortBy || "dateReceived";
+    const order = args.order || "desc";
+
     results.sort((a, b) => {
       let aVal: string | number = a[sortBy as keyof typeof a] as string | number;
       let bVal: string | number = b[sortBy as keyof typeof b] as string | number;
-      
-      if (typeof aVal === 'string') {
-        aVal = aVal.toLowerCase();
+
+      // Handle date fields explicitly
+      if (sortBy === "dateReceived") {
+        aVal = new Date(aVal as string).getTime();
+        bVal = new Date(bVal as string).getTime();
+      } else {
+        if (typeof aVal === "string") aVal = aVal.toLowerCase();
+        if (typeof bVal === "string") bVal = bVal.toLowerCase();
       }
-      if (typeof bVal === 'string') {
-        bVal = bVal.toLowerCase();
-      }
-      
+
       let comparison = 0;
       if (aVal < bVal) comparison = -1;
       if (aVal > bVal) comparison = 1;
-      
-      return order === 'asc' ? comparison : -comparison;
+
+      return order === "asc" ? comparison : -comparison;
     });
-    
+
     return results;
   },
 });
