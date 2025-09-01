@@ -11,6 +11,18 @@ import { DashboardStats } from "../../components/dashboard-stats";
 import { DashboardFilters, type DashboardFilters as FiltersType } from "../../components/dashboard-filters";
 import { IntakesTable } from "../../components/intakes-table";
 
+type SortField =
+  | "clientName"
+  | "requestorName"
+  | "guideType"
+  | "communicationsAddOns"
+  | "complexityBand"
+  | "dateReceived"
+  | "requestedProductionTime"
+  | "status";
+
+type SortOrder = "asc" | "desc";
+
 const DEFAULT_FILTERS: FiltersType = {
   search: '',
   status: [],
@@ -23,10 +35,20 @@ const DEFAULT_FILTERS: FiltersType = {
 export default function DashboardPage() {
   const [filters, setFilters] = useState<FiltersType>(DEFAULT_FILTERS);
   const [isExporting, setIsExporting] = useState(false);
+  const [sortField, setSortField] = useState<SortField>("dateReceived");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
   // Fetch data
   const stats = useQuery(api.functions.intakes.stats, {});
-  const intakes = useQuery(api.functions.intakes.list, {});
+  const intakes = useQuery(api.functions.intakes.list, {
+    status: filters.status.length ? (filters.status as any) : undefined,
+    complexityBand: filters.complexityBand.length ? (filters.complexityBand as any) : undefined,
+    requestorName: filters.requestorName || undefined,
+    planYear: filters.planYear,
+    requestedProductionTime: filters.requestedProductionTime.length ? (filters.requestedProductionTime as any) : undefined,
+    sortBy: sortField,
+    order: sortOrder,
+  } as any);
 
   const handleFiltersChange = useCallback((newFilters: FiltersType) => {
     setFilters(newFilters);
@@ -45,6 +67,15 @@ export default function DashboardPage() {
     // The useQuery hooks will automatically refetch when data changes
     // No manual refresh needed due to Convex real-time updates
   }, []);
+
+  const handleSortChange = useCallback((field: SortField) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  }, [sortField]);
 
   const handleExportCSV = useCallback(async () => {
     setIsExporting(true);
@@ -161,6 +192,9 @@ export default function DashboardPage() {
               <IntakesTable
                 intakes={intakes}
                 filters={filters}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                onSortChange={handleSortChange}
                 onStatusChange={handleStatusChange}
                 onIntakeDeleted={handleIntakeDeleted}
               />

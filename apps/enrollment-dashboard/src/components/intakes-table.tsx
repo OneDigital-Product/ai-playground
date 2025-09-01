@@ -51,23 +51,15 @@ type SortOrder = "asc" | "desc";
 interface IntakesTableProps {
   intakes: Intake[];
   filters: DashboardFilters;
+  sortField: SortField;
+  sortOrder: SortOrder;
+  onSortChange: (field: SortField) => void;
   onStatusChange?: () => void;
   onIntakeDeleted?: () => void;
 }
 
-export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted }: IntakesTableProps) {
-  const [sortField, setSortField] = useState<SortField>("dateReceived");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+export function IntakesTable({ intakes, filters, sortField, sortOrder, onSortChange, onStatusChange, onIntakeDeleted }: IntakesTableProps) {
   const [deletingIntakeId, setDeletingIntakeId] = useState<string | null>(null);
-
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortOrder("asc");
-    }
-  };
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) {
@@ -76,75 +68,16 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
     return sortOrder === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
 
-  // Filter and sort intakes
-  const filteredAndSortedIntakes = useMemo(() => {
-    let filtered = intakes;
-
-    // Apply global search
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(intake => 
-        intake.clientName.toLowerCase().includes(searchLower) ||
-        intake.intakeId.toLowerCase().includes(searchLower) ||
-        intake.requestorName.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Apply status filter
-    if (filters.status.length > 0) {
-      filtered = filtered.filter(intake => filters.status.includes(intake.status));
-    }
-
-    // Apply complexity band filter
-    if (filters.complexityBand.length > 0) {
-      filtered = filtered.filter(intake => filters.complexityBand.includes(intake.complexityBand));
-    }
-
-    // Apply requestor name filter
-    if (filters.requestorName) {
-      filtered = filtered.filter(intake => 
-        intake.requestorName.toLowerCase().includes(filters.requestorName.toLowerCase())
-      );
-    }
-
-    // Apply plan year filter
-    if (filters.planYear) {
-      filtered = filtered.filter(intake => intake.planYear === filters.planYear);
-    }
-
-    // Apply requested production time filter
-    if (filters.requestedProductionTime.length > 0) {
-      filtered = filtered.filter(intake => 
-        filters.requestedProductionTime.includes(intake.requestedProductionTime)
-      );
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aVal: string | number = a[sortField];
-      let bVal: string | number = b[sortField];
-
-      // Handle date fields
-      if (sortField === "dateReceived") {
-        aVal = new Date(aVal as string).getTime();
-        bVal = new Date(bVal as string).getTime();
-      } else if (typeof aVal === 'string') {
-        aVal = aVal.toLowerCase();
-      }
-      
-      if (typeof bVal === 'string' && sortField !== "dateReceived") {
-        bVal = bVal.toLowerCase();
-      }
-
-      let comparison = 0;
-      if (aVal < bVal) comparison = -1;
-      if (aVal > bVal) comparison = 1;
-
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
-
-    return filtered;
-  }, [intakes, filters, sortField, sortOrder]);
+  // Apply only the global search client-side; Convex handles other filters & sorting
+  const searchedIntakes = useMemo(() => {
+    if (!filters.search) return intakes;
+    const searchLower = filters.search.toLowerCase();
+    return intakes.filter((intake) =>
+      intake.clientName.toLowerCase().includes(searchLower) ||
+      intake.intakeId.toLowerCase().includes(searchLower) ||
+      intake.requestorName.toLowerCase().includes(searchLower)
+    );
+  }, [intakes, filters.search]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -189,7 +122,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
   };
 
 
-  if (filteredAndSortedIntakes.length === 0) {
+  if (searchedIntakes.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground">
@@ -210,7 +143,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("clientName")}
+                onClick={() => onSortChange("clientName")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Client Name
@@ -220,7 +153,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("requestorName")}
+                onClick={() => onSortChange("requestorName")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Requestor
@@ -230,7 +163,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("guideType")}
+                onClick={() => onSortChange("guideType")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Guide Type
@@ -240,7 +173,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("communicationsAddOns")}
+                onClick={() => onSortChange("communicationsAddOns")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Communications
@@ -250,7 +183,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("complexityBand")}
+                onClick={() => onSortChange("complexityBand")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Complexity
@@ -260,7 +193,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("dateReceived")}
+                onClick={() => onSortChange("dateReceived")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Date Received
@@ -270,7 +203,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("requestedProductionTime")}
+                onClick={() => onSortChange("requestedProductionTime")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Production Time
@@ -280,7 +213,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
             <TableHead>
               <Button 
                 variant="ghost" 
-                onClick={() => handleSort("status")}
+                onClick={() => onSortChange("status")}
                 className="h-auto p-0 font-medium hover:bg-transparent"
               >
                 Status
@@ -291,7 +224,7 @@ export function IntakesTable({ intakes, filters, onStatusChange, onIntakeDeleted
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredAndSortedIntakes.map((intake) => (
+          {searchedIntakes.map((intake) => (
             <TableRow key={intake.intakeId} className="hover:bg-muted/50">
               <TableCell className="font-medium">
                 <div>
