@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateIntakeCreate } from "@/lib/schemas";
-import { SectionCode } from "@/lib/schemas";
 
 // Define requestor names as enum for consistency
 const REQUESTOR_NAMES = [
@@ -16,6 +15,8 @@ const REQUESTOR_NAMES = [
   "Maria Rodriguez"
 ] as const;
 
+type RequestorName = typeof REQUESTOR_NAMES[number];
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
     const data = validation.data;
     
     // Additional validation for requestor name
-    if (!REQUESTOR_NAMES.includes(data.requestorName as any)) {
+    if (!REQUESTOR_NAMES.includes(data.requestorName as RequestorName)) {
       return NextResponse.json({
         error: "Invalid requestor name",
         fieldErrors: {
