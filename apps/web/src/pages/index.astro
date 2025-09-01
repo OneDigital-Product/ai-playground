@@ -1,5 +1,46 @@
 ---
-// Redirect the root feed to the first paginated page so that prev/next links work.
-// Note: base is "/app", so redirect to an absolute path under that base.
-return Astro.redirect("/app/1");
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import BlogCard from "../components/BlogCard.astro";
+
+const PAGE_SIZE = 6;
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+const firstPage = posts.slice(0, PAGE_SIZE);
+const hasNext = posts.length > PAGE_SIZE;
 ---
+
+<BaseLayout title="Welcome" description="Latest updates and articles">
+  <section class="mx-auto max-w-[1200px] py-20 md:py-24">
+    <p class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground">Engineering serendipity</p>
+    <h1 class="mt-4 text-balance text-[56px] sm:text-[72px] md:text-[88px] font-extrabold leading-[0.95] tracking-tight text-primary">
+      At Infrared Mind + Body of the web
+    </h1>
+    <p class="mt-6 max-w-2xl text-pretty text-[20px] leading-[1.6] text-muted-foreground">
+      Articles on product, engineering, and design — exploring how simple systems and vivid ideas create outsized impact.
+    </p>
+  </section>
+
+  <section aria-labelledby="blog-heading" class="mx-auto max-w-[1200px] pb-20">
+    <h2 id="blog-heading" class="sr-only">Latest Posts</h2>
+    <ul class="grid items-stretch grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3 xl:gap-10">
+      {firstPage.map((post) => {
+        const { title, description, pubDate, tags } = post.data;
+        const href = `/app/blog/${post.slug}`;
+        return (
+          <li class="h-full">
+            <BlogCard title={title} description={description} date={pubDate} href={href} tags={tags} />
+          </li>
+        );
+      })}
+    </ul>
+
+    <nav class="mt-16 flex items-center justify-between border-t pt-8">
+      <span />
+      {hasNext && (
+        <a href="/app/2" class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground hover:text-primary">Next →</a>
+      )}
+    </nav>
+  </section>
+</BaseLayout>
