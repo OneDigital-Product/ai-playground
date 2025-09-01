@@ -194,13 +194,13 @@ export function DashboardFilters({
               <Input
                 id="planYear"
                 type="number"
-                placeholder="e.g. 2024"
+                placeholder="e.g. 2025"
                 value={filters.planYear || ''}
                 onChange={(e) => updateFilters({ 
                   planYear: e.target.value ? parseInt(e.target.value) : undefined 
                 })}
-                min={2020}
-                max={2030}
+                min={2025}
+                max={2026}
                 className="mt-1"
               />
             </div>

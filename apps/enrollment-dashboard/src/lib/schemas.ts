@@ -127,7 +127,7 @@ export const sectionsSchema = z.object({
 // Main intake create schema
 export const intakeCreateSchema = z.object({
   clientName: z.string().min(1, "Client name is required"),
-  planYear: z.coerce.number().min(2020).max(2030), // Coerce string to number 
+  planYear: z.coerce.number().min(2025).max(2026), // Restrict to 2025–2026 per requirements
   requestorName: z.string().min(1, "Requestor name is required"),
   payrollStorageUrl: z.string().min(1, "Payroll storage URL is required"), 
   guideType: z.enum([GuideType.UPDATE_EXISTING_GUIDE, GuideType.NEW_GUIDE_BUILD]),

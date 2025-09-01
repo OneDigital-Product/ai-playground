@@ -141,8 +141,8 @@ export function validateNonEmptyString(value: string, fieldName: string): string
 
 // Helper to validate plan year range
 export function validatePlanYear(year: number): number | never {
-  if (year < 2020 || year > 2030) {
-    throw new Error("Plan year must be between 2020 and 2030");
+  if (year < 2025 || year > 2026) {
+    throw new Error("Plan year must be between 2025 and 2026");
   }
   return year;
 }
