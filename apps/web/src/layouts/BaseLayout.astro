@@ -6,6 +6,7 @@ export interface Props {
 
 const { title = "Web App", description = "Web application" } = Astro.props as Props;
 import SiteNav from "../components/SiteNav.astro";
+import "../styles/global.css";
 ---
 
 <!doctype html>
@@ -24,15 +25,25 @@ import SiteNav from "../components/SiteNav.astro";
   </head>
   <body class="bg-background text-foreground antialiased">
     <slot name="site-nav"><SiteNav /></slot>
-    <main class="mx-auto max-w-6xl px-4 sm:px-6">
+    <main class="mx-auto max-w-[1440px] px-6 md:px-12 xl:px-20">
       <slot />
     </main>
-    <footer class="mx-auto max-w-6xl px-4 sm:px-6 py-10 text-xs text-muted-foreground border-t mt-12">
-      <p>© {new Date().getFullYear()} Playground. All rights reserved.</p>
+    <footer class="mt-24 border-t">
+      <div class="mx-auto max-w-[1440px] px-6 md:px-12 xl:px-20 py-20 bg-accent/10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
+          <div><p class="font-semibold uppercase tracking-[0.05em] text-muted-foreground">About</p></div>
+          <div><p class="font-semibold uppercase tracking-[0.05em] text-muted-foreground">Resources</p></div>
+          <div><p class="font-semibold uppercase tracking-[0.05em] text-muted-foreground">Community</p></div>
+          <div><p class="font-semibold uppercase tracking-[0.05em] text-muted-foreground">More</p></div>
+        </div>
+      </div>
+      <div class="border-t">
+        <div class="mx-auto max-w-[1440px] px-6 md:px-12 xl:px-20 py-6 text-xs text-muted-foreground">
+          <p>© {new Date().getFullYear()} Playground. All rights reserved.</p>
+        </div>
+      </div>
     </footer>
   </body>
 </html>
 
-<style>
-  @import "../styles/global.css";
-</style>
+
