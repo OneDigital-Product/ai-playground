@@ -2,14 +2,19 @@
 
 import { Button } from "@repo/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
-import { Badge } from "@repo/ui/components/ui/badge";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@repo/backend/convex/_generated/api";
 import { ComplexityBadge } from "../../components/complexity-badge";
+import { StatusSelect, Status } from "../../components/status-select";
 
 export default function IntakesPage() {
   const intakes = useQuery(api.functions.intakes.list, {});
+
+  const handleStatusChange = () => {
+    // Refetch stats when status changes to update counters
+    // The useQuery hooks will automatically refetch
+  };
 
   return (
     <main className="container mx-auto p-6">
@@ -39,33 +44,38 @@ export default function IntakesPage() {
           ) : (
             <div className="space-y-4">
               {intakes.map((intake) => (
-                <Link 
+                <div 
                   key={intake.intakeId} 
-                  href={`/enrollment-dashboard/intakes/${intake.intakeId}`}
-                  className="block"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold">{intake.clientName}</h3>
-                        <Badge variant="outline">{intake.status.replace('_', ' ')}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {intake.intakeId} • Requestor: {intake.requestorName} • Plan Year: {intake.planYear}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Received: {new Date(intake.dateReceived).toLocaleDateString()}
-                      </p>
+                  <Link 
+                    href={`/enrollment-dashboard/intakes/${intake.intakeId}`}
+                    className="flex-1 min-w-0"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold">{intake.clientName}</h3>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <ComplexityBadge 
-                        band={intake.complexityBand} 
-                        score={intake.complexityScore} 
-                        showScore={true} 
-                      />
-                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {intake.intakeId} • Requestor: {intake.requestorName} • Plan Year: {intake.planYear}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Received: {new Date(intake.dateReceived).toLocaleDateString()}
+                    </p>
+                  </Link>
+                  <div className="flex items-center gap-3 ml-4">
+                    <StatusSelect
+                      intakeId={intake.intakeId}
+                      currentStatus={intake.status as Status}
+                      onStatusChange={handleStatusChange}
+                      size="sm"
+                    />
+                    <ComplexityBadge 
+                      band={intake.complexityBand} 
+                      score={intake.complexityScore} 
+                      showScore={true} 
+                    />
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}

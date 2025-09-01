@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { ComplexityBadge } from "./complexity-badge";
+import { StatusSelect, Status } from "./status-select";
 import { getSectionsFromFlags, getSectionName } from "../lib/sections";
 
 interface IntakeData {
@@ -80,11 +81,11 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Status</label>
-              <div>
-                <Badge variant="outline" className="mt-1">
-                  {intake.status.replace('_', ' ')}
-                </Badge>
-                {/* Placeholder for status update - will be implemented in step 08 */}
+              <div className="mt-1">
+                <StatusSelect
+                  intakeId={intake.intakeId}
+                  currentStatus={intake.status as Status}
+                />
               </div>
             </div>
           </div>
