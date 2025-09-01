@@ -122,10 +122,78 @@ export declare const api: {
         },
         any
       >;
+      updateComplexityFactors: FunctionReference<
+        "mutation",
+        "public",
+        {
+          communicationsAddOns?:
+            | "None"
+            | "OE Letter"
+            | "OE Presentation"
+            | "Both"
+            | "Other";
+          guideType?: "Update Existing Guide" | "New Guide Build";
+          intakeId: string;
+          sectionsChangedFlags?: {
+            A: boolean;
+            B: boolean;
+            C: boolean;
+            D: boolean;
+            E: boolean;
+            F: boolean;
+            G: boolean;
+            H: boolean;
+            I: boolean;
+            J: boolean;
+            K: boolean;
+            L: boolean;
+            M: boolean;
+            N: boolean;
+            O: boolean;
+            P: boolean;
+            Q: boolean;
+          };
+        },
+        any
+      >;
       deleteIntake: FunctionReference<
+        "action",
+        "public",
+        { intakeId: string },
+        any
+      >;
+      remove: FunctionReference<
         "mutation",
         "public",
         { intakeId: string },
+        any
+      >;
+      updateSectionFlags: FunctionReference<
+        "mutation",
+        "public",
+        {
+          changed?: boolean;
+          included?: boolean;
+          intakeId: string;
+          sectionCode:
+            | "A"
+            | "B"
+            | "C"
+            | "D"
+            | "E"
+            | "F"
+            | "G"
+            | "H"
+            | "I"
+            | "J"
+            | "K"
+            | "L"
+            | "M"
+            | "N"
+            | "O"
+            | "P"
+            | "Q";
+        },
         any
       >;
       stats: FunctionReference<"query", "public", {}, any>;
@@ -281,8 +349,24 @@ export declare const api: {
         },
         any
       >;
+      deleteByIntake: FunctionReference<
+        "mutation",
+        "public",
+        { intakeId: string },
+        any
+      >;
     };
     uploads: {
+      uploadFile: FunctionReference<
+        "action",
+        "public",
+        {
+          file: any;
+          intakeId: string;
+          kind: "GUIDE" | "PLAN_DOC" | "PAYROLL_SCREEN" | "OTHER";
+        },
+        any
+      >;
       create: FunctionReference<
         "mutation",
         "public",
@@ -309,6 +393,12 @@ export declare const api: {
         any
       >;
       deleteUpload: FunctionReference<
+        "action",
+        "public",
+        { uploadId: Id<"uploads"> },
+        any
+      >;
+      remove: FunctionReference<
         "mutation",
         "public",
         { uploadId: Id<"uploads"> },
@@ -316,6 +406,12 @@ export declare const api: {
       >;
       download: FunctionReference<
         "query",
+        "public",
+        { uploadId: Id<"uploads"> },
+        any
+      >;
+      getDownloadUrl: FunctionReference<
+        "action",
         "public",
         { uploadId: Id<"uploads"> },
         any

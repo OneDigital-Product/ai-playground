@@ -1,18 +1,19 @@
 import { ConvexHttpClient } from "convex/browser";
 import { NextRequest, NextResponse } from "next/server";
+import type { FunctionReference } from "convex/server";
 import { api } from "@repo/backend/convex/_generated/api";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     // Get download URL from Convex
-    const download = await convex.action(api.uploads.getDownloadUrl, {
+    const download = await convex.action(api.functions.uploads.getDownloadUrl as FunctionReference<"action">, {
       uploadId: id as string,
     });
     

@@ -240,14 +240,14 @@ export const updateComplexityFactors = mutation({
 export const deleteIntake = action({
   args: { intakeId: v.string() },
   handler: async (ctx, args) => {
-    const intake = await ctx.runQuery(api.intakes.get, { intakeId: args.intakeId });
+    const intake = await ctx.runQuery(api.functions.intakes.get, { intakeId: args.intakeId });
     
     if (!intake) {
       throw new Error("Intake not found");
     }
     
     // Get all uploads for this intake
-    const uploads = await ctx.runQuery(api.uploads.listByIntake, { intakeId: args.intakeId });
+    const uploads = await ctx.runQuery(api.functions.uploads.listByIntake, { intakeId: args.intakeId });
     
     // Delete all upload files from storage and database records
     for (const upload of uploads) {
@@ -256,7 +256,7 @@ export const deleteIntake = action({
         await ctx.storage.delete(upload.storedKey);
         
         // Delete upload record
-        await ctx.runMutation(api.uploads.remove, { uploadId: upload._id });
+        await ctx.runMutation(api.functions.uploads.remove, { uploadId: upload._id });
       } catch (error) {
         // Continue even if deletion fails (record might already be deleted)
         console.warn(`Failed to delete upload ${upload._id}:`, error);
@@ -264,10 +264,10 @@ export const deleteIntake = action({
     }
     
     // Delete all sections for this intake
-    await ctx.runMutation(api.sections.deleteByIntake, { intakeId: args.intakeId });
+    await ctx.runMutation(api.functions.sections.deleteByIntake, { intakeId: args.intakeId });
     
     // Delete the intake itself
-    await ctx.runMutation(api.intakes.remove, { intakeId: args.intakeId });
+    await ctx.runMutation(api.functions.intakes.remove, { intakeId: args.intakeId });
     
     return { success: true };
   },

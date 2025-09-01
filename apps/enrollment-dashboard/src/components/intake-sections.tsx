@@ -54,9 +54,11 @@ export function IntakeSections({ sections, intake, onRefresh }: IntakeSectionsPr
           const sectionName = getSectionName(sectionCode);
           const hasData = !!sectionData;
           
-          // Extract change_description from payload if it exists
-          const changeDescription = sectionData?.payload?.change_description || 
-                                  sectionData?.payload?.description || "";
+          // Extract change_description from payload if it exists (payload values are unknown)
+          const changeDescription =
+            (sectionData?.payload?.change_description as string | undefined) ||
+            (sectionData?.payload?.description as string | undefined) ||
+            "";
 
           // Get flags from intake
           const changed = intake.sectionsChangedFlags[sectionCode] || false;

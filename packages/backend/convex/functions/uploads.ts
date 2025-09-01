@@ -45,7 +45,7 @@ export const uploadFile = action({
     const storageId = await ctx.storage.store(file);
     
     // Create database record
-    const uploadId = await ctx.runMutation(api.uploads.create, {
+    const uploadId = await ctx.runMutation(api.functions.uploads.create, {
       intakeId,
       kind,
       originalName: file.name,
@@ -119,7 +119,7 @@ export const deleteUpload = action({
   args: { uploadId: v.id("uploads") },
   handler: async (ctx, args) => {
     // Get upload metadata first
-    const upload = await ctx.runQuery(api.uploads.get, { uploadId: args.uploadId });
+    const upload = await ctx.runQuery(api.functions.uploads.get, { uploadId: args.uploadId });
     
     if (!upload) {
       throw new Error("Upload not found");
@@ -129,7 +129,7 @@ export const deleteUpload = action({
     await ctx.storage.delete(upload.storedKey);
     
     // Delete database record
-    await ctx.runMutation(api.uploads.remove, { uploadId: args.uploadId });
+    await ctx.runMutation(api.functions.uploads.remove, { uploadId: args.uploadId });
     
     return { success: true };
   },
@@ -169,7 +169,7 @@ export const download = query({
 export const getDownloadUrl = action({
   args: { uploadId: v.id("uploads") },
   handler: async (ctx, args) => {
-    const upload = await ctx.runQuery(api.uploads.get, { uploadId: args.uploadId });
+    const upload = await ctx.runQuery(api.functions.uploads.get, { uploadId: args.uploadId });
     
     if (!upload) {
       throw new Error("Upload not found");

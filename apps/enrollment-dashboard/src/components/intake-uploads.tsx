@@ -19,7 +19,7 @@ export function IntakeUploads({ intakeId }: IntakeUploadsProps) {
   const [uploads, setUploads] = useState<Upload[]>([]);
   
   // Query uploads from Convex
-  const uploadsQuery = useQuery(api.uploads.listByIntake, { intakeId });
+  const uploadsQuery = useQuery(api.functions.uploads.listByIntake, { intakeId });
 
   useEffect(() => {
     if (uploadsQuery) {

@@ -8,8 +8,21 @@ import { api } from "@repo/backend/convex/_generated/api";
 import { ComplexityBadge } from "../../components/complexity-badge";
 import { StatusSelect, Status } from "../../components/status-select";
 
+type IntakeListItem = {
+  intakeId: string;
+  clientName: string;
+  requestorName: string;
+  planYear: number;
+  dateReceived: string;
+  status: string;
+  complexityBand: "Minimal" | "Low" | "Medium" | "High";
+  complexityScore: number;
+};
+
 export default function IntakesPage() {
-  const intakes = useQuery(api.functions.intakes.list, {});
+  const intakes = useQuery(api.functions.intakes.list, {}) as
+    | IntakeListItem[]
+    | undefined;
 
   const handleStatusChange = () => {
     // Refetch stats when status changes to update counters

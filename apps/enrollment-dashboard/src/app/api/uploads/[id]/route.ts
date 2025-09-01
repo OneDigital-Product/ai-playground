@@ -1,18 +1,21 @@
 import { ConvexHttpClient } from "convex/browser";
 import { NextRequest, NextResponse } from "next/server";
 import { api } from "@repo/backend/convex/_generated/api";
+import type { FunctionReference } from "convex/server";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     // Delete upload via Convex action
-    const result = await convex.action(api.uploads.deleteUpload, {
+    const result = await convex.action(
+        api.functions.uploads.deleteUpload as FunctionReference<"action">,
+        {
       uploadId: id as string,
     });
     

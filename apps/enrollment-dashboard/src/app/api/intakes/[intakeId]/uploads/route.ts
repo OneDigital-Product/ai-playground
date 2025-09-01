@@ -1,15 +1,16 @@
 import { ConvexHttpClient } from "convex/browser";
 import { NextRequest, NextResponse } from "next/server";
 import { api } from "@repo/backend/convex/_generated/api";
+import type { FunctionReference } from "convex/server";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { intakeId: string } }
+  { params }: { params: Promise<{ intakeId: string }> }
 ) {
   try {
-    const { intakeId } = params;
+    const { intakeId } = await params;
     const formData = await request.formData();
     
     const files = formData.getAll("files") as File[];
@@ -53,7 +54,9 @@ export async function POST(
       const file = files[i];
       
       try {
-        const result = await convex.action(api.uploads.uploadFile, {
+        const result = await convex.action(
+            api.functions.uploads.uploadFile as FunctionReference<"action">,
+            {
           intakeId,
           kind: kind as "GUIDE" | "PLAN_DOC" | "PAYROLL_SCREEN" | "OTHER",
           file,
