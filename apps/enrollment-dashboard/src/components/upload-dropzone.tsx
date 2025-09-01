@@ -39,9 +39,18 @@ interface FileUpload {
 interface UploadDropzoneProps {
   intakeId: string;
   onUploadComplete?: () => void;
+  onUploaded?: (
+    files: Array<{
+      _id: string;
+      originalName: string;
+      mimeType: string;
+      bytes: number;
+      kind: string;
+    }>
+  ) => void;
 }
 
-export function UploadDropzone({ intakeId, onUploadComplete }: UploadDropzoneProps) {
+export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: UploadDropzoneProps) {
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [kind, setKind] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
@@ -156,6 +165,12 @@ export function UploadDropzone({ intakeId, onUploadComplete }: UploadDropzonePro
       const result = await response.json();
 
       if (!response.ok) {
+        if (response.status >= 500) {
+          throw new Error(
+            result?.error ||
+              "Backend error: Convex may be unavailable or NEXT_PUBLIC_CONVEX_URL is not configured. Ensure 'npx convex dev' is running and the URL is set."
+          );
+        }
         throw new Error(result.error || "Upload failed");
       }
 
@@ -171,6 +186,11 @@ export function UploadDropzone({ intakeId, onUploadComplete }: UploadDropzonePro
 
       if (result.files && result.files.length > 0) {
         showToast("success", `Successfully uploaded ${result.files.length} file(s)`);
+        try {
+          onUploaded?.(result.files);
+        } catch (_) {
+          // no-op
+        }
         onUploadComplete?.();
       }
 
