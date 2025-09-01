@@ -20,41 +20,39 @@ const pageData = page as unknown as { data: PostEntry[]; url: { prev?: string; n
 ---
 
 <BaseLayout title="Welcome" description="Latest updates and articles">
-  <section class="mx-auto max-w-5xl py-10 sm:py-14">
-    <p class="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Engineering serendipity</p>
-    <h1 class="mt-2 text-balance text-5xl sm:text-6xl font-semibold leading-[0.95] tracking-tight">
+  <section class="mx-auto max-w-[1200px] py-20 md:py-24">
+    <p class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground">Engineering serendipity</p>
+    <h1 class="mt-4 text-balance text-[56px] sm:text-[72px] md:text-[88px] font-extrabold leading-[0.95] tracking-tight text-primary">
       At Infrared Mind + Body of the web
     </h1>
-    <p class="mt-4 max-w-2xl text-pretty text-muted-foreground">
+    <p class="mt-6 max-w-2xl text-pretty text-[20px] leading-[1.6] text-muted-foreground">
       Articles on product, engineering, and design — exploring how simple systems and vivid ideas create outsized impact.
     </p>
   </section>
 
-  <section aria-labelledby="blog-heading" class="mx-auto max-w-5xl pb-12">
+  <section aria-labelledby="blog-heading" class="mx-auto max-w-[1200px] pb-20">
     <h2 id="blog-heading" class="sr-only">Latest Posts</h2>
-    <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <ul class="grid items-stretch grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3 xl:gap-10">
       {pageData.data.map((post) => {
         const { title, description, pubDate, tags } = post.data;
         const href = `/app/blog/${post.slug}`;
         return (
-          <li>
+          <li class="h-full">
             <BlogCard title={title} description={description} date={pubDate} href={href} tags={tags} />
           </li>
         );
       })}
     </ul>
 
-    <nav class="mt-10 flex items-center justify-between border-t pt-6">
+    <nav class="mt-16 flex items-center justify-between border-t pt-8">
       {pageData.url.prev ? (
-        <a href={pageData.url.prev} class="text-sm uppercase tracking-wide text-muted-foreground hover:text-primary">← Previous</a>
+        <a href={pageData.url.prev} class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground hover:text-primary">← Previous</a>
       ) : <span />}
       {pageData.url.next && (
-        <a href={pageData.url.next} class="text-sm uppercase tracking-wide text-muted-foreground hover:text-primary">Next →</a>
+        <a href={pageData.url.next} class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground hover:text-primary">Next →</a>
       )}
     </nav>
   </section>
 
-  <nav class="mx-auto max-w-5xl pb-10">
-    <a href="/app/convex-demo" class="text-sm text-primary underline-offset-4 hover:underline">Convex Demo</a>
-  </nav>
+
 </BaseLayout>
