@@ -132,3 +132,66 @@ Use this concise checklist when adding new apps to keep builds fast and caching 
 ## Security & Configuration Tips
 - Do not commit secrets. Use `apps/*/.env*`. `VERCEL_ENV=preview` triggers preview-only redirects in some apps.
 - Use `transpilePackages` and shared Tailwind config as configured; avoid ad-hoc build steps in packages.
+
+## Next.js Apps Mounted Under a Subpath (Vercel)
+
+When serving a Next.js app under a subpath (e.g., `/admin`, `/docs`, `/retirement`, `/enrollment-dashboard`), configure basePath and redirects so the Vercel deployment root URL works and the app renders under the subpath.
+
+What to configure
+- next.config.ts: set `basePath` and add a root redirect with `basePath: false`.
+- vercel.json: use the shared ignore step and Convex build wrapper to inject `NEXT_PUBLIC_CONVEX_URL` during builds (matching other apps).
+- Dependencies: keep `transpilePackages: ["@repo/ui", "@repo/backend"]` for shared code.
+
+Example: next.config.ts
+```ts
+import type { NextConfig } from "next";
+
+const isPreview = process.env.VERCEL_ENV === "preview"; // optional
+
+const nextConfig: NextConfig = {
+  basePath: "/YOUR_BASE_PATH",
+  transpilePackages: ["@repo/ui", "@repo/backend"],
+  async redirects() {
+    // Option A (always): redirect domain root → base path in all envs
+    // Option B (preview-only): return [] when !isPreview
+    return [
+      {
+        source: "/",
+        destination: "/YOUR_BASE_PATH",
+        permanent: false,
+        basePath: false, // critical: apply at domain root
+      },
+    ];
+  },
+};
+
+export default nextConfig;
+```
+
+Example: vercel.json
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "node ../../scripts/turbo-ignore.js",
+  "buildCommand": "npx convex deploy --cmd 'pnpm build' --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL"
+}
+```
+
+Why this matters
+- basePath + redirect: Next.js applies `basePath` to redirects by default. Without `basePath: false`, a redirect from `/` will not apply at the domain root in Vercel previews, causing `404 NOT_FOUND`. Adding `basePath: false` makes the redirect operate at the domain root and point to your subpath.
+- Convex URL injection: The `npx convex deploy --cmd 'pnpm build'` wrapper injects `NEXT_PUBLIC_CONVEX_URL` before your Next build, mirroring `apps/web` which uses the same wrapper for Astro.
+
+Reference patterns
+- Astro app (`apps/web`): uses `vercel.json` `rewrites` to serve the app under `/app` and a `buildCommand` using the Convex wrapper.
+- Next apps (`admin`, `docs`, `retirement`, `enrollment-dashboard`): use `basePath` for mounting and a root redirect with `basePath: false`. Some apps gate the redirect to previews only via `VERCEL_ENV === "preview"`.
+
+Verification checklist
+- GET `/` on the preview deployment redirects to your subpath (307/308).
+- GET `/<basePath>` returns 200 and renders the app.
+- Build logs show the Convex deploy step injecting `NEXT_PUBLIC_CONVEX_URL`.
+- `turbo-ignore` logs “⏭ Unaffected” for unaffected previews.
+
+Common pitfalls
+- Missing `basePath: false` on the `/` redirect → 404 on preview root.
+- Divergent build commands between apps → inconsistent environment injection.
+- Missing `transpilePackages` → shared UI/backend code fails to compile in Next apps.
