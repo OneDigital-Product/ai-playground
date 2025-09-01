@@ -17,6 +17,7 @@ export async function getStaticPaths(ctx: unknown) {
 
 const { page } = Astro.props;
 const pageData = page as unknown as { data: PostEntry[]; url: { prev?: string; next?: string } };
+const prevHref = pageData.url.prev === "/app/1" ? "/app" : pageData.url.prev;
 ---
 
 <BaseLayout title="Welcome" description="Latest updates and articles">
@@ -45,8 +46,8 @@ const pageData = page as unknown as { data: PostEntry[]; url: { prev?: string; n
     </ul>
 
     <nav class="mt-16 flex items-center justify-between border-t pt-8">
-      {pageData.url.prev ? (
-        <a href={pageData.url.prev} class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground hover:text-primary">← Previous</a>
+      {prevHref ? (
+        <a href={prevHref} class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground hover:text-primary">← Previous</a>
       ) : <span />}
       {pageData.url.next && (
         <a href={pageData.url.next} class="text-[14px] uppercase tracking-[0.05em] text-muted-foreground hover:text-primary">Next →</a>
