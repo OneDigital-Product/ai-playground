@@ -8,7 +8,19 @@ import { REQUESTOR_NAMES, type RequestorName } from "@/lib/constants";
 // REQUESTOR_NAMES moved to shared constants module
 
 export async function POST(request: NextRequest) {
-  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  // Proactively surface clear infra/config errors before attempting any backend calls
+  if (!convexUrl) {
+    return NextResponse.json(
+      {
+        error:
+          "Backend unavailable: NEXT_PUBLIC_CONVEX_URL is not configured. In local dev, run 'npx convex dev' to obtain a URL and add NEXT_PUBLIC_CONVEX_URL to apps/enrollment-dashboard/.env.local. In CI/preview, ensure the env var is set in Vercel.",
+      },
+      { status: 500 }
+    );
+  }
+
+  const convex = new ConvexHttpClient(convexUrl);
   try {
     const body = await request.json();
 
@@ -99,8 +111,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Distinguish likely infra/backend failures with actionable guidance
     return NextResponse.json(
-      { error: "Failed to create intake. Please try again." },
+      {
+        error:
+          "Backend error: Unable to create intake. This may be due to a missing NEXT_PUBLIC_CONVEX_URL or the backend is not running. In local dev, ensure 'npx convex dev' is running and the URL is set in .env.local; in preview, verify env configuration.",
+      },
       { status: 500 }
     );
   }

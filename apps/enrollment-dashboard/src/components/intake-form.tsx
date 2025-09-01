@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
@@ -43,12 +43,22 @@ type FormData = IntakeCreate & {
 type FormErrors = {
   error?: string;
   fieldErrors?: Record<string, string[]>;
+  statusCode?: number;
 };
 
 export function IntakeForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Move focus to the banner when an error appears
+  useEffect(() => {
+    if (errors.error && errorRef.current) {
+      const id = window.setTimeout(() => errorRef.current?.focus(), 0);
+      return () => window.clearTimeout(id);
+    }
+  }, [errors.error]);
   
   // Form state with proper defaults
   const [formData, setFormData] = useState<FormData>({
@@ -143,10 +153,34 @@ export function IntakeForm() {
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
+      // Some responses may not include a JSON body on failure; guard parsing
+      let result: any = undefined;
+      try {
+        result = await response.json();
+      } catch (_) {
+        // ignore body parse errors
+      }
 
       if (!response.ok) {
-        setErrors(result);
+        // 4xx: show server-provided validation/domain error and keep inputs intact
+        if (response.status >= 400 && response.status < 500) {
+          setErrors({
+            error: (result && result.error) || 'Please fix the errors and try again.',
+            fieldErrors: result?.fieldErrors,
+            statusCode: response.status,
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // 5xx: show distinct infra/backend guidance
+        setErrors({
+          error:
+            (result && result.error) ||
+            'Backend error: Convex URL may be misconfigured or the backend is unavailable. In local dev, run "npx convex dev" and set NEXT_PUBLIC_CONVEX_URL in apps/enrollment-dashboard/.env.local. In preview, verify env config.',
+          fieldErrors: result?.fieldErrors,
+          statusCode: response.status,
+        });
         setIsSubmitting(false);
         return;
       }
@@ -156,8 +190,10 @@ export function IntakeForm() {
       
     } catch (error) {
       console.error('Form submission error:', error);
+      // Network/infra failures
       setErrors({
-        error: 'An unexpected error occurred. Please try again.'
+        error:
+          'Network error: Unable to reach the backend. Ensure Convex is running (npx convex dev) and NEXT_PUBLIC_CONVEX_URL is configured.',
       });
       setIsSubmitting(false);
     }
@@ -171,7 +207,13 @@ export function IntakeForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Global Error */}
       {errors.error && (
-        <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded">
+        <div
+          ref={errorRef}
+          role="alert"
+          aria-live="polite"
+          tabIndex={-1}
+          className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded focus:outline-none focus:ring-2 focus:ring-destructive/50"
+        >
           {errors.error}
         </div>
       )}
