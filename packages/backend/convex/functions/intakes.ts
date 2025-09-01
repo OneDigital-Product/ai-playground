@@ -8,7 +8,8 @@ import {
   listFiltersValidator,
   validateNonEmptyString,
   validatePlanYear,
-  sectionsValidator
+  sectionsValidator,
+  sectionCodeValidator
 } from "../validators/shared.js";
 
 // Create intake
@@ -272,6 +273,73 @@ export const deleteIntake = mutation({
     await ctx.db.delete(intake._id);
     
     return { success: true };
+  },
+});
+
+// Update section flags (changed and/or included)
+export const updateSectionFlags = mutation({
+  args: {
+    intakeId: v.string(),
+    sectionCode: sectionCodeValidator,
+    changed: v.optional(v.boolean()),
+    included: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const intake = await ctx.db
+      .query("intakes")
+      .withIndex("by_intakeId", (q) => q.eq("intakeId", args.intakeId))
+      .unique();
+    
+    if (!intake) {
+      throw new Error("Intake not found");
+    }
+    
+    // Build update object
+    const updateData: {
+      updatedAt: string;
+      sectionsChangedFlags?: SectionsFlags;
+      sectionsIncludedFlags?: SectionsFlags;
+      complexityScore?: number;
+      complexityBand?: "Minimal" | "Low" | "Medium" | "High";
+    } = {
+      updatedAt: new Date().toISOString(),
+    };
+    
+    // Update changed flags if provided
+    if (args.changed !== undefined) {
+      updateData.sectionsChangedFlags = {
+        ...intake.sectionsChangedFlags,
+        [args.sectionCode]: args.changed,
+      };
+    }
+    
+    // Update included flags if provided
+    if (args.included !== undefined) {
+      updateData.sectionsIncludedFlags = {
+        ...intake.sectionsIncludedFlags,
+        [args.sectionCode]: args.included,
+      };
+    }
+    
+    // Recalculate complexity if changed flags were updated
+    if (updateData.sectionsChangedFlags) {
+      const { score, band } = calculateComplexity({
+        sections_changed_flags: updateData.sectionsChangedFlags,
+        guide_type: intake.guideType,
+        communications_add_ons: intake.communicationsAddOns,
+      });
+      
+      updateData.complexityScore = score;
+      updateData.complexityBand = band;
+    }
+    
+    await ctx.db.patch(intake._id, updateData);
+    
+    return { 
+      success: true, 
+      complexityScore: updateData.complexityScore,
+      complexityBand: updateData.complexityBand 
+    };
   },
 });
 

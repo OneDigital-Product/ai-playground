@@ -30,8 +30,6 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
     window.location.reload();
   };
 
-  // Fetch uploads data (for potential display in overview)
-  const uploads = useQuery(api.functions.uploads.listByIntake, { intakeId });
 
   // Handle tab change
   const handleTabChange = (tab: string) => {
@@ -90,30 +88,6 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
 
       <TabsContent value="overview" className="space-y-6">
         <IntakeOverview intake={intake} />
-        
-        {/* Optional uploads display */}
-        {uploads && uploads.length > 0 && (
-          <Card>
-            <CardContent className="pt-6">
-              <h4 className="font-semibold mb-3">Uploads ({uploads.length})</h4>
-              <div className="space-y-2">
-                {uploads.map((upload) => (
-                  <div key={upload._id} className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <p className="text-sm font-medium">{upload.originalName}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {upload.kind.replace("_", " ")} • {(upload.bytes / 1024).toFixed(1)} KB
-                      </p>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(upload.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </TabsContent>
 
       <TabsContent value="sections" className="space-y-6">

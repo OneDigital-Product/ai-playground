@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { query, mutation } from "../_generated/server.js";
+import { query, mutation, action } from "../_generated/server.js";
+import { api } from "../_generated/api.js";
 
 const uploadKindValidator = v.union(
   v.literal("GUIDE"), 
@@ -7,6 +8,61 @@ const uploadKindValidator = v.union(
   v.literal("PAYROLL_SCREEN"), 
   v.literal("OTHER")
 );
+
+// Allowed MIME types
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+];
+
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
+
+// Upload action that handles file storage
+export const uploadFile = action({
+  args: {
+    intakeId: v.string(),
+    kind: uploadKindValidator,
+    file: v.any(), // File blob
+  },
+  handler: async (ctx, args) => {
+    const { file, intakeId, kind } = args;
+    
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error(`File size (${Math.round(file.size / 1024 / 1024)}MB) exceeds maximum allowed size of 25MB`);
+    }
+    
+    // Validate MIME type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      throw new Error(`File type ${file.type} is not allowed. Allowed types: PDF, DOCX, XLSX, PNG, JPG`);
+    }
+    
+    // Store file in Convex storage
+    const storageId = await ctx.storage.store(file);
+    
+    // Create database record
+    const uploadId = await ctx.runMutation(api.uploads.create, {
+      intakeId,
+      kind,
+      originalName: file.name,
+      mimeType: file.type,
+      bytes: file.size,
+      storedKey: storageId,
+    });
+    
+    return { 
+      _id: uploadId._id, 
+      originalName: file.name,
+      mimeType: file.type,
+      bytes: file.size,
+      kind 
+    };
+  },
+});
 
 // Create upload record
 export const create = mutation({
@@ -58,21 +114,33 @@ export const listByIntake = query({
   },
 });
 
-// Delete upload
-export const deleteUpload = mutation({
+// Delete upload action that also removes the file from storage
+export const deleteUpload = action({
   args: { uploadId: v.id("uploads") },
   handler: async (ctx, args) => {
-    const upload = await ctx.db.get(args.uploadId);
+    // Get upload metadata first
+    const upload = await ctx.runQuery(api.uploads.get, { uploadId: args.uploadId });
     
     if (!upload) {
       throw new Error("Upload not found");
     }
     
-    // Note: In a real implementation, you would also delete the file from storage
-    // For now, we just delete the record
-    await ctx.db.delete(args.uploadId);
+    // Delete file from storage
+    await ctx.storage.delete(upload.storedKey);
     
-    return { success: true, storedKey: upload.storedKey };
+    // Delete database record
+    await ctx.runMutation(api.uploads.remove, { uploadId: args.uploadId });
+    
+    return { success: true };
+  },
+});
+
+// Internal mutation for deleting upload record
+export const remove = mutation({
+  args: { uploadId: v.id("uploads") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.uploadId);
+    return { success: true };
   },
 });
 
@@ -93,6 +161,28 @@ export const download = query({
       bytes: upload.bytes,
       storedKey: upload.storedKey,
       intakeId: upload.intakeId,
+    };
+  },
+});
+
+// Get download URL for file
+export const getDownloadUrl = action({
+  args: { uploadId: v.id("uploads") },
+  handler: async (ctx, args) => {
+    const upload = await ctx.runQuery(api.uploads.get, { uploadId: args.uploadId });
+    
+    if (!upload) {
+      throw new Error("Upload not found");
+    }
+    
+    // Generate signed URL for download
+    const url = await ctx.storage.getUrl(upload.storedKey);
+    
+    return {
+      url,
+      originalName: upload.originalName,
+      mimeType: upload.mimeType,
+      bytes: upload.bytes,
     };
   },
 });

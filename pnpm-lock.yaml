@@ -148,6 +148,9 @@ importers:
       convex:
         specifier: ^1.16.0
         version: 1.26.2(react@19.1.0)
+      lucide-react:
+        specifier: ^0.525.0
+        version: 0.525.0(react@19.1.0)
       next:
         specifier: 15.5.2
         version: 15.5.2(react-dom@19.1.0)(react@19.1.0)

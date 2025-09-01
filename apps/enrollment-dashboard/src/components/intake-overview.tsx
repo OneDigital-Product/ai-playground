@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui
 import { Badge } from "@repo/ui/components/ui/badge";
 import { ComplexityBadge } from "./complexity-badge";
 import { StatusSelect, Status } from "./status-select";
+import { IntakeUploads } from "./intake-uploads";
 import { getSectionsFromFlags, getSectionName } from "../lib/sections";
 
 interface IntakeData {
@@ -160,6 +161,9 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Files & Uploads */}
+      <IntakeUploads intakeId={intake.intakeId} />
     </div>
   );
 }
