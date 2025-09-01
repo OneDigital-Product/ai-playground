@@ -39,7 +39,7 @@ export default function IntakesPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/enrollment-dashboard/intakes/new">New Intake</Link>
+          <Link href="/intakes/new">New Intake</Link>
         </Button>
       </div>
       
@@ -62,7 +62,7 @@ export default function IntakesPage() {
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <Link 
-                    href={`/enrollment-dashboard/intakes/${intake.intakeId}`}
+                    href={`/intakes/${intake.intakeId}`}
                     className="flex-1 min-w-0"
                   >
                     <div className="flex items-center gap-2 mb-2">

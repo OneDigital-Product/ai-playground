@@ -147,7 +147,7 @@ export default function DashboardPage() {
             Export CSV
           </Button>
           <Button asChild>
-            <Link href="/enrollment-dashboard/intakes/new">
+            <Link href="/intakes/new">
               <Plus className="h-4 w-4 mr-2" />
               New Intake
             </Link>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
               No intakes available yet. Create your first intake to get started with the enrollment dashboard.
             </p>
             <Button asChild className="w-full">
-              <Link href="/enrollment-dashboard/intakes/new">
+              <Link href="/intakes/new">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Intake
               </Link>

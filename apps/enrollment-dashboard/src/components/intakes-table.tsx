@@ -281,7 +281,7 @@ export function IntakesTable({ intakes, filters, sortField, sortOrder, onSortCha
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link href={`/enrollment-dashboard/intakes/${intake.intakeId}`}>
+                      <Link href={`/intakes/${intake.intakeId}`}>
                         <ExternalLink className="h-4 w-4 mr-2" />
                         View Details
                       </Link>

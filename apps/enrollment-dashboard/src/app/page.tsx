@@ -22,7 +22,7 @@ export default function Home() {
               View statistics and recent activity across all enrollment processes.
             </p>
             <Button asChild className="w-full">
-              <Link href="/enrollment-dashboard/dashboard">View Dashboard</Link>
+              <Link href="/dashboard">View Dashboard</Link>
             </Button>
           </CardContent>
         </Card>
@@ -36,7 +36,7 @@ export default function Home() {
               Create and manage enrollment guide intake requests.
             </p>
             <Button asChild className="w-full">
-              <Link href="/enrollment-dashboard/intakes">Manage Intakes</Link>
+              <Link href="/intakes">Manage Intakes</Link>
             </Button>
           </CardContent>
         </Card>
@@ -50,7 +50,7 @@ export default function Home() {
               Upload and manage files for enrollment guides and documentation.
             </p>
             <Button asChild className="w-full">
-              <Link href="/enrollment-dashboard/uploads">Manage Uploads</Link>
+              <Link href="/uploads">Manage Uploads</Link>
             </Button>
           </CardContent>
         </Card>
@@ -68,10 +68,10 @@ export default function Home() {
             </p>
             <div className="flex gap-4">
               <Button asChild>
-                <Link href="/enrollment-dashboard/intakes/new">Create First Intake</Link>
+                <Link href="/intakes/new">Create First Intake</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/enrollment-dashboard/uploads">Upload Files</Link>
+                <Link href="/uploads">Upload Files</Link>
               </Button>
             </div>
           </CardContent>

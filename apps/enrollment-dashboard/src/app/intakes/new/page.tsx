@@ -13,7 +13,7 @@ export default function NewIntakePage() {
           </p>
         </div>
         <Button variant="outline" asChild>
-          <Link href="/enrollment-dashboard/intakes">Back to Intakes</Link>
+          <Link href="/intakes">Back to Intakes</Link>
         </Button>
       </div>
       

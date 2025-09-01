@@ -63,8 +63,8 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
         window.__toastInstance.success('Intake deleted successfully');
       }
       
-      // Navigate back to dashboard
-      router.push('/enrollment-dashboard/intakes');
+      // Navigate back to intakes list (basePath handled by Next.js)
+      router.push('/intakes');
       
     } catch (error) {
       console.error('Delete intake error:', error);
