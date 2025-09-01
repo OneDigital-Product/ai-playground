@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { ConvexHttpClient } from "convex/browser";
+import type { FunctionReference } from "convex/server";
+import { api } from "@repo/backend/convex/_generated/api";
 
 // Status validation schema
 const statusSchema = z.enum([
@@ -42,23 +45,23 @@ export async function POST(
       );
     }
 
-    // TODO: In a real implementation, you would:
-    // 1. Validate the intakeId exists
-    // 2. Update the intake status in your database
-    // 3. Return the updated intake or success response
-    
-    // For now, simulate success since the actual update happens via Convex
-    // This route serves as validation and can be extended for additional logging
-    // or webhooks in the future
-    // The status is validated by the schema above
-    
+    // Call Convex mutation to update status
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+    await convex.mutation(
+      api.functions.intakes.updateStatus as FunctionReference<"mutation">,
+      {
+        intakeId,
+        status: result.data.status,
+      }
+    );
+
     return NextResponse.json({ success: true }, { status: 200 });
     
   } catch (error) {
     console.error("Error updating intake status:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    if (error instanceof Error && /not found/i.test(error.message)) {
+      return NextResponse.json({ error: "Intake not found" }, { status: 404 });
+    }
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

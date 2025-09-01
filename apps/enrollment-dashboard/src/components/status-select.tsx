@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "convex/react";
-import { api } from "@repo/backend/convex/_generated/api";
 import {
   Select,
   SelectContent,
@@ -43,7 +41,6 @@ export function StatusSelect({
   const [isUpdating, setIsUpdating] = useState(false);
   const [localStatus, setLocalStatus] = useState<Status>(currentStatus);
   
-  const updateStatus = useMutation(api.functions.intakes.updateStatus);
   const { showToast } = useToast();
 
   const handleStatusChange = async (newStatus: Status) => {
@@ -54,11 +51,16 @@ export function StatusSelect({
     setIsUpdating(true);
 
     try {
-      await updateStatus({
-        intakeId,
-        status: newStatus,
+      const resp = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
       });
-      
+      if (!resp.ok) {
+        const payload = await resp.json().catch(() => ({}));
+        throw new Error(payload.error || "Failed to update status");
+      }
+
       showToast("success", `Status updated to ${STATUS_OPTIONS.find(opt => opt.value === newStatus)?.label}`);
       onStatusChange?.(newStatus);
     } catch (error) {
