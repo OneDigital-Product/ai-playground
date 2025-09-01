@@ -286,9 +286,13 @@ export function IntakeForm() {
                 onChange={(e) => updateFormData('payrollStorageUrl', e.target.value)}
                 placeholder="Enter payroll storage URL"
                 className={getFieldError('payrollStorageUrl') ? 'border-destructive' : ''}
+                aria-invalid={!!getFieldError('payrollStorageUrl')}
+                aria-describedby={getFieldError('payrollStorageUrl') ? 'payrollStorageUrl-error' : undefined}
               />
               {getFieldError('payrollStorageUrl') && (
-                <p className="text-sm text-destructive">{getFieldError('payrollStorageUrl')}</p>
+                <p id="payrollStorageUrl-error" className="text-sm text-destructive" aria-live="polite">
+                  {getFieldError('payrollStorageUrl')}
+                </p>
               )}
             </div>
           </div>

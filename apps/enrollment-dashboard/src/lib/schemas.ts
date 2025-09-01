@@ -129,7 +129,21 @@ export const intakeCreateSchema = z.object({
   clientName: z.string().min(1, "Client name is required"),
   planYear: z.coerce.number().min(2025).max(2026), // Restrict to 2025–2026 per requirements
   requestorName: z.string().min(1, "Requestor name is required"),
-  payrollStorageUrl: z.string().min(1, "Payroll storage URL is required"), 
+  payrollStorageUrl: z
+    .string()
+    .min(1, "Payroll storage URL is required")
+    .url("Enter a valid URL including http(s)://")
+    .refine(
+      (val) => {
+        try {
+          const u = new URL(val);
+          return u.protocol === "http:" || u.protocol === "https:";
+        } catch {
+          return false;
+        }
+      },
+      { message: "Enter a valid URL including http(s)://" }
+    ), 
   guideType: z.enum([GuideType.UPDATE_EXISTING_GUIDE, GuideType.NEW_GUIDE_BUILD]),
   communicationsAddOns: z.enum([
     CommunicationsAddOns.NONE,
