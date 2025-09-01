@@ -42,6 +42,27 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  retirementPlans: {
+    document: {
+      eligibleEmployees: number;
+      participants: number;
+      investmentReturn: number;
+      _id: Id<"retirementPlans">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "eligibleEmployees"
+      | "participants"
+      | "investmentReturn";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
 };
 
 /**

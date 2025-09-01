@@ -6,4 +6,9 @@ export default defineSchema({
     body: v.string(),
     author: v.string(),
   }),
+  retirementPlans: defineTable({
+    eligibleEmployees: v.number(),
+    participants: v.number(),
+    investmentReturn: v.number(),
+  }),
 });
