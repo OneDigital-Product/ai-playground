@@ -136,6 +136,9 @@ importers:
       '@repo/backend':
         specifier: workspace:^
         version: link:../../packages/backend
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       convex:
         specifier: ^1.16.0
         version: 1.26.2(react@19.1.0)
