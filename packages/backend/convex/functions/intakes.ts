@@ -3,6 +3,7 @@ import { query, mutation, action } from "../_generated/server.js";
 import { api } from "../_generated/api.js";
 import { generateIntakeId } from "../utils/idGenerator.js";
 import { calculateComplexity, type SectionsFlags } from "../utils/complexity.js";
+import { escapeCsv, sortForExport } from "../utils/csv.js";
 import {
   intakeCreateValidator,
   statusValidator,
@@ -510,21 +511,7 @@ export const exportCsv = query({
     // Sort
     const sortBy = args.sortBy || "dateReceived";
     const order = args.order || "desc";
-    intakes.sort((a, b) => {
-      let aVal: string | number = a[sortBy as keyof typeof a] as any;
-      let bVal: string | number = b[sortBy as keyof typeof b] as any;
-      if (sortBy === "dateReceived") {
-        aVal = new Date(aVal as string).getTime();
-        bVal = new Date(bVal as string).getTime();
-      } else {
-        if (typeof aVal === "string") aVal = aVal.toLowerCase();
-        if (typeof bVal === "string") bVal = bVal.toLowerCase();
-      }
-      let cmp = 0;
-      if (aVal < bVal) cmp = -1;
-      if (aVal > bVal) cmp = 1;
-      return order === "asc" ? cmp : -cmp;
-    });
+    intakes = sortForExport(intakes as any, sortBy as any, order as any) as any;
 
     // CSV header and rows
     const headers = [
@@ -542,12 +529,6 @@ export const exportCsv = query({
       "Payroll Storage URL",
       "General Notes",
     ];
-
-    const escapeCsv = (value: string | number | null | undefined) => {
-      if (value === null || value === undefined) return "";
-      const s = String(value);
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
 
     const rows = intakes.map((i) =>
       [
