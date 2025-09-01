@@ -10,7 +10,8 @@
     "dev": "convex dev",
     "deploy": "convex deploy",
     "lint": "eslint . --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "npx tsx convex/utils/complexity.test.ts"
   },
   "dependencies": {
     "convex": "^1.16.0"

@@ -5,9 +5,6 @@ import { calculateComplexity, type SectionsFlags } from "../utils/complexity.js"
 import {
   intakeCreateValidator,
   statusValidator,
-  statusUpdateValidator,
-  complexityBandValidator,
-  productionTimeValidator,
   listFiltersValidator,
   validateNonEmptyString,
   validatePlanYear,
@@ -165,6 +162,75 @@ export const updateStatus = mutation({
     });
     
     return { success: true };
+  },
+});
+
+// Update intake properties that affect complexity
+export const updateComplexityFactors = mutation({
+  args: {
+    intakeId: v.string(),
+    sectionsChangedFlags: v.optional(sectionsValidator),
+    guideType: v.optional(v.union(v.literal("Update Existing Guide"), v.literal("New Guide Build"))),
+    communicationsAddOns: v.optional(v.union(
+      v.literal("None"),
+      v.literal("OE Letter"), 
+      v.literal("OE Presentation"),
+      v.literal("Both"),
+      v.literal("Other")
+    )),
+  },
+  handler: async (ctx, args) => {
+    const intake = await ctx.db
+      .query("intakes")
+      .withIndex("by_intakeId", (q) => q.eq("intakeId", args.intakeId))
+      .unique();
+    
+    if (!intake) {
+      throw new Error("Intake not found");
+    }
+    
+    // Build update object with provided fields
+    const updateData: {
+      updatedAt: string;
+      sectionsChangedFlags?: SectionsFlags;
+      guideType?: "Update Existing Guide" | "New Guide Build";
+      communicationsAddOns?: "None" | "OE Letter" | "OE Presentation" | "Both" | "Other";
+      complexityScore?: number;
+      complexityBand?: "Minimal" | "Low" | "Medium" | "High";
+    } = {
+      updatedAt: new Date().toISOString(),
+    };
+    
+    if (args.sectionsChangedFlags !== undefined) {
+      updateData.sectionsChangedFlags = args.sectionsChangedFlags;
+    }
+    
+    if (args.guideType !== undefined) {
+      updateData.guideType = args.guideType;
+    }
+    
+    if (args.communicationsAddOns !== undefined) {
+      updateData.communicationsAddOns = args.communicationsAddOns;
+    }
+    
+    // Recalculate complexity using updated values merged with existing ones
+    const updatedIntake = {
+      ...intake,
+      ...updateData,
+    };
+    
+    const { score, band } = calculateComplexity({
+      sections_changed_flags: updatedIntake.sectionsChangedFlags,
+      guide_type: updatedIntake.guideType,
+      communications_add_ons: updatedIntake.communicationsAddOns,
+    });
+    
+    updateData.complexityScore = score;
+    updateData.complexityBand = band;
+    
+    await ctx.db.patch(intake._id, updateData);
+    
+    return { success: true, complexityScore: score, complexityBand: band };
   },
 });
 
