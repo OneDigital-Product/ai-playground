@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
         source: "/",
         destination: "/enrollment-dashboard",
         permanent: false,
+        // Ensure this redirect applies at the domain root, not under basePath
+        basePath: false,
       },
     ];
   },
