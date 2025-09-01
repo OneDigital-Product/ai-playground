@@ -1,0 +1,523 @@
+<%- include('partials/header', { title: 'Dashboard' }) %>
+
+<div class="bg-white">
+    <!-- Dashboard Header -->
+    <div class="border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Employee Communications Request Dashboard</h1>
+                <p class="text-sm text-gray-600 mt-1">Manage intake requests and track progress</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="/intakes/new" class="btn-orange px-4 py-2 rounded-lg text-white flex items-center gap-2">
+                    <i data-feather="plus" class="w-4 h-4"></i>
+                    New Intake
+                </a>
+                <a href="/dashboard/export.csv?<%= new URLSearchParams(filters).toString() %>" 
+                   class="btn-success px-4 py-2 rounded-lg text-white flex items-center gap-2">
+                    <i data-feather="download" class="w-4 h-4"></i>
+                    Export CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div id="stats-container" class="grid grid-cols-1 md:grid-cols-4 gap-6 px-6 py-6 border-b border-gray-200">
+        <div class="card-primary p-4 rounded-lg">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-primary">Total Intakes</p>
+                    <p id="stat-total" class="text-2xl font-bold text-primary"><%= stats.total %></p>
+                </div>
+                <i data-feather="file-text" class="w-8 h-8 text-primary"></i>
+            </div>
+        </div>
+        
+        <div class="card-warning p-4 rounded-lg">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-warning">In Progress</p>
+                    <p id="stat-in-progress" class="text-2xl font-bold text-warning">
+                        <%= (stats.by_status.STARTED || 0) + (stats.by_status.ROADBLOCK || 0) %>
+                    </p>
+                </div>
+                <i data-feather="clock" class="w-8 h-8 text-warning"></i>
+            </div>
+        </div>
+        
+        <div class="card-success p-4 rounded-lg">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-success">Completed</p>
+                    <p id="stat-completed" class="text-2xl font-bold text-success"><%= stats.by_status.DELIVERED_TO_CONSULTANT || 0 %></p>
+                </div>
+                <i data-feather="check-circle" class="w-8 h-8 text-success"></i>
+            </div>
+        </div>
+        
+        <div class="bg-purple-50 p-4 rounded-lg">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-purple-600">Recent (7 days)</p>
+                    <p id="stat-recent" class="text-2xl font-bold text-purple-900"><%= stats.recent_count %></p>
+                </div>
+                <i data-feather="trending-up" class="w-8 h-8 text-purple-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern Filters Bar -->
+    <div class="bg-orange-500 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <!-- Filter Header -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-orange-400">
+            <h3 class="text-sm font-medium text-white flex items-center">
+                <i data-feather="filter" class="w-4 h-4 mr-2"></i>
+                Filters
+            </h3>
+            <% if (Object.keys(filters).length > 0) { %>
+                <a href="/dashboard" class="text-sm text-white hover:text-orange-100 flex items-center">
+                    <i data-feather="x" class="w-4 h-4 mr-1"></i>
+                    Clear All
+                </a>
+            <% } %>
+        </div>
+        
+        <!-- Filter Controls -->
+        <form method="GET" class="p-4">
+            <div class="flex flex-wrap gap-4 items-end">
+                <!-- Quick Search -->
+                <div class="flex-1 min-w-64">
+                    <label class="block text-xs font-medium text-white mb-1">Search</label>
+                    <div class="relative">
+                        <i data-feather="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                        <input type="text" name="requestor" value="<%= filters.requestor || '' %>" 
+                               class="pl-10 w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+                               placeholder="Search by requestor..."
+                               onchange="this.form.submit()">
+                    </div>
+                </div>
+                
+                <!-- Status Filter -->
+                <div class="min-w-40">
+                    <label class="block text-xs font-medium text-white mb-1">Status</label>
+                    <select name="status" multiple class="w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onchange="this.form.submit()">
+                        <% filterOptions.statuses.forEach(status => { %>
+                            <option value="<%= status %>" <%= filters.status && filters.status.includes(status) ? 'selected' : '' %>>
+                                <%= status.replace(/_/g, ' ') %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Complexity Filter -->
+                <div class="min-w-36">
+                    <label class="block text-xs font-medium text-white mb-1">Complexity</label>
+                    <select name="complexity" multiple class="w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onchange="this.form.submit()">
+                        <% filterOptions.complexities.forEach(complexity => { %>
+                            <option value="<%= complexity %>" <%= filters.complexity && filters.complexity.includes(complexity) ? 'selected' : '' %>>
+                                <%= complexity %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Plan Year Filter -->
+                <div class="min-w-32">
+                    <label class="block text-xs font-medium text-white mb-1">Plan Year</label>
+                    <select name="plan_year" class="w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onchange="this.form.submit()">
+                        <option value="">All Years</option>
+                        <% filterOptions.planYears.forEach(year => { %>
+                            <option value="<%= year %>" <%= filters.plan_year == year ? 'selected' : '' %>><%= year %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Production Time Filter -->
+                <div class="min-w-32">
+                    <label class="block text-xs font-medium text-white mb-1">Production Time</label>
+                    <select name="production_time" multiple class="w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onchange="this.form.submit()">
+                        <% filterOptions.productionTimes.forEach(time => { %>
+                            <option value="<%= time %>" <%= filters.production_time && filters.production_time.includes(time) ? 'selected' : '' %>>
+                                <%= time %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Sort Controls in a compact group -->
+                <div class="flex gap-2">
+                    <div class="min-w-36">
+                        <label class="block text-xs font-medium text-white mb-1">Sort By</label>
+                        <select name="sort" class="w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onchange="this.form.submit()">
+                            <option value="date_received" <%= currentSort === 'date_received' ? 'selected' : '' %>>Date Received</option>
+                            <option value="client_name" <%= currentSort === 'client_name' ? 'selected' : '' %>>Client Name</option>
+                            <option value="requestor_name" <%= currentSort === 'requestor_name' ? 'selected' : '' %>>Requestor</option>
+                            <option value="guide_type" <%= currentSort === 'guide_type' ? 'selected' : '' %>>Guide Type</option>
+                            <option value="communications_add_ons" <%= currentSort === 'communications_add_ons' ? 'selected' : '' %>>Communications Add Ons</option>
+                            <option value="complexity_band" <%= currentSort === 'complexity_band' ? 'selected' : '' %>>Complexity</option>
+                            <option value="requested_production_time" <%= currentSort === 'requested_production_time' ? 'selected' : '' %>>Production Time</option>
+                            <option value="status" <%= currentSort === 'status' ? 'selected' : '' %>>Status</option>
+                        </select>
+                    </div>
+                    
+                    <div class="min-w-24">
+                        <label class="block text-xs font-medium text-white mb-1">Order</label>
+                        <select name="order" class="w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onchange="this.form.submit()">
+                            <option value="desc" <%= currentOrder === 'desc' ? 'selected' : '' %>>Z-A</option>
+                            <option value="asc" <%= currentOrder === 'asc' ? 'selected' : '' %>>A-Z</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Filters Display -->
+            <% if (Object.keys(filters).length > 0) { %>
+                <div class="mt-4 pt-3 border-t border-orange-400">
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-xs font-medium text-white">Active filters:</span>
+                        <% if (filters.status && filters.status.length > 0) { %>
+                            <% filters.status.forEach(status => { %>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                                    Status: <%= status.replace(/_/g, ' ') %>
+                                    <button type="button" onclick="removeFilter('status', '<%= status %>')" class="ml-1 hover:text-blue-900">×</button>
+                                </span>
+                            <% }); %>
+                        <% } %>
+                        <% if (filters.complexity && filters.complexity.length > 0) { %>
+                            <% filters.complexity.forEach(complexity => { %>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                                    Complexity: <%= complexity %>
+                                    <button type="button" onclick="removeFilter('complexity', '<%= complexity %>')" class="ml-1 hover:text-green-900">×</button>
+                                </span>
+                            <% }); %>
+                        <% } %>
+                        <% if (filters.requestor) { %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800">
+                                Requestor: <%= filters.requestor %>
+                                <button type="button" onclick="removeFilter('requestor', '')" class="ml-1 hover:text-purple-900">×</button>
+                            </span>
+                        <% } %>
+                        <% if (filters.plan_year) { %>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                                Year: <%= filters.plan_year %>
+                                <button type="button" onclick="removeFilter('plan_year', '')" class="ml-1 hover:text-orange-900">×</button>
+                            </span>
+                        <% } %>
+                        <% if (filters.production_time && filters.production_time.length > 0) { %>
+                            <% filters.production_time.forEach(time => { %>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">
+                                    Production: <%= time %>
+                                    <button type="button" onclick="removeFilter('production_time', '<%= time %>')" class="ml-1 hover:text-yellow-900">×</button>
+                                </span>
+                            <% }); %>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+            
+            <input type="hidden" name="sort" value="<%= currentSort %>">
+            <input type="hidden" name="order" value="<%= currentOrder %>">
+        </form>
+    </div>
+
+    <!-- Intakes Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=client_name&order=<%= currentSort === 'client_name' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Client Name
+                            <% if (currentSort === 'client_name') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=requestor_name&order=<%= currentSort === 'requestor_name' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Requestor
+                            <% if (currentSort === 'requestor_name') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=guide_type&order=<%= currentSort === 'guide_type' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Guide Type
+                            <% if (currentSort === 'guide_type') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=communications_add_ons&order=<%= currentSort === 'communications_add_ons' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Communications Add Ons
+                            <% if (currentSort === 'communications_add_ons') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=complexity_band&order=<%= currentSort === 'complexity_band' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Complexity
+                            <% if (currentSort === 'complexity_band') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=date_received&order=<%= currentSort === 'date_received' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Date Received
+                            <% if (currentSort === 'date_received') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=requested_production_time&order=<%= currentSort === 'requested_production_time' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Production Time
+                            <% if (currentSort === 'requested_production_time') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <a href="?sort=status&order=<%= currentSort === 'status' && currentOrder === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString() %>" 
+                           class="sort-header">
+                            Status
+                            <% if (currentSort === 'status') { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="<%= currentOrder === 'asc' ? 'chevron-up' : 'chevron-down' %>"></i>
+                                </span>
+                            <% } else { %>
+                                <span class="sort-arrow">
+                                    <i data-feather="more-vertical"></i>
+                                </span>
+                            <% } %>
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <% if (intakes.length === 0) { %>
+                    <tr>
+                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                            <i data-feather="inbox" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                            <p class="text-lg font-medium">No intake requests found</p>
+                            <p class="text-sm">Get started by creating a new intake request.</p>
+                        </td>
+                    </tr>
+                <% } else { %>
+                    <% intakes.forEach(intake => { %>
+                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location.href='/intakes/<%= intake.intake_id %>'">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900"><%= intake.client_name %></div>
+                                    <div class="text-sm text-gray-500">Plan Year <%= intake.plan_year %></div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm text-gray-900"><%= intake.requestor_name %></div>
+
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= 
+                                    intake.guide_type === 'Update Existing Guide' ? 'bg-blue-100 text-blue-800' : 
+                                    intake.guide_type === 'New Guide Build' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                                %>">
+                                    <%= intake.guide_type || 'Not Set' %>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= 
+                                    intake.communications_add_ons === 'None' ? 'bg-gray-100 text-gray-800' :
+                                    intake.communications_add_ons === 'OE Letter' ? 'bg-blue-100 text-blue-800' :
+                                    intake.communications_add_ons === 'OE Presentation' ? 'bg-green-100 text-green-800' :
+                                    intake.communications_add_ons === 'Both' ? 'bg-purple-100 text-purple-800' :
+                                    intake.communications_add_ons === 'Other' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
+                                %>">
+                                    <%= intake.communications_add_ons || 'Not Set' %>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= 
+                                    intake.complexity_band === 'Minimal' ? 'bg-green-100 text-green-800' :
+                                    intake.complexity_band === 'Low' ? 'bg-blue-100 text-blue-800' :
+                                    intake.complexity_band === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
+                                %>">
+                                    <%= intake.complexity_band %>
+                                </span>
+                                <div class="text-xs text-gray-500 mt-1">Score: <%= intake.complexity_score %></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <%= new Date(intake.date_received).toLocaleDateString() %>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= 
+                                    intake.requested_production_time === 'Rush' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+                                %>">
+                                    <%= intake.requested_production_time || 'Standard' %>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap" onclick="event.stopPropagation()">
+                                <select class="status-select text-xs rounded-full px-2 py-1 border-0 <%= 
+                                    intake.status === 'NOT_STARTED' ? 'bg-gray-100 text-gray-800' :
+                                    intake.status === 'STARTED' ? 'bg-blue-100 text-blue-800' :
+                                    intake.status === 'ROADBLOCK' ? 'bg-red-100 text-red-800' :
+                                    intake.status === 'READY_FOR_QA' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-green-100 text-green-800'
+                                %>" data-intake-id="<%= intake.intake_id %>" data-current-status="<%= intake.status %>">
+                                    <option value="NOT_STARTED" <%= intake.status === 'NOT_STARTED' ? 'selected' : '' %>>Not Started</option>
+                                    <option value="STARTED" <%= intake.status === 'STARTED' ? 'selected' : '' %>>Started</option>
+                                    <option value="ROADBLOCK" <%= intake.status === 'ROADBLOCK' ? 'selected' : '' %>>Roadblock</option>
+                                    <option value="READY_FOR_QA" <%= intake.status === 'READY_FOR_QA' ? 'selected' : '' %>>Ready for QA</option>
+                                    <option value="DELIVERED_TO_CONSULTANT" <%= intake.status === 'DELIVERED_TO_CONSULTANT' ? 'selected' : '' %>>Delivered to Consultant</option>
+                                </select>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
+                                <a href="/intakes/<%= intake.intake_id %>" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                <a href="/intakes/<%= intake.intake_id %>?tab=sections" class="text-gray-600 hover:text-gray-900 mr-3">Edit</a>
+                                <button onclick="deleteIntake('<%= intake.intake_id %>', '<%= intake.client_name.replace(/'/g, "\\'") %>')" 
+                                        class="text-red-600 hover:text-red-900">Delete</button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="/js/dashboard.js"></script>
+<script>
+    // Initialize Feather icons after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+            
+            // Force re-render of icons after a short delay to handle timing issues
+            setTimeout(function() {
+                feather.replace();
+            }, 100);
+        }
+    });
+    
+    // Also initialize icons when the page becomes visible (handles tab switching)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    });
+    
+    // Function to remove individual filters
+    function removeFilter(filterType, filterValue) {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+        
+        if (filterType === 'status' || filterType === 'complexity' || filterType === 'production_time') {
+            const currentValues = params.getAll(filterType);
+            params.delete(filterType);
+            currentValues.filter(v => v !== filterValue).forEach(v => params.append(filterType, v));
+        } else {
+            params.delete(filterType);
+        }
+        
+        window.location.href = url.pathname + '?' + params.toString();
+    }
+    
+    // Real-time stats update functionality
+    async function updateStats() {
+        try {
+            const response = await fetch('/dashboard/stats');
+            const stats = await response.json();
+            
+            // Update the stats displays with smooth transitions
+            document.getElementById('stat-total').textContent = stats.total;
+            document.getElementById('stat-in-progress').textContent = (stats.by_status.STARTED || 0) + (stats.by_status.ROADBLOCK || 0);
+            document.getElementById('stat-completed').textContent = stats.by_status.DELIVERED_TO_CONSULTANT || 0;
+            document.getElementById('stat-recent').textContent = stats.recent_count;
+            
+            // Add a subtle flash effect to indicate update
+            const statsContainer = document.getElementById('stats-container');
+            statsContainer.style.opacity = '0.8';
+            setTimeout(() => {
+                statsContainer.style.opacity = '1';
+            }, 200);
+            
+        } catch (error) {
+            console.log('Stats update failed:', error);
+        }
+    }
+    
+    // Listen for status changes on the page
+    document.addEventListener('statusChanged', function(e) {
+        // Update stats immediately when a status changes
+        updateStats();
+    });
+    
+    // Set up periodic stats refresh every 30 seconds
+    setInterval(updateStats, 30000);
+    
+    // Refresh stats when page becomes visible (user switches back to tab)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            updateStats();
+        }
+    });
+</script>

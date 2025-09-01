@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Year Retirement Plan Evaluation - Results</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .chart-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 500px;
+            margin: 20px 0;
+        }
+        
+        .chart-description {
+            color: #6c757d;
+            font-style: italic;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        @media (min-width: 1200px) {
+            .summary-cards {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .summary-card:nth-child(3) .value {
+            color: #27ae60;
+        }
+        
+        .summary-card:nth-child(4) .value {
+            color: #e67e22;
+        }
+        
+        .summary-card:nth-child(5) .value {
+            color: #8e44ad;
+        }
+        
+        .summary-card .label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .data-table th:first-child,
+        .data-table td:first-child {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <header>
+            <h1>Average Account Balance Projection</h1>
+            <p class="subtitle">25-Year Growth Analysis</p>
+        </header>
+
+        <div class="navigation">
+            <button type="button" class="btn btn-secondary" onclick="goBack()">← Back to Setup</button>
+            <button type="button" class="btn btn-success" onclick="goToEngagement()">📊 Engagement Analysis</button>
+            <button type="button" class="btn btn-primary" onclick="exportData()">Export Data</button>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Starting Balance</h3>
+                <div class="value" id="startingBalance">$0</div>
+                <div class="label">Current Average</div>
+            </div>
+            <div class="summary-card">
+                <h3>Current Plan (25 Years)</h3>
+                <div class="value" id="currentEndingBalance">$0</div>
+                <div class="label">Status Quo</div>
+            </div>
+            <div class="summary-card">
+                <h3>10% Contribution (25 Years)</h3>
+                <div class="value" id="tenPercentEndingBalance">$0</div>
+                <div class="label">Retirement Best Practice</div>
+            </div>
+            <div class="summary-card">
+                <h3>15% Contribution (25 Years)</h3>
+                <div class="value" id="fifteenPercentEndingBalance">$0</div>
+                <div class="label">Aggressive Savings</div>
+            </div>
+            <div class="summary-card">
+                <h3>Best Case Impact</h3>
+                <div class="value" id="bestCaseGain">$0</div>
+                <div class="label">15% vs Current</div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h2>Average Account Balance Growth Over Time</h2>
+            <div class="chart-container">
+                <canvas id="aabChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h2>Improvement Over Status Quo</h2>
+            <p class="chart-description">This chart shows how much additional balance each optimization provides compared to the current plan.</p>
+            <div class="chart-container">
+                <canvas id="deltaChart"></canvas>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <h2>Detailed Projections Comparison</h2>
+            <table id="projectionTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Current Plan</th>
+                        <th>10% Contribution</th>
+                        <th>15% Contribution</th>
+                        <th>10% vs Current</th>
+                        <th>15% vs Current</th>
+                    </tr>
+                </thead>
+                <tbody id="projectionTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="results.js"></script>
+</body>
+</html>

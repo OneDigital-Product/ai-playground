@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Year Retirement Plan Evaluation - Engagement Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .engagement-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .engagement-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .engagement-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .metric-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .metric-change.positive {
+            color: #27ae60;
+        }
+        
+        .metric-change.negative {
+            color: #e74c3c;
+        }
+        
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        
+        .readiness-gauge {
+            position: relative;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gauge-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+        
+        .recommendations {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .recommendation-icon {
+            background: #27ae60;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .recommendation-content h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+        
+        .recommendation-content p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .scenario-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .scenario-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .scenario-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .scenario-tab:hover {
+            color: #667eea;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .help-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            cursor: help;
+        }
+
+        .help-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .help-tooltip:hover .help-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .help-text {
+            visibility: hidden;
+            opacity: 0;
+            width: 300px;
+            background-color: #2c3e50;
+            color: white;
+            text-align: left;
+            border-radius: 6px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .help-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2c3e50 transparent transparent transparent;
+        }
+
+        .insight-box {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border-left: 4px solid #27ae60;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .insight-box h4 {
+            color: #27ae60;
+            margin: 0 0 8px 0;
+            font-size: 1rem;
+        }
+
+        .insight-box p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+
+        /* Report Card Styles */
+        .report-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .report-card-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .report-card-section.current {
+            border-left: 4px solid #667eea;
+        }
+
+        .report-card-section.target {
+            border-left: 4px solid #27ae60;
+        }
+
+        .report-card-section h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+
+        .report-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .report-metric:last-child {
+            border-bottom: none;
+        }
+
+        .report-metric-label {
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .report-metric-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .report-metric-value.current {
+            color: #667eea;
+        }
+
+        .report-metric-value.target {
+            color: #27ae60;
+        }
+
+        .report-metric-value.gap {
+            color: #e74c3c;
+        }
+
+        .gap-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .gap-indicator.positive {
+            color: #27ae60;
+        }
+
+        .gap-indicator.negative {
+            color: #e74c3c;
+        }
+
+        .gap-bar {
+            width: 100px;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .gap-bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .gap-bar-fill.positive {
+            background: #27ae60;
+        }
+
+        .gap-bar-fill.needs-improvement {
+            background: #f39c12;
+        }
+
+        .gap-bar-fill.critical {
+            background: #e74c3c;
+        }
+
+        .overall-grade {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            border-radius: 10px;
+        }
+
+        .grade-letter {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .grade-description {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin: 10px 0 0 0;
+        }
+
+        @media (max-width: 768px) {
+            .report-card {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Feature Configuration Styles */
+        .feature-config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .feature-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .feature-group h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .feature-item {
+            margin: 15px 0;
+        }
+
+        .feature-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+            color: #2c3e50;
+            cursor: pointer;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            min-height: 40px;
+        }
+
+        .toggle-slider {
+            position: relative;
+            width: 54px;
+            height: 28px;
+            background: #e9ecef;
+            border: 2px solid #dee2e6;
+            border-radius: 28px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .toggle-slider input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            top: 1px;
+            left: 1px;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .toggle-slider.checked::before {
+            transform: translateX(26px);
+        }
+
+        .toggle-slider.checked {
+            background: #667eea;
+            border-color: #5a6fd8;
+        }
+
+        .feature-toggle:hover .toggle-slider {
+            border-color: #667eea;
+        }
+
+        .toggle-text {
+            flex-grow: 1;
+            user-select: none;
+        }
+
+        .feature-details {
+            margin-left: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .feature-details label {
+            display: block;
+            margin: 8px 0;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+
+        .feature-details input,
+        .feature-details select {
+            margin-left: 10px;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .feature-item > label {
+            display: block;
+            margin: 8px 0;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .feature-item input,
+        .feature-item select {
+            margin-left: 10px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            min-width: 80px;
+        }
+
+        .feature-impact-summary {
+            background: linear-gradient(135deg, #e8f0ff 0%, #f8f9ff 100%);
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-impact-summary h4 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .impact-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .impact-metric {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .impact-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 5px 0;
+        }
+
+        .impact-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .impact-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .impact-change.positive {
+            color: #27ae60;
+        }
+
+        .impact-change.negative {
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .feature-config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Asset Projection Styles */
+        .projection-summary {
+            margin: 25px 0;
+        }
+
+        .projection-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 20px 0;
+        }
+
+        .projection-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .projection-card.enhanced {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #e8f5e8 0%, #ffffff 100%);
+        }
+
+        .projection-card h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .projection-card.enhanced h3 {
+            color: #27ae60;
+        }
+
+        .projection-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .projection-card.enhanced .projection-value {
+            color: #27ae60;
+        }
+
+        .projection-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .projection-detail {
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .projection-improvement {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #27ae60;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .projection-insights {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .projection-insights h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
+
+        .insight-item {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .insight-item h4 {
+            margin: 0 0 8px 0;
+            color: #667eea;
+            font-size: 1rem;
+        }
+
+        .insight-item p {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .projection-cards {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="engagement-container">
+        <header>
+            <h1>Participant Engagement Analysis</h1>
+            <p class="subtitle">Behavioral Insights & Optimization Strategies</p>
+        </header>
+
+        <!-- Engagement Metrics Overview -->
+        <div class="engagement-section">
+            <h2>Current Engagement Metrics
+                <span class="help-tooltip">
+                    <div class="help-icon">?</div>
+                    <div class="help-text">These metrics show your plan's current engagement levels. Green indicators show improvement potential with engagement enhancements.</div>
+                </span>
+            </h2>
+            
+            <div class="insight-box">
+                <h4>Key Insight</h4>
+                <p>Research shows that auto-enrollment can increase participation rates from 65% to 90%+ while improving match utilization by 40-60%. Your plan's specific potential is calculated below.</p>
+            </div>
+
+            <div class="engagement-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="participationRate">--</div>
+                    <div class="metric-label">Participation Rate
+                        <span class="help-tooltip">
+                            <div class="help-icon">?</div>
+                            <div class="help-text">Percentage of eligible employees who are actively participating in the retirement plan. Industry average is 70-80% for auto-enrollment plans.</div>
+                        </span>
+                    </div>
+                    <div class="metric-change" id="participationChange">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="avgContribRate">--</div>
+                    <div class="metric-label">Avg Contribution Rate
+                        <span class="help-tooltip">
+                            <div class="help-icon">?</div>
+                            <div class="help-text">Average employee contribution rate as a percentage of salary. Financial advisors typically recommend 10-15% total retirement savings.</div>
+                        </span>
+                    </div>
+                    <div class="metric-change" id="contribChange">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="matchUtilization">--</div>
+                    <div class="metric-label">Match Utilization
+                        <span class="help-tooltip">
+                            <div class="help-icon">?</div>
+                            <div class="help-text">Percentage of participants who contribute enough to receive the full employer match. This represents "free money" that employees may be leaving on the table.</div>
+                        </span>
+                    </div>
+                    <div class="metric-change" id="matchChange">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="readinessScore">--</div>
+                    <div class="metric-label">Plan Participation Health
+                        <span class="help-tooltip">
+                            <div class="help-icon">?</div>
+                            <div class="help-text">Composite score (0-100) weighing participation (40%), contribution adequacy (35%), and match utilization (25%). Scores above 75 indicate strong plan health.</div>
+                        </span>
+                    </div>
+                    <div class="metric-change" id="readinessChange">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan Performance Assessment -->
+        <div class="engagement-section">
+            <h2>Plan Performance Assessment
+                <span class="help-tooltip">
+                    <div class="help-icon">?</div>
+                    <div class="help-text">Evaluation of your plan's performance against industry best practices, showing areas of strength and opportunities for enhancement.</div>
+                </span>
+            </h2>
+            
+            <div class="overall-grade">
+                <h3 class="grade-letter" id="overallRating">Good</h3>
+                <p class="grade-description" id="ratingDescription">Solid foundation with enhancement opportunities</p>
+            </div>
+
+            <div class="report-card">
+                <div class="report-card-section current">
+                    <h3>📊 Your Plan Performance</h3>
+                    <div class="report-metric">
+                        <span class="report-metric-label">Employee Participation</span>
+                        <div>
+                            <span class="report-metric-value current" id="reportParticipationCurrent">--</span>
+                            <div class="gap-indicator" id="participationGap">
+                                <span>vs Industry Target: --</span>
+                                <div class="gap-bar">
+                                    <div class="gap-bar-fill" id="participationGapBar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="report-metric">
+                        <span class="report-metric-label">Average Savings Rate</span>
+                        <div>
+                            <span class="report-metric-value current" id="reportContribCurrent">--</span>
+                            <div class="gap-indicator" id="contribGap">
+                                <span>vs Industry Target: --</span>
+                                <div class="gap-bar">
+                                    <div class="gap-bar-fill" id="contribGapBar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="report-metric">
+                        <span class="report-metric-label">Match Participation</span>
+                        <div>
+                            <span class="report-metric-value current" id="reportMatchCurrent">--</span>
+                            <div class="gap-indicator" id="matchGap">
+                                <span>vs Industry Target: --</span>
+                                <div class="gap-bar">
+                                    <div class="gap-bar-fill" id="matchGapBar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="report-metric" style="border-top: 2px solid #e9ecef; padding-top: 15px; margin-top: 10px;">
+                        <span class="report-metric-label">Plan Participation Health <em style="font-size: 0.8rem; color: #6c757d; font-weight: normal;">(Composite Score)</em>
+                            <span class="help-tooltip">
+                                <div class="help-icon">?</div>
+                                <div class="help-text">Weighted combination of the three metrics above: Employee Participation (40%), Average Savings Rate (35%), and Match Participation (25%). Provides an overall view of plan health.</div>
+                            </span>
+                        </span>
+                        <div>
+                            <span class="report-metric-value current" id="reportReadinessCurrent">--</span>
+                            <div class="gap-indicator" id="readinessGap">
+                                <span>vs Industry Target: --</span>
+                                <div class="gap-bar">
+                                    <div class="gap-bar-fill" id="readinessGapBar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card-section target">
+                    <h3>🎯 Industry Excellence Standards</h3>
+                    <div class="report-metric" style="padding-bottom: 30px;">
+                        <span class="report-metric-label">Employee Participation</span>
+                        <span class="report-metric-value target">85%+</span>
+                    </div>
+                    <div class="report-metric" style="padding-bottom: 30px;">
+                        <span class="report-metric-label">Average Savings Rate</span>
+                        <span class="report-metric-value target">8%+</span>
+                    </div>
+                    <div class="report-metric" style="padding-bottom: 30px;">
+                        <span class="report-metric-label">Match Participation</span>
+                        <span class="report-metric-value target">90%+</span>
+                    </div>
+                    <div class="report-metric" style="border-top: 2px solid #e9ecef; padding-top: 15px; margin-top: 10px; padding-bottom: 30px;">
+                        <span class="report-metric-label">Plan Participation Health <em style="font-size: 0.8rem; color: #6c757d; font-weight: normal;">(Composite Score)</em></span>
+                        <span class="report-metric-value target">75+</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                <h4 style="margin: 0 0 10px 0; color: #27ae60; font-size: 1rem;">Benchmark Standards</h4>
+                <p style="margin: 0; font-size: 0.9rem; color: #6c757d; line-height: 1.4;">
+                    Based on industry research and high-performing plans with similar characteristics. These targets represent achievable excellence standards.
+                </p>
+            </div>
+        </div>
+
+        <!-- Priority Improvements -->
+        <div class="engagement-section">
+            <h2>Priority Improvements
+                <span class="help-tooltip">
+                    <div class="help-icon">?</div>
+                    <div class="help-text">Specific action items for metrics currently below industry targets. These are the most immediate opportunities for improvement.</div>
+                </span>
+            </h2>
+            <div id="priorityImprovements">
+                <!-- Priority improvements will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Strategic Recommendations -->
+        <div class="engagement-section">
+            <h2>Strategic Recommendations
+                <span class="help-tooltip">
+                    <div class="help-icon">?</div>
+                    <div class="help-text">Prioritized action items based on your plan's specific gaps and improvement opportunities identified in the report card above.</div>
+                </span>
+            </h2>
+            <div class="recommendations" id="recommendationsList">
+                <!-- Recommendations will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Plan Feature Configuration -->
+        <div class="engagement-section">
+            <h2>Plan Feature Configuration
+                <span class="help-tooltip">
+                    <div class="help-icon">?</div>
+                    <div class="help-text">Interactive tool to model different plan features and see their real-time impact on engagement metrics and projections.</div>
+                </span>
+            </h2>
+            
+            <div style="background: linear-gradient(135deg, #fff3cd 0%, #fefefe 100%); border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin: 15px 0; font-size: 0.9rem; color: #856404;">
+                <strong>💡 Interactive Modeling:</strong> Toggle features below to see immediate impact on engagement metrics and asset growth projections.
+            </div>
+
+            <div class="feature-config-grid">
+                <div class="feature-group">
+                    <h3>📋 Enrollment Features</h3>
+                    <div class="feature-item">
+                        <label class="feature-toggle">
+                            <span class="toggle-slider">
+                                <input type="checkbox" id="autoEnrollToggle" onchange="updateFeatureConfiguration()">
+                            </span>
+                            <span class="toggle-text">Auto-Enrollment</span>
+                        </label>
+                        <div class="feature-details" id="autoEnrollDetails" style="display: none;">
+                            <label>Default Rate: 
+                                <input type="number" id="defaultAutoRate" min="1" max="15" value="3" step="0.5" onchange="updateFeatureConfiguration()">%
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <label class="feature-toggle">
+                            <span class="toggle-slider">
+                                <input type="checkbox" id="autoEscalateToggle" onchange="updateFeatureConfiguration()">
+                            </span>
+                            <span class="toggle-text">Auto-Escalation</span>
+                        </label>
+                        <div class="feature-details" id="autoEscalateDetails" style="display: none;">
+                            <label>Annual Increase: 
+                                <input type="number" id="escalationRate" min="0.5" max="2" value="1" step="0.5" onchange="updateFeatureConfiguration()">%
+                            </label>
+                            <label>Maximum Rate: 
+                                <input type="number" id="maxEscalationRate" min="6" max="20" value="10" step="1" onchange="updateFeatureConfiguration()">%
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-group">
+                    <h3>💰 Employer Contributions</h3>
+                    <div class="feature-item">
+                        <label>Match Formula: 
+                            <select id="matchFormula" onchange="updateFeatureConfiguration()">
+                                <option value="3">100% match up to 3%</option>
+                                <option value="4">100% match up to 4%</option>
+                                <option value="5">100% match up to 5%</option>
+                                <option value="6">100% match up to 6%</option>
+                                <option value="3.5">50% match up to 6% (3% max)</option>
+                                <option value="4.5">50% match up to 8% (4% max)</option>
+                            </select>
+                        </label>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <label>Vesting Schedule: 
+                            <select id="vestingSchedule" onchange="updateFeatureConfiguration()">
+                                <option value="immediate">Immediate (100%)</option>
+                                <option value="2-year">2-Year Cliff</option>
+                                <option value="3-year">3-Year Cliff</option>
+                                <option value="6-year">6-Year Graded</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="feature-group">
+                    <h3>📊 Investment & Fees</h3>
+                    <div class="feature-item">
+                        <label>Investment Options: 
+                            <input type="number" id="investmentOptions" min="3" max="50" value="12" onchange="updateFeatureConfiguration()">
+                        </label>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <label>Total Annual Fees: 
+                            <input type="number" id="totalFees" min="0.25" max="2.5" value="1.25" step="0.05" onchange="updateFeatureConfiguration()">%
+                        </label>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <label>Fees Paid By: 
+                            <select id="feesPaidBy" onchange="updateFeatureConfiguration()">
+                                <option value="employee">Employee</option>
+                                <option value="employer">Employer</option>
+                                <option value="split">Split 50/50</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-impact-summary" id="featureImpactSummary">
+                <!-- Impact summary will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Scenario Comparison -->
+        <div class="engagement-section">
+            <h2>Engagement Scenario Analysis</h2>
+            <div class="scenario-tabs">
+                <button class="scenario-tab active" data-scenario="current">Current Plan</button>
+                <button class="scenario-tab" data-scenario="auto-enroll">Auto-Enrollment</button>
+                <button class="scenario-tab" data-scenario="enhanced">Enhanced Engagement</button>
+            </div>
+            
+            <div class="chart-row">
+                <div>
+                    <h3>Participation Impact</h3>
+                    <div class="chart-container">
+                        <canvas id="participationChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Plan Retirement Readiness</h3>
+                    <div class="chart-container">
+                        <div class="readiness-gauge">
+                            <div class="gauge-wrapper">
+                                <canvas id="readinessGauge" width="200" height="200"></canvas>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                    <div style="font-size: 2.5rem; font-weight: bold; color: #667eea;" id="readinessGaugeScore">--</div>
+                                    <div style="font-size: 1rem; color: #6c757d;">Overall Score</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Behavioral Analytics -->
+        <div class="engagement-section" style="opacity: 0.6; position: relative;">
+            <div style="position: absolute; top: 15px; right: 20px; background: #f8f9fa; padding: 8px 12px; border-radius: 20px; border: 2px solid #e9ecef; font-size: 0.85rem; font-weight: 600; color: #6c757d; z-index: 10;">
+                🚧 PROOF OF CONCEPT
+            </div>
+            <h2>Behavioral Insights
+                <span class="help-tooltip">
+                    <div class="help-icon">?</div>
+                    <div class="help-text">These charts demonstrate future capabilities when participant-level data becomes available. Currently showing industry benchmark patterns for visualization purposes.</div>
+                </span>
+            </h2>
+            <div style="background: linear-gradient(135deg, #fff3cd 0%, #fefefe 100%); border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin: 15px 0; font-size: 0.9rem; color: #856404;">
+                <strong>⚠️ Future State Preview:</strong> These analytics require individual participant data not currently available. Charts show representative industry patterns for proof-of-concept purposes.
+            </div>
+            <div class="chart-row">
+                <div>
+                    <h3>Contribution Patterns by Age <em style="color: #6c757d; font-size: 0.8rem; font-weight: normal;">(Sample Data)</em></h3>
+                    <div class="chart-container">
+                        <canvas id="agePatternChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Engagement Journey <em style="color: #6c757d; font-size: 0.8rem; font-weight: normal;">(Sample Data)</em></h3>
+                    <div class="chart-container">
+                        <canvas id="journeyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Asset Growth Projections -->
+        <div class="engagement-section">
+            <h2>25-Year Asset Growth Projections
+                <span class="help-tooltip">
+                    <div class="help-icon">?</div>
+                    <div class="help-text">Long-term projections showing how plan feature changes impact total plan assets and average participant account balances over 25 years.</div>
+                </span>
+            </h2>
+            
+            <div class="projection-summary">
+                <div class="projection-cards">
+                    <div class="projection-card">
+                        <h3>Current Plan</h3>
+                        <div class="projection-value" id="currentTotalAssets">--</div>
+                        <div class="projection-label">Total Plan Assets (25 years)</div>
+                        <div class="projection-detail" id="currentAvgBalance">Average Balance: --</div>
+                    </div>
+                    <div class="projection-card enhanced">
+                        <h3>With Feature Improvements</h3>
+                        <div class="projection-value" id="enhancedTotalAssets">--</div>
+                        <div class="projection-label">Total Plan Assets (25 years)</div>
+                        <div class="projection-detail" id="enhancedAvgBalance">Average Balance: --</div>
+                        <div class="projection-improvement" id="projectionImprovement">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-row">
+                <div>
+                    <h3>Total Plan Asset Growth</h3>
+                    <div class="chart-container">
+                        <canvas id="assetGrowthChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Average Employee Account Balance</h3>
+                    <div class="chart-container">
+                        <canvas id="avgBalanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="projection-insights">
+                <h3>Key Projection Insights</h3>
+                <div id="projectionInsights">
+                    <!-- Insights will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="engagement-section">
+            <div class="action-buttons">
+                <button class="btn-action btn-primary" onclick="goBack()">← Back to Setup</button>
+                <button class="btn-action btn-secondary" onclick="goToResults()">View Projections →</button>
+                <button class="btn-action btn-success" onclick="exportEngagementReport()">📊 Export Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="engagement.js"></script>
+</body>
+</html>

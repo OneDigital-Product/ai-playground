@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Year Retirement Plan Evaluation - Setup</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>5-Year Retirement Plan Evaluation</h1>
+            <p class="subtitle">Setup Input Parameters</p>
+        </header>
+
+        <form id="planSetupForm" class="setup-form">
+            <div class="form-section">
+                <h2>Plan Demographics</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eligibleEmployees">Number of Eligible Employees
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Total number of employees who meet the plan's eligibility requirements (age, service, etc.) and are eligible to participate in the retirement plan.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="eligibleEmployees" name="eligibleEmployees" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="participants">Number of Participants
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Number of eligible employees who are currently participating in the plan (making contributions or have account balances). Cannot exceed eligible employees.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="participants" name="participants" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="avgAccountBalance">Average Account Balance ($)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">The current average account balance across all participants. This serves as the starting point for growth projections and fee calculations.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="avgAccountBalance" name="avgAccountBalance" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="avgSalary">Average Participant Salary ($)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Average annual salary of current participants. Used to calculate contribution amounts and employer match eligibility.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="avgSalary" name="avgSalary" min="0" step="0.01" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Investment & Returns</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="investmentReturn">Investment Return (%)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Expected annual investment return rate for the plan's investment options. Conservative estimates: 5-6% for balanced portfolios, 7-8% for aggressive growth. This is used for growth projections over 25 years.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="investmentReturn" name="investmentReturn" min="0" max="100" step="0.01" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Contribution Rates</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="employeeContribRate">Employee Contribution Rate (%)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Current average employee contribution rate as a percentage of salary. Industry average is 6-8%. This represents what participants are currently contributing to their accounts.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="employeeContribRate" name="employeeContribRate" min="0" max="100" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employerContribRate">Employer Contribution Rate (%)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Average amount the employer currently contributes per employee as % of salary. This is mostly from matching programs based on actual participant behavior, not the maximum possible match.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="employerContribRate" name="employerContribRate" min="0" max="100" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="employer401kMatch">Employer 401k Match (%)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Maximum possible employer match rate as % of salary. Used to model expansion potential if more participants maximized their match. Common examples: 3% (100% match on first 3%), 1.5% (50% match on first 3%).</div>
+                            </span>
+                        </label>
+                        <input type="number" id="employer401kMatch" name="employer401kMatch" min="0" max="100" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="participantsMaxMatch">Participants Maximizing Match (%)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Percentage of participants who contribute enough to receive the full employer match. Many participants leave "free money" on the table. Industry average is 70-85%.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="participantsMaxMatch" name="participantsMaxMatch" min="0" max="100" step="0.01" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Auto Escalation</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="autoEscalation">Auto Escalation
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Feature that automatically increases employee contribution rates by 1% each year. Helps participants reach retirement savings goals without active decision-making. Very effective for long-term wealth building.</div>
+                            </span>
+                        </label>
+                        <select id="autoEscalation" name="autoEscalation" required>
+                            <option value="">Select...</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxAutoEscalationRate">Max Auto Escalation Rate (%)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Maximum contribution rate that auto-escalation will reach before stopping. Common caps are 10-15%. Prevents excessive contribution rates while encouraging healthy savings habits.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="maxAutoEscalationRate" name="maxAutoEscalationRate" min="0" max="100" step="0.01">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Plan Engagement Features</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="enrollmentMethod">Enrollment Method
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Auto-enrollment can triple participation rates by automatically enrolling eligible employees at a default contribution rate. Opt-in requires employees to actively enroll themselves.</div>
+                            </span>
+                        </label>
+                        <select id="enrollmentMethod" name="enrollmentMethod" required>
+                            <option value="">Select...</option>
+                            <option value="opt-in">Opt-In (Traditional)</option>
+                            <option value="auto-enroll">Auto-Enrollment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="defaultAutoContribRate">Default Auto-Enroll Rate (%)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Default contribution rate for auto-enrolled employees. Common rates are 3-6%. Should be high enough to capture employer match but not cause financial hardship.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="defaultAutoContribRate" name="defaultAutoContribRate" min="0" max="100" step="0.01">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vestingSchedule">Vesting Schedule
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">How long employees must work to own employer contributions. Immediate vesting improves engagement. Cliff vesting = all at once after specified years. Graded = percentage vests each year.</div>
+                            </span>
+                        </label>
+                        <select id="vestingSchedule" name="vestingSchedule" required>
+                            <option value="">Select...</option>
+                            <option value="immediate">Immediate</option>
+                            <option value="3-year">3-Year Cliff</option>
+                            <option value="6-year-graded">6-Year Graded</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="investmentOptions">Number of Investment Options
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Research shows 10-12 options optimize engagement. Too few limits choice, too many (20+) creates analysis paralysis and reduces participation rates.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="investmentOptions" name="investmentOptions" min="5" max="25" step="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="avgTenure">Average Employee Tenure (years)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Average length of employment at the company. Shorter tenure may indicate need for immediate vesting and early engagement strategies. Affects behavioral modeling calculations.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="avgTenure" name="avgTenure" min="1" max="40" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="avgAge">Average Participant Age
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Average age of current participants. Younger employees typically have lower engagement rates but longer time horizons. Older employees are more engaged but have less time to save.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="avgAge" name="avgAge" min="18" max="70" step="1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Fees</h2>
+                
+                <!-- Record Keeper Fee -->
+                <div class="form-subsection">
+                    <h3>Record Keeper Fee</h3>
+                    <div class="fee-structure-toggle">
+                        <label class="radio-group">
+                            <input type="radio" id="recordKeeperBasisPoints" name="recordKeeperFeeType" value="basisPoints" required>
+                            <span>Basis Points</span>
+                        </label>
+                        <label class="radio-group">
+                            <input type="radio" id="recordKeeperFlatPerHead" name="recordKeeperFeeType" value="flatPerHead" required>
+                            <span>Flat + Per Participant</span>
+                        </label>
+                    </div>
+                    <div class="fee-inputs">
+                        <div class="form-group" id="recordKeeperBasisPointsGroup">
+                            <label for="recordKeeperBasisPointsFee">Basis Points (0.01% = 1 bp)
+                                <span class="field-help">
+                                    <div class="help-icon">?</div>
+                                    <div class="help-tooltip">Record keeper fee as basis points of plan assets. Common range: 25-75 basis points. Example: 50 basis points = 0.50% of total plan assets annually. Scales with plan growth.</div>
+                                </span>
+                            </label>
+                            <input type="number" id="recordKeeperBasisPointsFee" name="recordKeeperBasisPointsFee" min="0" max="500" step="0.1">
+                        </div>
+                        <div class="fee-flat-group" id="recordKeeperFlatGroup" style="display: none;">
+                            <div class="form-group">
+                                <label for="recordKeeperFlatFee">Flat Annual Fee ($)
+                                    <span class="field-help">
+                                        <div class="help-icon">?</div>
+                                        <div class="help-tooltip">Fixed annual fee regardless of plan size. Common range: $5,000-$25,000. Good for smaller plans where basis points would be too expensive.</div>
+                                    </span>
+                                </label>
+                                <input type="number" id="recordKeeperFlatFee" name="recordKeeperFlatFee" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="recordKeeperPerHeadFee">Per Participant Fee ($)
+                                    <span class="field-help">
+                                        <div class="help-icon">?</div>
+                                        <div class="help-tooltip">Additional fee per active participant. Common range: $15-$50 per participant annually. Covers individual account maintenance and participant services.</div>
+                                    </span>
+                                </label>
+                                <input type="number" id="recordKeeperPerHeadFee" name="recordKeeperPerHeadFee" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advisor Fee -->
+                <div class="form-subsection">
+                    <h3>Advisor Fee</h3>
+                    <div class="fee-structure-toggle">
+                        <label class="radio-group">
+                            <input type="radio" id="advisorBasisPoints" name="advisorFeeType" value="basisPoints" required>
+                            <span>Basis Points</span>
+                        </label>
+                        <label class="radio-group">
+                            <input type="radio" id="advisorFlatPerHead" name="advisorFeeType" value="flatPerHead" required>
+                            <span>Flat + Per Participant</span>
+                        </label>
+                    </div>
+                    <div class="fee-inputs">
+                        <div class="form-group" id="advisorBasisPointsGroup">
+                            <label for="advisorBasisPointsFee">Basis Points (0.01% = 1 bp)
+                                <span class="field-help">
+                                    <div class="help-icon">?</div>
+                                    <div class="help-tooltip">Advisor fee as basis points of plan assets. Common range: 40-100 basis points. Covers investment advisory services, plan consulting, and fiduciary oversight. Higher for full-service advisors.</div>
+                                </span>
+                            </label>
+                            <input type="number" id="advisorBasisPointsFee" name="advisorBasisPointsFee" min="0" max="500" step="0.1">
+                        </div>
+                        <div class="fee-flat-group" id="advisorFlatGroup" style="display: none;">
+                            <div class="form-group">
+                                <label for="advisorFlatFee">Flat Annual Fee ($)
+                                    <span class="field-help">
+                                        <div class="help-icon">?</div>
+                                        <div class="help-tooltip">Fixed annual advisory fee. Common range: $8,000-$30,000. May include quarterly plan reviews, fiduciary services, and investment monitoring.</div>
+                                    </span>
+                                </label>
+                                <input type="number" id="advisorFlatFee" name="advisorFlatFee" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="advisorPerHeadFee">Per Participant Fee ($)
+                                    <span class="field-help">
+                                        <div class="help-icon">?</div>
+                                        <div class="help-tooltip">Advisory fee per participant. Common range: $25-$75 per participant annually. Covers participant education, enrollment meetings, and ongoing support.</div>
+                                    </span>
+                                </label>
+                                <input type="number" id="advisorPerHeadFee" name="advisorPerHeadFee" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TPA Fee (Always Flat + Per Head) -->
+                <div class="form-subsection">
+                    <h3>TPA Fee (Flat + Per Participant)</h3>
+                    <div class="fee-flat-group">
+                        <div class="form-group">
+                            <label for="tpaFlatFee">Flat Annual Fee ($)
+                                <span class="field-help">
+                                    <div class="help-icon">?</div>
+                                    <div class="help-tooltip">Third-party administrator base fee. Common range: $2,000-$8,000. Covers plan administration, compliance testing, government filings (5500), and basic plan management services.</div>
+                                </span>
+                            </label>
+                            <input type="number" id="tpaFlatFee" name="tpaFlatFee" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tpaPerHeadFee">Per Participant Fee ($)
+                                <span class="field-help">
+                                    <div class="help-icon">?</div>
+                                    <div class="help-tooltip">TPA fee per participant. Common range: $8-$30 per participant annually. Covers individual participant account processing, distributions, loans, and compliance monitoring.</div>
+                                </span>
+                            </label>
+                            <input type="number" id="tpaPerHeadFee" name="tpaPerHeadFee" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investment Fee (Always Basis Points) -->
+                <div class="form-subsection">
+                    <h3>Investment Fee (Basis Points)</h3>
+                    <div class="form-group">
+                        <label for="investmentBasisPointsFee">Basis Points (0.01% = 1 bp)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Weighted average investment expense ratio. Common range: 50-150 basis points. Covers mutual fund management fees, 12b-1 fees, and investment administration. Always paid by employees regardless of fee allocation.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="investmentBasisPointsFee" name="investmentBasisPointsFee" min="0" max="500" step="0.1" required>
+                    </div>
+                </div>
+
+                <!-- Audit Fee (Always Basis Points) -->
+                <div class="form-subsection">
+                    <h3>Audit Fee (Basis Points)</h3>
+                    <div class="form-group">
+                        <label for="auditBasisPointsFee">Basis Points (0.01% = 1 bp)
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Annual plan audit fee for plans with 100+ participants. Common range: 15-40 basis points. Required by DOL for large plans. Covers independent auditor review of plan operations and financial statements.</div>
+                            </span>
+                        </label>
+                        <input type="number" id="auditBasisPointsFee" name="auditBasisPointsFee" min="0" max="500" step="0.1" required>
+                    </div>
+                </div>
+
+                <!-- Fee Payment Responsibility -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="feesPaidBy">Fees Paid By
+                            <span class="field-help">
+                                <div class="help-icon">?</div>
+                                <div class="help-tooltip">Who pays the plan fees (except investment fees which are always paid by employees). Employer-paid fees don't reduce participant account balances. Split means employer and employees share costs equally.</div>
+                            </span>
+                        </label>
+                        <select id="feesPaidBy" name="feesPaidBy" required>
+                            <option value="">Select...</option>
+                            <option value="employer">Employer</option>
+                            <option value="employee">Employee</option>
+                            <option value="split">Split</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="resetForm" class="btn btn-secondary">Reset Form</button>
+                <button type="button" id="engagementAnalysis" class="btn btn-success">Engagement Analysis</button>
+                <button type="submit" class="btn btn-primary">Calculate Projections</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

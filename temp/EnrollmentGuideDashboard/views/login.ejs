@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Enrollment Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.css">
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
+                <i data-feather="shield" class="h-6 w-6 text-blue-600"></i>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
+                Admin Access
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Enter the admin password to access the enrollment guide dashboard
+            </p>
+        </div>
+        
+        <form class="mt-8 space-y-6" method="POST" action="/login">
+            <div>
+                <label for="password" class="sr-only">Password</label>
+                <input id="password" name="password" type="password" required
+                       class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                       placeholder="Admin password">
+            </div>
+            
+            <% if (error) { %>
+                <div class="rounded-md bg-red-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i data-feather="alert-circle" class="h-5 w-5 text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                <%= error %>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <div>
+                <button type="submit"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i data-feather="lock" class="h-5 w-5 text-blue-500 group-hover:text-blue-400"></i>
+                    </span>
+                    Sign in
+                </button>
+            </div>
+        </form>
+        
+        <div class="text-center space-y-4">
+            <div class="border-t border-gray-200 pt-6">
+                <p class="text-sm text-gray-600 mb-3">
+                    Need to submit a new enrollment request?
+                </p>
+                <a href="/intakes/new" 
+                   class="w-full flex justify-center items-center px-8 py-6 text-xl font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <i data-feather="plus-circle" class="h-6 w-6 mr-4"></i>
+                    Create New Intake Request
+                </a>
+            </div>
+            
+            <p class="text-xs text-gray-500">
+                This is a secure area for Replit enrollment guides only
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <script>
+        feather.replace();
+        
+        // Focus on password field when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('password').focus();
+        });
+    </script>
+</body>
+</html>
