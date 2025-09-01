@@ -11,20 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/ui/radio-group";
 // import { Alert, AlertDescription } from "@repo/ui/components/ui/alert";
 import { intakeCreateSchema, GuideType, CommunicationsAddOns, ProductionTime, SectionCode, type IntakeCreate } from "@/lib/schemas";
+import { REQUESTOR_NAMES } from "@/lib/constants";
 
-// Requestor names list (should match API)
-const REQUESTOR_NAMES = [
-  "John Doe",
-  "Jane Smith", 
-  "Mike Johnson",
-  "Sarah Wilson",
-  "David Brown",
-  "Lisa Garcia",
-  "Robert Davis",
-  "Emily Chen",
-  "Tom Anderson",
-  "Maria Rodriguez"
-] as const;
+// Requestor names are centralized in lib/constants
 
 // Section definitions with human-readable names
 const SECTIONS = [

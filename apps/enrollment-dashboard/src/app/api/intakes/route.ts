@@ -3,22 +3,9 @@ import { validateIntakeCreate } from "@/lib/schemas";
 import { ConvexHttpClient } from "convex/browser";
 import type { FunctionReference } from "convex/server";
 import { api } from "@repo/backend/convex/_generated/api";
+import { REQUESTOR_NAMES, type RequestorName } from "@/lib/constants";
 
-// Define requestor names as enum for consistency
-const REQUESTOR_NAMES = [
-  "John Doe",
-  "Jane Smith", 
-  "Mike Johnson",
-  "Sarah Wilson",
-  "David Brown",
-  "Lisa Garcia",
-  "Robert Davis",
-  "Emily Chen",
-  "Tom Anderson",
-  "Maria Rodriguez"
-] as const;
-
-type RequestorName = typeof REQUESTOR_NAMES[number];
+// REQUESTOR_NAMES moved to shared constants module
 
 export async function POST(request: NextRequest) {
   const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
@@ -121,5 +108,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Export the list of requestor names for use in components
-export { REQUESTOR_NAMES };
+// Components should import REQUESTOR_NAMES from '@/lib/constants'
