@@ -29,6 +29,19 @@ export declare const api: {
         any
       >;
     };
+    retirementPlans: {
+      save: FunctionReference<
+        "mutation",
+        "public",
+        {
+          eligibleEmployees: number;
+          participants: number;
+          investmentReturn: number;
+        },
+        any
+      >;
+      list: FunctionReference<"query", "public", {}, any>;
+    };
   };
 };
 

@@ -4,6 +4,8 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@repo/backend/convex/_generated/api.js";
 import { useState } from "react";
 
+type Message = { _id: string; author: string; body: string };
+
 export default function ConvexDemo() {
   const messages = useQuery(api.functions.messages.list) ?? [];
   const send = useMutation(api.functions.messages.send);
@@ -14,8 +16,8 @@ export default function ConvexDemo() {
     <div style={{ padding: 16 }}>
       <h1>Convex Demo (Docs)</h1>
       <ul>
-        {messages.map((m: any) => (
-          <li key={m._id as any}>
+        {messages.map((m: Message) => (
+          <li key={m._id}>
             <strong>{m.author}:</strong> {m.body}
           </li>
         ))}
@@ -42,4 +44,3 @@ export default function ConvexDemo() {
     </div>
   );
 }
-
