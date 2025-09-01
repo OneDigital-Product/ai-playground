@@ -4,21 +4,21 @@ Description
 - Add tests validating that `intakes.list` applies all filters and sorting as specified (status, complexityBand, requestor substring, planYear, requestedProductionTime, sortBy/order). Ensure results match expectations.
 
 Acceptance Criteria
-- New tests under `packages/backend/convex/functions/__tests__/intakes.list.test.ts` (or similar) that:
-  - Seed in-memory fixtures or mock data for several intakes.
+- New tests under `packages/backend/convex/functions/__tests__/intakes.list.test.ts`:
+  - Seed sample fixtures for several intakes.
   - Assert filter combinations produce correct subsets.
   - Assert sorting behaves correctly for dates and strings.
 - Tests pass consistently.
 
 Implementation Notes
 - Files:
-  - `packages/backend/convex/functions/intakes.ts`
-  - Add tests in a colocated `__tests__` folder or similar pattern used by `complexity.test.ts`.
-- Consider adding light helper to build fake intake objects (not DB) and unit-test the filter/sort pure logic separately from DB calls if easier to isolate.
+  - Added helper `packages/backend/convex/functions/helpers/listFilters.ts` implementing filter & sort semantics for unit testing.
+  - `intakes.list` refactored to call helper after initial index-based fetch/union.
+  - Tests import the helper and verify semantics with fixture data using node:test/assert.
 
 Dependencies
 - 24-pass-dashboard-filters-to-convex.md (ensures contract is stable)
-- 25-optimize-intakes-list-with-indexes.md (optional but recommended)
+- 25-optimize-intakes-list-with-indexes.md
 
 Estimated Effort
 - 30–45 minutes
