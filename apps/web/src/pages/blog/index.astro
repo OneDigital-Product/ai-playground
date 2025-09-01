@@ -1,57 +1,46 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import BlogCard from "../../components/BlogCard.astro";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
 );
 
-const byYear = posts.reduce((m, p) => {
+type PostItem = (typeof posts)[number];
+const byYear = posts.reduce<Record<string, PostItem[]>>((m, p) => {
   const y = p.data.pubDate.getFullYear();
   (m[y] ??= []).push(p);
   return m;
-}, /** @type {Record<string, typeof posts>} */ ({}));
+}, {});
 ---
 
 <BaseLayout title="Blog" description="All posts by year with tags">
-  <main class="mx-auto max-w-3xl p-6">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold">Blog</h1>
-      <p class="text-neutral-600">Browse posts by year. Click a tag to filter.</p>
-    </header>
+  <section class="mx-auto max-w-5xl py-10 sm:py-14">
+    <h1 class="text-balance text-4xl sm:text-5xl font-semibold tracking-tight">All Writing</h1>
+    <p class="mt-2 max-w-2xl text-muted-foreground">Browse posts by year. Click a tag to filter.</p>
+  </section>
 
+  <section class="mx-auto max-w-5xl pb-16">
     {Object.keys(byYear)
       .sort((a, b) => Number(b) - Number(a))
       .map((year) => (
-        <section class="mb-8">
-          <h2 class="text-2xl font-semibold mb-4">{year}</h2>
-          <ul class="space-y-4">
-            {byYear[year].map((p) => {
+        <section class="mb-12">
+          <div class="mb-6 flex items-center gap-4">
+            <div class="h-px flex-1 bg-border"></div>
+            <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{year}</span>
+          </div>
+          <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {(byYear[year] ?? []).map((p) => {
               const href = `/app/blog/${p.slug}`;
               return (
-                <li class="border rounded-lg p-4 hover:shadow-sm transition">
-                  <article>
-                    <header class="mb-2">
-                      <h3 class="text-xl font-semibold"><a href={href} class="hover:underline">{p.data.title}</a></h3>
-                      <p class="text-sm text-neutral-500">{p.data.pubDate.toLocaleDateString()}</p>
-                    </header>
-                    <p class="text-neutral-700 mb-3">{p.data.description}</p>
-                    {p.data.tags?.length > 0 && (
-                      <ul class="mt-2 flex flex-wrap gap-2 text-xs text-neutral-600">
-                        {p.data.tags.map((t) => (
-                          <li>
-                            <a class="rounded-full bg-neutral-100 px-2 py-1 hover:underline" href={`/app/blog/tags/${encodeURIComponent(t)}`}>{t}</a>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </article>
+                <li>
+                  <BlogCard title={p.data.title} description={p.data.description} date={p.data.pubDate} href={href} tags={p.data.tags} />
                 </li>
               );
             })}
           </ul>
         </section>
       ))}
-  </main>
+  </section>
 </BaseLayout>
-

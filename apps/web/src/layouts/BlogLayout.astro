@@ -10,10 +10,9 @@ const { title, description } = Astro.props as Props;
 ---
 
 <BaseLayout {title} {description}>
-  <main class="mx-auto max-w-3xl p-6 prose">
+  <main class="mx-auto max-w-3xl sm:max-w-5xl px-4 sm:px-6 py-8">
     <slot />
   </main>
   <!-- Forward head slot so pages can inject meta tags -->
   <slot name="head" slot="head" />
 </BaseLayout>
-

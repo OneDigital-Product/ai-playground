@@ -5,6 +5,7 @@ export interface Props {
 }
 
 const { title = "Web App", description = "Web application" } = Astro.props as Props;
+import SiteNav from "../components/SiteNav.astro";
 ---
 
 <!doctype html>
@@ -21,8 +22,14 @@ const { title = "Web App", description = "Web application" } = Astro.props as Pr
     <title>{title}</title>
     <slot name="head" />
   </head>
-  <body>
-    <slot />
+  <body class="bg-background text-foreground antialiased">
+    <slot name="site-nav"><SiteNav /></slot>
+    <main class="mx-auto max-w-6xl px-4 sm:px-6">
+      <slot />
+    </main>
+    <footer class="mx-auto max-w-6xl px-4 sm:px-6 py-10 text-xs text-muted-foreground border-t mt-12">
+      <p>© {new Date().getFullYear()} Playground. All rights reserved.</p>
+    </footer>
   </body>
 </html>
 

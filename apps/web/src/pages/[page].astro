@@ -1,58 +1,60 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import BlogCard from "../components/BlogCard.astro";
+type PostEntry = {
+  slug: string;
+  data: { title: string; description: string; pubDate: string | Date; tags?: string[] };
+};
 
-export async function getStaticPaths({ paginate }) {
+export async function getStaticPaths(ctx: unknown) {
   const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
     (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
   );
-  return paginate(posts, { pageSize: 6 });
+  const { paginate } = ctx as { paginate: (items: unknown[], options: { pageSize: number }) => unknown };
+  return paginate(posts, { pageSize: 6 }) as any;
 }
 
 const { page } = Astro.props;
+const pageData = page as unknown as { data: PostEntry[]; url: { prev?: string; next?: string } };
 ---
 
 <BaseLayout title="Welcome" description="Latest updates and articles">
-  <main class="mx-auto max-w-3xl p-6">
-    <section class="mb-10">
-      <h1 class="text-4xl font-bold mb-2">Welcome 👋</h1>
-      <p class="text-neutral-600">Explore our latest updates and deep dives below.</p>
-    </section>
+  <section class="mx-auto max-w-5xl py-10 sm:py-14">
+    <p class="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">Engineering serendipity</p>
+    <h1 class="mt-2 text-balance text-5xl sm:text-6xl font-semibold leading-[0.95] tracking-tight">
+      At Infrared Mind + Body of the web
+    </h1>
+    <p class="mt-4 max-w-2xl text-pretty text-muted-foreground">
+      Articles on product, engineering, and design — exploring how simple systems and vivid ideas create outsized impact.
+    </p>
+  </section>
 
-    <section aria-labelledby="blog-heading">
-      <h2 id="blog-heading" class="text-2xl font-semibold mb-4">Latest Posts</h2>
-      <ul class="space-y-6">
-        {page.data.map((post) => {
-          const { title, description, pubDate } = post.data;
-          const href = `/app/blog/${post.slug}`;
-          return (
-            <li class="border rounded-lg p-4 hover:shadow-sm transition">
-              <article>
-                <header class="mb-2">
-                  <h3 class="text-xl font-semibold"><a href={href} class="hover:underline">{title}</a></h3>
-                  <p class="text-sm text-neutral-500">{pubDate.toLocaleDateString()}</p>
-                </header>
-                <p class="text-neutral-700 mb-3">{description}</p>
-                <a href={href} class="text-blue-600 hover:underline">Read More →</a>
-              </article>
-            </li>
-          );
-        })}
-      </ul>
+  <section aria-labelledby="blog-heading" class="mx-auto max-w-5xl pb-12">
+    <h2 id="blog-heading" class="sr-only">Latest Posts</h2>
+    <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      {pageData.data.map((post) => {
+        const { title, description, pubDate, tags } = post.data;
+        const href = `/app/blog/${post.slug}`;
+        return (
+          <li>
+            <BlogCard title={title} description={description} date={pubDate} href={href} tags={tags} />
+          </li>
+        );
+      })}
+    </ul>
 
-      <nav class="flex items-center justify-between mt-8">
-        {page.url.prev ? (
-          <a href={page.url.prev} class="text-blue-600 hover:underline">← Previous</a>
-        ) : <span />}
-        {page.url.next && (
-          <a href={page.url.next} class="text-blue-600 hover:underline">Next →</a>
-        )}
-      </nav>
-    </section>
-
-    <nav class="mt-10">
-      <a href="/app/convex-demo" class="text-blue-500 hover:underline">Convex Demo</a>
+    <nav class="mt-10 flex items-center justify-between border-t pt-6">
+      {pageData.url.prev ? (
+        <a href={pageData.url.prev} class="text-sm uppercase tracking-wide text-muted-foreground hover:text-primary">← Previous</a>
+      ) : <span />}
+      {pageData.url.next && (
+        <a href={pageData.url.next} class="text-sm uppercase tracking-wide text-muted-foreground hover:text-primary">Next →</a>
+      )}
     </nav>
-  </main>
-</BaseLayout>
+  </section>
 
+  <nav class="mx-auto max-w-5xl pb-10">
+    <a href="/app/convex-demo" class="text-sm text-primary underline-offset-4 hover:underline">Convex Demo</a>
+  </nav>
+</BaseLayout>
