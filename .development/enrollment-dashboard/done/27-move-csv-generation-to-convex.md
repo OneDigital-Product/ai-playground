@@ -11,14 +11,13 @@ Acceptance Criteria
 Implementation Notes
 - Files:
   - `packages/backend/convex/functions/intakes.ts` (exportCsv):
-    - Apply filters like the current version, then sort if `sortBy/order` provided.
-    - Map to CSV rows server-side and join with `\n` including header.
+    - Applies filters like the list function, sorts by `sortBy/order`, then maps to CSV rows server-side and joins with `\n` including header.
+    - Uses an `escapeCsv` helper to wrap fields containing "," `"` or `\n` and doubles inner quotes.
   - `apps/enrollment-dashboard/src/app/api/dashboard.csv/route.ts`:
-    - Replace client-side stringify + sort with a single query `fetchQuery(api.functions.intakes.exportCsv, { filters, sortBy, order })` and return the string.
-- Ensure escaping helper on server wraps any field containing `,` `"` or `\n` in quotes and doubles inner quotes.
+    - Replaced client-side stringify + sort with a single query `fetchQuery(api.functions.intakes.exportCsv, { filters, sortBy, order })` and returns the string.
 
 Dependencies
-- None (but tests in task 29 depend on this change).
+- None (tests for escaping tracked in task 29)
 
 Estimated Effort
 - 30–45 minutes
