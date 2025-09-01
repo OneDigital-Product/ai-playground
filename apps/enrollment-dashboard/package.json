@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@repo/backend": "workspace:^",
+    "@repo/ui": "workspace:*",
     "convex": "^1.16.0",
     "next": "15.5.2",
     "react": "19.1.0",
