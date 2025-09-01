@@ -354,6 +354,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/node':
+        specifier: ^20.12.12
+        version: 20.19.11
       eslint:
         specifier: ^9.33.0
         version: 9.33.0
@@ -3365,7 +3368,7 @@ packages:
   /@types/fontkit@2.0.8:
     resolution: {integrity: sha512-wN+8bYxIpJf+5oZdrdtaX04qUuWHcKxcDEgRS9Qm9ZClSHjzEn13SxUC+5eRM+4yXIeTYk8mTzLAWGF64847ew==}
     dependencies:
-      '@types/node': 22.15.30
+      '@types/node': 20.19.11
     dev: false
 
   /@types/hast@3.0.4:
@@ -3406,12 +3409,12 @@ packages:
     resolution: {integrity: sha512-uug3FEEGv0r+jrecvUUpbY8lLisvIjg6AAic6a2bSP5OEOLeJsDSnvhCDov7ipFFMXS3orMpzlmi0ZcuGkBbow==}
     dependencies:
       undici-types: 6.21.0
-    dev: true
 
   /@types/node@22.15.30:
     resolution: {integrity: sha512-6Q7lr06bEHdlfplU6YRbgG1SFBdlsfNC4/lX+SkhiTs0cpJkOElmWls8PxDFv4yY/xKb8Y6SO0OmSX4wgqTZbA==}
     dependencies:
       undici-types: 6.21.0
+    dev: true
 
   /@types/react-dom@19.1.9(@types/react@19.1.12):
     resolution: {integrity: sha512-qXRuZaOsAdXKFyOhRBg6Lqqc0yay13vN7KrIg4L7N4aaHN68ma9OK3NE1BoDFgFOTfM7zg+3/8+2n8rLUH3OKQ==}
