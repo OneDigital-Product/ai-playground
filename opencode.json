@@ -1,0 +1,50 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "Context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp@latest"],
+      "enabled": true,
+      "environment": {}
+    },
+    "Playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest"],
+      "enabled": true,
+      "environment": {}
+    },
+    "Shadcn-UI": {
+      "type": "local",
+      "command": ["npx", "-y", "shadcn-ui-mcp-server"],
+      "enabled": true,
+      "environment": {}
+    },
+    "Convex": {
+      "type": "local",
+      "command": ["npx", "-y", "convex@latest", "mcp", "start"],
+      "enabled": true,
+      "environment": {}
+    }
+  },
+  "tools": {
+    "Context7_*": false,
+    "Playwright_*": false,
+    "Shadcn-UI_*": false,
+    "Convex_*": false
+  },
+  "agent": {
+    "orchestrator": {
+      "tools": {
+        "Context7_*": true
+      }
+    },
+    "dev": {
+      "tools": {
+        "Context7_*": true,
+        "Shadcn-UI_*": true,
+        "Convex_*": true
+      }
+    }
+  }
+}
+
