@@ -29,7 +29,7 @@ Implementation Notes
 - Keep UI behavior for interactive sort; just ensure it maps to server args.
 
 Dependencies
-- None (can ship before backend optimization in task 25).
+- None (can ship before backend optimization)
 
 Estimated Effort
 - 30–45 minutes
