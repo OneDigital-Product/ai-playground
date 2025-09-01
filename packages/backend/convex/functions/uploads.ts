@@ -10,7 +10,7 @@ const uploadKindValidator = v.union(
 );
 
 // Allowed MIME types
-const ALLOWED_MIME_TYPES = [
+export const ALLOWED_MIME_TYPES = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
@@ -19,7 +19,31 @@ const ALLOWED_MIME_TYPES = [
   'image/jpg',
 ];
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
+export const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
+
+// Exported helper for unit tests and shared validation
+export function validateUploadInput(file: { size: number; type: string }) {
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(
+      `File size (${Math.round(file.size / 1024 / 1024)}MB) exceeds maximum allowed size of 25MB`
+    );
+  }
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    throw new Error(
+      `File type ${file.type} is not allowed. Allowed types: PDF, DOCX, XLSX, PNG, JPG`
+    );
+  }
+}
+
+// Test helper to simulate delete without Convex ctx
+export async function performDeleteWithMocks(
+  storage: { delete: (key: string) => Promise<any> | any },
+  remover: (args: { uploadId: any }) => Promise<any> | any,
+  upload: { storedKey: string; _id: any }
+) {
+  await storage.delete(upload.storedKey);
+  await remover({ uploadId: upload._id });
+}
 
 // Upload action that handles file storage
 export const uploadFile = action({
@@ -31,15 +55,8 @@ export const uploadFile = action({
   handler: async (ctx, args) => {
     const { file, intakeId, kind } = args;
     
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error(`File size (${Math.round(file.size / 1024 / 1024)}MB) exceeds maximum allowed size of 25MB`);
-    }
-    
-    // Validate MIME type
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      throw new Error(`File type ${file.type} is not allowed. Allowed types: PDF, DOCX, XLSX, PNG, JPG`);
-    }
+    // Validate file
+    validateUploadInput({ size: file.size, type: file.type });
     
     // Store file in Convex storage
     const storageId = await ctx.storage.store(file);
