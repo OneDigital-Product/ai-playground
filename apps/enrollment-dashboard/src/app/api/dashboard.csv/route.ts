@@ -111,3 +111,11 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+/**
+ * GET /enrollment-dashboard/api/dashboard.csv
+ * Description: Download a CSV export of intakes. Filters and sorting are applied on the server.
+ * Query: status[], complexityBand[], requestorName, planYear, requestedProductionTime[], sortBy, order
+ * 200: text/csv with `Content-Disposition: attachment; filename="..."`
+ * 500: { error, details }
+ * Notes: Thin proxy to Convex intakes.exportCsv which returns a CSV string.
+ */

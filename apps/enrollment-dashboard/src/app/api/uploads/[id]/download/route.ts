@@ -43,3 +43,11 @@ export async function GET(
     );
   }
 }
+/**
+ * GET /enrollment-dashboard/api/uploads/[id]/download
+ * Description: Redirects to a signed download URL for an uploaded file.
+ * 302: Redirect to signed URL
+ * 404: { error: 'File not found' }
+ * 500: { error: 'Internal server error' }
+ * Notes: Calls Convex uploads.getDownloadUrl action.
+ */

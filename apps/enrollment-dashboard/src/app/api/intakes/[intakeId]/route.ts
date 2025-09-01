@@ -37,3 +37,11 @@ export async function DELETE(
     );
   }
 }
+/**
+ * DELETE /enrollment-dashboard/api/intakes/[intakeId]
+ * Description: Delete an intake and cascade delete sections and files.
+ * 200: { success: true }
+ * 404: { error: "Intake not found" }
+ * 500: { error: "Internal server error" }
+ * Notes: Calls Convex action intakes.deleteIntake (storage + DB cleanup).
+ */

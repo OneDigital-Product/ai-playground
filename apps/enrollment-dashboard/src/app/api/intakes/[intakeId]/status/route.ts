@@ -65,3 +65,13 @@ export async function POST(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+/**
+ * POST /enrollment-dashboard/api/intakes/[intakeId]/status
+ * Description: Update the status of an intake.
+ * Body: { status: 'NOT_STARTED'|'STARTED'|'ROADBLOCK'|'READY_FOR_QA'|'DELIVERED_TO_CONSULTANT' }
+ * 200: { success: true }
+ * 400: { error, fieldErrors? }
+ * 404: { error: 'Intake not found' }
+ * 500: { error: 'Internal server error' }
+ * Notes: Calls Convex intakes.updateStatus.
+ */

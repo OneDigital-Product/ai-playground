@@ -58,3 +58,12 @@ export async function POST(
     );
   }
 }
+/**
+ * POST /enrollment-dashboard/api/intakes/[intakeId]/sections/[code]
+ * Description: Upsert a section's change description for an intake.
+ * Body: { change_description?: string }
+ * 200: { success: true, result }
+ * 400: { error, fieldErrors? }
+ * 500: { error: 'Failed to update section' }
+ * Notes: Validates section code (A–Q); calls Convex sections.upsert.
+ */

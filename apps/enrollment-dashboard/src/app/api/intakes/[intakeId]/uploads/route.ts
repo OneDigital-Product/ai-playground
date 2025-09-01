@@ -84,3 +84,12 @@ export async function POST(
     );
   }
 }
+/**
+ * POST /enrollment-dashboard/api/intakes/[intakeId]/uploads
+ * Description: Upload up to 10 files for an intake with a selected kind.
+ * FormData: kind: 'GUIDE'|'PLAN_DOC'|'PAYROLL_SCREEN'|'OTHER'; files[] (<=10, PDF/DOCX/XLSX/PNG/JPG, <=25MB each)
+ * 200: { files: [{ _id, originalName, mimeType, bytes, kind }], errors?: [{ filename, error }] }
+ * 400: { error } (invalid kind, no files, too many files)
+ * 500: { error: 'Internal server error' }
+ * Notes: Calls Convex uploads.uploadFile action per file; partial success reports per-file errors.
+ */

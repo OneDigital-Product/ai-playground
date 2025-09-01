@@ -109,3 +109,12 @@ export async function POST(request: NextRequest) {
 }
 
 // Components should import REQUESTOR_NAMES from '@/lib/constants'
+/**
+ * POST /enrollment-dashboard/api/intakes
+ * Description: Create a new intake and (optionally) seed initial section details.
+ * Body: IntakeCreate + optional sectionDescriptions (Record<'A'..'Q', string>)
+ * 201: { intakeId }
+ * 400: { error, fieldErrors? } (validation)
+ * 500: { error }
+ * Notes: Calls Convex intakes.create and sections.bulkCreate. Error shape is standardized.
+ */

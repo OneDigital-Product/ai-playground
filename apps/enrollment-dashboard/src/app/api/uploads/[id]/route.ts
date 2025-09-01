@@ -37,3 +37,11 @@ export async function DELETE(
     );
   }
 }
+/**
+ * DELETE /enrollment-dashboard/api/uploads/[id]
+ * Description: Delete an uploaded file (storage object + DB record).
+ * 200: { success: true }
+ * 404: { error: 'File not found' }
+ * 500: { error: 'Internal server error' }
+ * Notes: Calls Convex uploads.deleteUpload action.
+ */

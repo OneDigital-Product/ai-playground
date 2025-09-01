@@ -68,3 +68,12 @@ export async function POST(
     );
   }
 }
+/**
+ * POST /enrollment-dashboard/api/intakes/[intakeId]/sections/[code]/flags
+ * Description: Update section-level flags (changed, included) on an intake.
+ * Body: { changed?: boolean, included?: boolean }
+ * 200: { success: true, result }
+ * 400: { error, fieldErrors? }
+ * 500: { error: 'Failed to update section flags' }
+ * Notes: Validates section code (A–Q); calls Convex intakes.updateSectionFlags.
+ */
