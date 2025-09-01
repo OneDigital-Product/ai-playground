@@ -2,49 +2,28 @@ import { v } from "convex/values";
 import { query, mutation } from "../_generated/server.js";
 import { generateIntakeId } from "../utils/idGenerator.js";
 import { calculateComplexity, type SectionsFlags } from "../utils/complexity.js";
-
-// Section flags validator
-const sectionsValidator = v.object({
-  A: v.boolean(),
-  B: v.boolean(),
-  C: v.boolean(),
-  D: v.boolean(),
-  E: v.boolean(),
-  F: v.boolean(),
-  G: v.boolean(),
-  H: v.boolean(),
-  I: v.boolean(),
-  J: v.boolean(),
-  K: v.boolean(),
-  L: v.boolean(),
-  M: v.boolean(),
-  N: v.boolean(),
-  O: v.boolean(),
-  P: v.boolean(),
-  Q: v.boolean(),
-});
+import {
+  intakeCreateValidator,
+  statusValidator,
+  statusUpdateValidator,
+  complexityBandValidator,
+  productionTimeValidator,
+  listFiltersValidator,
+  validateNonEmptyString,
+  validatePlanYear,
+  sectionsValidator
+} from "../validators/shared.js";
 
 // Create intake
 export const create = mutation({
-  args: {
-    clientName: v.string(),
-    planYear: v.number(),
-    requestorName: v.string(),
-    payrollStorageUrl: v.string(),
-    guideType: v.union(v.literal("Update Existing Guide"), v.literal("New Guide Build")),
-    communicationsAddOns: v.union(
-      v.literal("None"), 
-      v.literal("OE Letter"), 
-      v.literal("OE Presentation"), 
-      v.literal("Both"), 
-      v.literal("Other")
-    ),
-    requestedProductionTime: v.union(v.literal("Standard"), v.literal("Rush")),
-    notesGeneral: v.optional(v.string()),
-    sectionsChangedFlags: v.optional(sectionsValidator),
-    sectionsIncludedFlags: v.optional(sectionsValidator),
-  },
+  args: intakeCreateValidator,
   handler: async (ctx, args) => {
+    // Additional validation with consistent error handling
+    const clientName = validateNonEmptyString(args.clientName, "Client name");
+    const requestorName = validateNonEmptyString(args.requestorName, "Requestor name");  
+    const payrollStorageUrl = validateNonEmptyString(args.payrollStorageUrl, "Payroll storage URL");
+    const planYear = validatePlanYear(args.planYear);
+    
     const now = new Date().toISOString();
     const intakeId = generateIntakeId();
     
@@ -73,10 +52,10 @@ export const create = mutation({
     
     const id = await ctx.db.insert("intakes", {
       intakeId,
-      clientName: args.clientName,
-      planYear: args.planYear,
-      requestorName: args.requestorName,
-      payrollStorageUrl: args.payrollStorageUrl,
+      clientName,
+      planYear,
+      requestorName,
+      payrollStorageUrl,
       guideType: args.guideType,
       communicationsAddOns: args.communicationsAddOns,
       requestedProductionTime: args.requestedProductionTime,
@@ -109,35 +88,7 @@ export const get = query({
 
 // List intakes with filtering and sorting
 export const list = query({
-  args: {
-    status: v.optional(v.array(v.union(
-      v.literal("NOT_STARTED"), 
-      v.literal("STARTED"), 
-      v.literal("ROADBLOCK"), 
-      v.literal("READY_FOR_QA"), 
-      v.literal("DELIVERED_TO_CONSULTANT")
-    ))),
-    complexityBand: v.optional(v.array(v.union(
-      v.literal("Minimal"), 
-      v.literal("Low"), 
-      v.literal("Medium"), 
-      v.literal("High")
-    ))),
-    requestorName: v.optional(v.string()),
-    planYear: v.optional(v.number()),
-    requestedProductionTime: v.optional(v.array(v.union(v.literal("Standard"), v.literal("Rush")))),
-    sortBy: v.optional(v.union(
-      v.literal("clientName"),
-      v.literal("requestorName"),
-      v.literal("guideType"),
-      v.literal("communicationsAddOns"),
-      v.literal("complexityBand"),
-      v.literal("dateReceived"),
-      v.literal("status"),
-      v.literal("requestedProductionTime")
-    )),
-    order: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
-  },
+  args: listFiltersValidator,
   handler: async (ctx, args) => {
     let results = await ctx.db.query("intakes").collect();
     
@@ -196,13 +147,7 @@ export const list = query({
 export const updateStatus = mutation({
   args: {
     intakeId: v.string(),
-    status: v.union(
-      v.literal("NOT_STARTED"), 
-      v.literal("STARTED"), 
-      v.literal("ROADBLOCK"), 
-      v.literal("READY_FOR_QA"), 
-      v.literal("DELIVERED_TO_CONSULTANT")
-    ),
+    status: statusValidator,
   },
   handler: async (ctx, args) => {
     const intake = await ctx.db

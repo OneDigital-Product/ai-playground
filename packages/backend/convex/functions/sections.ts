@@ -1,21 +1,13 @@
 import { v } from "convex/values";
 import { query, mutation } from "../_generated/server.js";
-
-const sectionCodeValidator = v.union(
-  v.literal("A"), v.literal("B"), v.literal("C"), v.literal("D"), v.literal("E"), 
-  v.literal("F"), v.literal("G"), v.literal("H"), v.literal("I"), v.literal("J"), 
-  v.literal("K"), v.literal("L"), v.literal("M"), v.literal("N"), v.literal("O"), 
-  v.literal("P"), v.literal("Q")
-);
+import { sectionCodeValidator, sectionPayloadValidator } from "../validators/shared.js";
 
 // Upsert section detail (create or update)
 export const upsert = mutation({
   args: {
     intakeId: v.string(),
     sectionCode: sectionCodeValidator,
-    payload: v.object({
-      change_description: v.optional(v.string()),
-    }),
+    payload: sectionPayloadValidator,
   },
   handler: async (ctx, args) => {
     // Check if section already exists
@@ -66,9 +58,7 @@ export const bulkCreate = mutation({
     sections: v.array(v.object({
       intakeId: v.string(),
       sectionCode: sectionCodeValidator,
-      payload: v.object({
-        change_description: v.optional(v.string()),
-      }),
+      payload: sectionPayloadValidator,
     })),
   },
   handler: async (ctx, args) => {
