@@ -16,10 +16,10 @@ const updateStatusSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { intakeId: string } }
+  { params }: { params: Promise<{ intakeId: string }> }
 ) {
   try {
-    const { intakeId } = params;
+    const { intakeId } = await params;
     
     if (!intakeId) {
       return NextResponse.json(

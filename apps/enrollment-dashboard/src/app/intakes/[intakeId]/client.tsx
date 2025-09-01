@@ -23,6 +23,12 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
   
   // Fetch sections data
   const sections = useQuery(api.functions.sections.getByIntake, { intakeId });
+  
+  // Refresh function for section editor
+  const handleRefresh = () => {
+    // Force re-query by invalidating cache
+    window.location.reload();
+  };
 
   // Fetch uploads data (for potential display in overview)
   const uploads = useQuery(api.functions.uploads.listByIntake, { intakeId });
@@ -111,7 +117,11 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
       </TabsContent>
 
       <TabsContent value="sections" className="space-y-6">
-        <IntakeSections sections={sections || []} />
+        <IntakeSections 
+          sections={sections || []} 
+          intake={intake} 
+          onRefresh={handleRefresh} 
+        />
       </TabsContent>
     </Tabs>
   );
