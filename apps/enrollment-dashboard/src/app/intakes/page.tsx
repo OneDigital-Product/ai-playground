@@ -39,27 +39,33 @@ export default function IntakesPage() {
           ) : (
             <div className="space-y-4">
               {intakes.map((intake) => (
-                <div key={intake.intakeId} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold">{intake.clientName}</h3>
-                      <Badge variant="outline">{intake.status.replace('_', ' ')}</Badge>
+                <Link 
+                  key={intake.intakeId} 
+                  href={`/enrollment-dashboard/intakes/${intake.intakeId}`}
+                  className="block"
+                >
+                  <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold">{intake.clientName}</h3>
+                        <Badge variant="outline">{intake.status.replace('_', ' ')}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {intake.intakeId} • Requestor: {intake.requestorName} • Plan Year: {intake.planYear}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Received: {new Date(intake.dateReceived).toLocaleDateString()}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {intake.intakeId} • Requestor: {intake.requestorName} • Plan Year: {intake.planYear}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Received: {new Date(intake.dateReceived).toLocaleDateString()}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <ComplexityBadge 
+                        band={intake.complexityBand} 
+                        score={intake.complexityScore} 
+                        showScore={true} 
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <ComplexityBadge 
-                      band={intake.complexityBand} 
-                      score={intake.complexityScore} 
-                      showScore={true} 
-                    />
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

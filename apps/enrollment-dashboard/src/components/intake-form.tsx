@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/ui/radio-group";
 // import { Alert, AlertDescription } from "@repo/ui/components/ui/alert";
 import { intakeCreateSchema, GuideType, CommunicationsAddOns, ProductionTime, SectionCode, type IntakeCreate } from "@/lib/schemas";
-import { z } from "zod";
 
 // Requestor names list (should match API)
 const REQUESTOR_NAMES = [
@@ -85,7 +84,7 @@ export function IntakeForm() {
     sectionDescriptions: {}
   });
 
-  const updateFormData = (field: keyof FormData, value: any) => {
+  const updateFormData = (field: keyof FormData, value: string | number | boolean | Record<string, boolean>) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear field-specific errors when user starts typing
     if (errors.fieldErrors?.[field]) {
@@ -164,7 +163,7 @@ export function IntakeForm() {
       }
 
       // Redirect to the intake detail page on success
-      router.push(`/enrollment-dashboard/intakes/${result.intakeId}?success=created`);
+      router.push(`/enrollment-dashboard/intakes/${result.intakeId}?created=1`);
       
     } catch (error) {
       console.error('Form submission error:', error);
