@@ -16,6 +16,14 @@
     "turbo": "^2.5.6",
     "turbo-ignore": "^2.5.6"
   },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0",
+      "react-dom": "19.1.0",
+      "@types/react": "19.1.12",
+      "@types/react-dom": "19.1.9"
+    }
+  },
   "packageManager": "pnpm@8.15.6",
   "engines": {
     "node": ">=18"

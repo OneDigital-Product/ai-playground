@@ -7,5 +7,8 @@ export function Providers({ children }: { children: ReactNode }) {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
   const client = useMemo(() => new ConvexReactClient(convexUrl!), [convexUrl]);
 
-  return <ConvexProvider client={client}>{children}</ConvexProvider>;
+  // Narrow ReactNode to satisfy potential cross-version React type unions in CI/build.
+  const typedChildren = children as unknown as import("react").ReactNode;
+
+  return <ConvexProvider client={client}>{typedChildren}</ConvexProvider>;
 }
