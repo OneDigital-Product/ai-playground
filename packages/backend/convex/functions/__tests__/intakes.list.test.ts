@@ -38,7 +38,7 @@ const sample = [
 test("filters: status single and multi", () => {
   const single = applyFiltersAndSorting(sample, { status: ["STARTED"], sortBy: "clientName", order: "asc" });
   assert.strictEqual(single.length, 1);
-  assert.strictEqual(single[0].intakeId, "EG-2025-AAAA");
+  assert.strictEqual(single[0]!.intakeId, "EG-2025-AAAA");
 
   const multi = applyFiltersAndSorting(sample, { status: ["STARTED", "ROADBLOCK"], sortBy: "clientName", order: "asc" });
   assert.strictEqual(multi.length, 2);
@@ -53,7 +53,7 @@ test("filters: complexityBand", () => {
 test("filters: requestor substring", () => {
   const res = applyFiltersAndSorting(sample, { requestorName: "em", sortBy: "clientName", order: "asc" });
   assert.strictEqual(res.length, 1);
-  assert.strictEqual(res[0].requestorName, "Emily Chen");
+  assert.strictEqual(res[0]!.requestorName, "Emily Chen");
 });
 
 test("filters: planYear and production time", () => {

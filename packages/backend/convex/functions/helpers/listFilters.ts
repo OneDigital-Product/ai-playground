@@ -36,11 +36,11 @@ export function applyFiltersAndSorting<T extends IntakeItem>(
   // Apply filters regardless of earlier index selection
   if (args.status && args.status.length > 0) {
     const set = new Set(args.status);
-    results = results.filter((i) => set.has(i.status));
+    results = results.filter((i) => i.status !== undefined && set.has(i.status));
   }
   if (args.complexityBand && args.complexityBand.length > 0) {
     const set = new Set(args.complexityBand);
-    results = results.filter((i) => set.has(i.complexityBand));
+    results = results.filter((i) => i.complexityBand !== undefined && set.has(i.complexityBand));
   }
   if (args.requestorName) {
     const needle = args.requestorName.toLowerCase();
@@ -51,7 +51,7 @@ export function applyFiltersAndSorting<T extends IntakeItem>(
   }
   if (args.requestedProductionTime && args.requestedProductionTime.length > 0) {
     const set = new Set(args.requestedProductionTime);
-    results = results.filter((i) => set.has(i.requestedProductionTime));
+    results = results.filter((i) => i.requestedProductionTime !== undefined && set.has(i.requestedProductionTime));
   }
 
   const sortBy = args.sortBy || "dateReceived";

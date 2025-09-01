@@ -208,6 +208,16 @@ export declare const api: {
             requestorName?: string;
             status?: Array<string>;
           };
+          order?: "asc" | "desc";
+          sortBy?:
+            | "clientName"
+            | "requestorName"
+            | "guideType"
+            | "communicationsAddOns"
+            | "complexityBand"
+            | "dateReceived"
+            | "status"
+            | "requestedProductionTime";
         },
         any
       >;

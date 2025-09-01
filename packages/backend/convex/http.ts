@@ -1,6 +1,6 @@
 import { httpRouter } from "convex/server";
-import { httpAction } from "./_generated/server";
-import { api } from "./_generated/api";
+import { httpAction } from "./_generated/server.js";
+import { api } from "./_generated/api.js";
 
 const http = httpRouter();
 
@@ -65,7 +65,7 @@ http.route({
     try {
       const download = await ctx.runAction(
         api.functions.uploads.getDownloadUrl,
-        { uploadId: id as unknown as import("./_generated/dataModel").Id<"uploads"> }
+        { uploadId: id as unknown as import("./_generated/dataModel.js").Id<"uploads"> }
       );
       if (!download?.url) {
         return new Response(JSON.stringify({ error: "File not found" }), {
