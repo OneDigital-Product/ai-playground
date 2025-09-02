@@ -88,7 +88,7 @@ export function IntakeForm() {
     sectionDescriptions: {}
   });
 
-  const updateFormData = (field: keyof FormData, value: any) => {
+  const updateFormData = <K extends Extract<keyof FormData, string>>(field: K, value: FormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear field-specific errors when user starts typing
     if (errors.fieldErrors?.[field]) {
