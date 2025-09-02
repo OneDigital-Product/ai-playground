@@ -41,6 +41,7 @@ Adding or updating components
 Tailwind v4 theme
 - Theme source: `packages/tailwind-config/shared-styles.css` defines CSS variables, theme tokens, and layers. Apps include it via `@repo/tailwind-config`.
 - Optional package CSS: `@repo/ui/styles.css` also re-exports the shared theme; prefer importing `@repo/tailwind-config` in apps.
+- Keep Tailwind single-import: Keep Tailwind imported exactly once per app — via `@repo/tailwind-config`. Do not also import `tailwindcss` directly in app globals; duplicate imports cause preflight/utilities to be emitted twice and can create layout/spacing conflicts.
 
 TypeScript and builds
 - UI package builds TS to `dist`; config at `packages/ui/tsconfig.json`.
