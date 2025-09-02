@@ -39,7 +39,7 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
         <CardHeader density="compact">
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent density="compact" className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Client Name</label>
@@ -66,8 +66,8 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
         <CardHeader density="compact">
           <CardTitle>Guide Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent density="compact" className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Guide Type</label>
               <p className="text-sm">{intake.guideType}</p>
@@ -108,7 +108,7 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
         <CardHeader density="compact">
           <CardTitle>Complexity & Pages Required</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent density="compact" className="space-y-3">
           <div>
             <label className="text-sm font-medium text-muted-foreground block mb-2">Complexity</label>
             <ComplexityBadge 
@@ -138,7 +138,7 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
         <CardHeader density="compact">
           <CardTitle>Additional Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent density="compact" className="space-y-3">
           <div>
             <label className="text-sm font-medium text-muted-foreground">Payroll Storage URL</label>
             <p className="text-sm font-mono bg-muted p-2 rounded text-xs break-all">
