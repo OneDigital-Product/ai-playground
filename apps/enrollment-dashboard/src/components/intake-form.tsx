@@ -53,6 +53,7 @@ export function IntakeForm() {
   const [errors, setErrors] = useState<FormErrors>({});
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [firstInvalidId, setFirstInvalidId] = useState<string | null>(null);
+  const [openSectionCode, setOpenSectionCode] = useState<keyof typeof SectionCode | null>(null);
 
   // Move focus to the banner when an error appears
   useEffect(() => {
@@ -431,7 +432,60 @@ export function IntakeForm() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          {/* Mobile: Accordion with index */}
+          <div className="md:hidden space-y-4">
+            {/* In-page index */}
+            <div className="sticky top-0 z-10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-md p-2">
+              <div className="grid grid-cols-8 gap-2">
+                {SECTIONS.map((s) => (
+                  <Button
+                    key={s.code}
+                    type="button"
+                    variant={openSectionCode === s.code ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setOpenSectionCode((prev) => (prev === s.code ? null : s.code))}
+                  >
+                    {s.code}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {SECTIONS.map((section) => {
+              const included = !!formData.sectionsIncludedFlags?.[section.code];
+              const changed = !!formData.sectionsChangedFlags?.[section.code];
+              return (
+                <div key={section.code} className="border rounded-md">
+                  <button
+                    type="button"
+                    className="w-full text-left p-4 flex items-center justify-between"
+                    aria-expanded={openSectionCode === section.code}
+                    onClick={() => setOpenSectionCode((prev) => (prev === section.code ? null : section.code))}
+                  >
+                    <span className="text-sm font-medium">
+                      Section {section.code}: {section.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Included: {included ? 'Yes' : 'No'} • Changes: {changed ? 'Yes' : 'No'}
+                    </span>
+                  </button>
+                  {openSectionCode === section.code && (
+                    <div className="p-4 pt-0">
+                      <SectionConfig
+                        section={section}
+                        formData={formData}
+                        updateSectionFlags={updateSectionFlags}
+                        updateSectionDescription={updateSectionDescription}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop: Original grid layout */}
+          <div className="hidden md:block space-y-4">
             {SECTIONS.map((section, index) => (
               <div key={section.code}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
@@ -440,59 +494,15 @@ export function IntakeForm() {
                       Section {section.code}: {section.name}
                     </Label>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Include in Guide</Label>
-                      <RadioGroup
-                        value={formData.sectionsIncludedFlags?.[section.code] ? "yes" : "no"}
-                        onValueChange={(value) => updateSectionFlags(section.code, 'included', value === "yes")}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id={`${section.code}-include-yes`} />
-                          <Label htmlFor={`${section.code}-include-yes`} className="text-sm">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id={`${section.code}-include-no`} />
-                          <Label htmlFor={`${section.code}-include-no`} className="text-sm">No</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Changes Beyond Annual Updates</Label>
-                      <RadioGroup
-                        value={formData.sectionsChangedFlags?.[section.code] ? "yes" : "no"}
-                        onValueChange={(value) => updateSectionFlags(section.code, 'changed', value === "yes")}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id={`${section.code}-changed-yes`} />
-                          <Label htmlFor={`${section.code}-changed-yes`} className="text-sm">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id={`${section.code}-changed-no`} />
-                          <Label htmlFor={`${section.code}-changed-no`} className="text-sm">No</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
+                  <div className="lg:col-span-2">
+                    <SectionConfig
+                      section={section}
+                      formData={formData}
+                      updateSectionFlags={updateSectionFlags}
+                      updateSectionDescription={updateSectionDescription}
+                    />
                   </div>
-
-                  {formData.sectionsChangedFlags?.[section.code] && (
-                    <div className="space-y-2">
-                      <Label htmlFor={`${section.code}-description`} className="text-xs text-muted-foreground">
-                        Change Description
-                      </Label>
-                      <Textarea
-                        id={`${section.code}-description`}
-                        value={formData.sectionDescriptions[section.code] || ""}
-                        onChange={(e) => updateSectionDescription(section.code, e.target.value)}
-                        placeholder="Describe the changes for this section"
-                        className="min-h-[80px]"
-                      />
-                    </div>
-                  )}
                 </div>
-                
                 {index < SECTIONS.length - 1 && <div className="border-t mt-4" />}
               </div>
             ))}
@@ -542,5 +552,68 @@ export function IntakeForm() {
 
       </fieldset>
     </form>
+  );
+}
+
+function SectionConfig({
+  section,
+  formData,
+  updateSectionFlags,
+  updateSectionDescription,
+}: {
+  section: { code: keyof typeof SectionCode; name: string };
+  formData: FormData;
+  updateSectionFlags: (sectionCode: keyof typeof SectionCode, flagType: 'changed' | 'included', value: boolean) => void;
+  updateSectionDescription: (sectionCode: string, description: string) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Include in Guide</Label>
+        <RadioGroup
+          value={formData.sectionsIncludedFlags?.[section.code] ? "yes" : "no"}
+          onValueChange={(value) => updateSectionFlags(section.code, 'included', value === "yes")}
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="yes" id={`${section.code}-include-yes`} />
+            <Label htmlFor={`${section.code}-include-yes`} className="text-sm">Yes</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="no" id={`${section.code}-include-no`} />
+            <Label htmlFor={`${section.code}-include-no`} className="text-sm">No</Label>
+          </div>
+        </RadioGroup>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Changes Beyond Annual Updates</Label>
+        <RadioGroup
+          value={formData.sectionsChangedFlags?.[section.code] ? "yes" : "no"}
+          onValueChange={(value) => updateSectionFlags(section.code, 'changed', value === "yes")}
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="yes" id={`${section.code}-changed-yes`} />
+            <Label htmlFor={`${section.code}-changed-yes`} className="text-sm">Yes</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="no" id={`${section.code}-changed-no`} />
+            <Label htmlFor={`${section.code}-changed-no`} className="text-sm">No</Label>
+          </div>
+        </RadioGroup>
+      </div>
+      {formData.sectionsChangedFlags?.[section.code] && (
+        <div className="space-y-2">
+          <Label htmlFor={`${section.code}-description`} className="text-xs text-muted-foreground">
+            Change Description
+          </Label>
+          <Textarea
+            id={`${section.code}-description`}
+            value={formData.sectionDescriptions[section.code] || ""}
+            onChange={(e) => updateSectionDescription(section.code, e.target.value)}
+            placeholder="Describe the changes for this section"
+            className="min-h-[80px]"
+          />
+        </div>
+      )}
+    </div>
   );
 }
