@@ -287,8 +287,8 @@ export function IntakeForm() {
         <CardHeader density="compact">
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent density="compact" className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="clientName">Client Name *</Label>
               <Input
@@ -368,8 +368,8 @@ export function IntakeForm() {
         <CardHeader density="compact">
           <CardTitle>Project Details</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <CardContent density="compact">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label>Guide Type *</Label>
               <RadioGroup
@@ -515,7 +515,7 @@ export function IntakeForm() {
             For each section, specify whether to include it in the guide and if it has changes beyond annual updates.
           </p>
         </CardHeader>
-        <CardContent className={process.env.NODE_ENV !== 'production' ? 'min-h-[480px]' : undefined}>
+        <CardContent density="compact" className={process.env.NODE_ENV !== 'production' ? 'min-h-[480px]' : undefined}>
           {/* Mobile: Accordion with index */}
           <div className="md:hidden space-y-3">
             {/* In-page index */}
@@ -573,7 +573,7 @@ export function IntakeForm() {
             {SECTIONS.map((section, index) => (
               <div key={section.code}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Label className="text-sm font-medium">
                       Section {section.code}: {section.name}
                     </Label>
@@ -599,7 +599,7 @@ export function IntakeForm() {
         <CardHeader density="compact">
           <CardTitle>General Notes</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent density="compact">
           <div className="space-y-2">
             <Label htmlFor="notesGeneral">Additional Notes or Comments</Label>
             <Textarea

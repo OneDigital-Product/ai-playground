@@ -151,7 +151,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
   return (
     <div className="space-y-4">
       {Object.entries(uploadsByKind).map(([kind, kindUploads]) => (
-        <Card key={kind}>
+        <Card key={kind} density="compact">
           <CardHeader density="compact">
             <CardTitle className="text-base flex items-center gap-2">
               <Badge variant={KIND_COLORS[kind as keyof typeof KIND_COLORS]}>
@@ -162,7 +162,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent density="compact">
             <div className="space-y-2">
               {kindUploads.map((upload) => (
                 <div

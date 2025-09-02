@@ -4,8 +4,8 @@ import { IntakeForm } from "@/components/intake-form";
 
 export default function NewIntakePage() {
   return (
-    <main className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
+    <main className="container mx-auto p-4">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">New Enrollment Intake</h1>
           <p className="text-muted-foreground">
