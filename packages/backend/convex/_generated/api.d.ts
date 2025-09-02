@@ -231,6 +231,14 @@ export declare const api: {
         any
       >;
     };
+    migrations: {
+      migrateCommunicationsAddOns: FunctionReference<
+        "mutation",
+        "public",
+        {},
+        any
+      >;
+    };
     retirementPlans: {
       save: FunctionReference<
         "mutation",
