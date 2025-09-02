@@ -66,10 +66,11 @@ export function IntakeSections({ sections, intake, onRefresh }: IntakeSectionsPr
 
           return (
             <Card 
-              key={sectionCode} 
+              key={sectionCode}
+              density="compact"
               className={`border-l-4 ${hasData ? "border-l-primary" : "border-l-muted"}`}
             >
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3" density="compact">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">
                     Section {sectionCode}: {sectionName}
@@ -86,7 +87,7 @@ export function IntakeSections({ sections, intake, onRefresh }: IntakeSectionsPr
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent className="pt-0" density="compact">
                 <SectionEditor
                   intakeId={intake.intakeId}
                   sectionCode={sectionCode}

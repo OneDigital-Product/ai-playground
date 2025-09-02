@@ -99,7 +99,7 @@ export default function UploadsPage() {
                 />
               ) : (
                 <Card density="compact">
-                  <CardContent className="p-4 text-sm text-muted-foreground">
+                  <CardContent density="compact" className="p-4 text-sm text-muted-foreground">
                     Enter or select an Intake to enable uploads.
                   </CardContent>
                 </Card>

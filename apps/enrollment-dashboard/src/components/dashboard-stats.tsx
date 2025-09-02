@@ -52,7 +52,7 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
           <CardTitle className="text-sm font-medium">Total Intakes</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
+        <CardContent density="compact">
           <div className="text-2xl font-bold">{stats.total}</div>
           <p className="text-xs text-muted-foreground">
             {stats.total === 0 ? "No intakes created yet" : "All intake requests"}
@@ -66,7 +66,7 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
           <CardTitle className="text-sm font-medium">In Progress</CardTitle>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
+        <CardContent density="compact">
           <div className="text-2xl font-bold">{inProgressCount}</div>
           <div className="flex gap-2 text-xs text-muted-foreground">
             {stats.by_status.STARTED > 0 && (
@@ -94,7 +94,7 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
           <CardTitle className="text-sm font-medium">Completed</CardTitle>
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
+        <CardContent density="compact">
           <div className="text-2xl font-bold">{completedCount}</div>
           <p className="text-xs text-muted-foreground">
             Delivered to consultant

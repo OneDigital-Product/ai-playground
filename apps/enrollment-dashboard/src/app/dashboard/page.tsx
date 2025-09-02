@@ -209,7 +209,7 @@ export default function DashboardPage() {
           <CardHeader density="compact">
             <CardTitle>Get Started</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent density="compact" className="space-y-3">
             <p className="text-muted-foreground">
               No intakes available yet. Create your first intake to get started with the enrollment dashboard.
             </p>

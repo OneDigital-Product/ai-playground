@@ -57,7 +57,7 @@ export function IntakeUploads({ intakeId }: IntakeUploadsProps) {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent density="compact" className="space-y-3">
         {/* Upload Section */}
         <Collapsible open={isUploadOpen} onOpenChange={setIsUploadOpen}>
           <CollapsibleTrigger asChild>
