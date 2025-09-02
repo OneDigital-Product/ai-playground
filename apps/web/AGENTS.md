@@ -21,8 +21,12 @@ Environment files live in `apps/web/.env*`. Use `.env.local` for local secrets (
 Env prefixes: Vite is configured with `envPrefix: ["VITE_", "PUBLIC_", "NEXT_PUBLIC_"]`. Use `PUBLIC_` or `NEXT_PUBLIC_` for variables exposed to the browser (e.g., `NEXT_PUBLIC_CONVEX_URL`).
 
 ## UI & Styling
-- Global styles already import Tailwind and the shared theme:
-  - `src/styles/global.css` includes `@import "tailwindcss";` and `@import "@repo/tailwind-config";`
+
+**⚠️ CRITICAL: Read `TAILWIND_V4_MONOREPO_GUIDE.md` in the repo root before making UI changes to avoid spacing issues.**
+
+- Global styles follow the single-import pattern:
+  - `src/styles/global.css` imports ONLY `@repo/tailwind-config` (which includes Tailwind)
+  - Do NOT import `tailwindcss` directly - this causes double import issues
 - PostCSS is sourced from the shared config: see `postcss.config.js` importing `@repo/tailwind-config/postcss.config.js`.
 - Use shared primitives from `@repo/ui` to keep consistency:
   - In `.astro` (with React hydration):

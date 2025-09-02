@@ -1,3 +1,6 @@
+/* Import Tailwind via shared config only to avoid duplication */
+@import "@repo/tailwind-config";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

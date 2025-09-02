@@ -1,0 +1,30 @@
+/* Component-specific styles that extend the base theme */
+/* These styles should be imported AFTER the main theme in apps */
+
+@layer components {
+  /* Default component spacing resets for consistency */
+  [data-slot="card"],
+  [data-slot="card-header"],
+  [data-slot="card-content"],
+  [data-slot="card-footer"] {
+    /* Reset any inherited spacing to ensure predictable defaults */
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Component density tokens for consistent spacing */
+  [data-density="comfortable"] {
+    --component-spacing: 1.5rem; /* 24px */
+    --component-padding: 1.5rem; /* 24px */
+  }
+
+  [data-density="compact"] {
+    --component-spacing: 1rem; /* 16px */
+    --component-padding: 1.25rem; /* 20px */
+  }
+
+  [data-density="dense"] {
+    --component-spacing: 0.75rem; /* 12px */
+    --component-padding: 1rem; /* 16px */
+  }
+}

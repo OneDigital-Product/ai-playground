@@ -1,4 +1,4 @@
-@import "tailwindcss";
+/* Import Tailwind via shared config only to avoid duplication */
 @import "@repo/tailwind-config";
 
 :root {

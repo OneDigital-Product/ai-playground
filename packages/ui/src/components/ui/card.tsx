@@ -10,10 +10,12 @@ const cardVariants = cva(
       density: {
         comfortable: "gap-6 py-6",
         compact: "gap-4 py-5",
+        dense: "gap-3 py-4",
+        auto: "", // No default spacing - let app control it
       },
     },
     defaultVariants: {
-      density: "comfortable",
+      density: "auto", // Changed default to "auto" - apps control spacing
     },
   }
 )
