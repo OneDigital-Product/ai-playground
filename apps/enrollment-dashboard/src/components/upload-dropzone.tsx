@@ -188,7 +188,7 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
         showToast("success", `Successfully uploaded ${result.files.length} file(s)`);
         try {
           onUploaded?.(result.files);
-        } catch (_) {
+        } catch {
           // no-op
         }
         onUploadComplete?.();

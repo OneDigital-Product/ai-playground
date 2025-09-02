@@ -183,19 +183,23 @@ export function IntakeForm() {
       });
 
       // Some responses may not include a JSON body on failure; guard parsing
-      let result: any = undefined;
+      let parsed: unknown = undefined;
       try {
-        result = await response.json();
-      } catch (_) {
+        parsed = await response.json();
+      } catch {
         // ignore body parse errors
       }
+
+      const isRecord = (v: unknown): v is Record<string, unknown> =>
+        typeof v === 'object' && v !== null;
 
       if (!response.ok) {
         // 4xx: show server-provided validation/domain error and keep inputs intact
         if (response.status >= 400 && response.status < 500) {
+          const err = isRecord(parsed) ? parsed : undefined;
           setErrors({
-            error: (result && result.error) || 'Please fix the errors and try again.',
-            fieldErrors: result?.fieldErrors,
+            error: (err && typeof err.error === 'string' ? err.error : undefined) || 'Please fix the errors and try again.',
+            fieldErrors: (err && isRecord(err.fieldErrors) ? (err.fieldErrors as Record<string, string[]>) : undefined),
             statusCode: response.status,
           });
           setIsSubmitting(false);
@@ -203,11 +207,12 @@ export function IntakeForm() {
         }
 
         // 5xx: show distinct infra/backend guidance
+        const err = isRecord(parsed) ? parsed : undefined;
         setErrors({
           error:
-            (result && result.error) ||
+            (err && typeof err.error === 'string' ? err.error : undefined) ||
             'Backend error: Convex URL may be misconfigured or the backend is unavailable. In local dev, run "npx convex dev" and set NEXT_PUBLIC_CONVEX_URL in apps/enrollment-dashboard/.env.local. In preview, verify env config.',
-          fieldErrors: result?.fieldErrors,
+          fieldErrors: (err && isRecord(err.fieldErrors) ? (err.fieldErrors as Record<string, string[]>) : undefined),
           statusCode: response.status,
         });
         setIsSubmitting(false);
@@ -215,7 +220,12 @@ export function IntakeForm() {
       }
 
       // Redirect to the intake detail page on success
-      router.push(`/enrollment-dashboard/intakes/${result.intakeId}?created=1`);
+      if (!isRecord(parsed) || typeof parsed.intakeId !== 'string') {
+        setErrors({ error: 'Unexpected response from server; missing intakeId.' });
+        setIsSubmitting(false);
+        return;
+      }
+      router.push(`/enrollment-dashboard/intakes/${parsed.intakeId}?created=1`);
       
     } catch (error) {
       console.error('Form submission error:', error);

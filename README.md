@@ -12,6 +12,8 @@ See AGENTS.md for the full repository guidelines and apps/web/AGENTS.md for the 
 │  ├─ web/            Astro 5 + React 19 (served under /app)
 │  ├─ admin/          Next.js 15 admin app (App Router)
 │  ├─ docs/           Next.js 15 docs site (App Router)
+│  ├─ retirement/     Next.js 15 app mounted at /retirement (App Router)
+│  ├─ enrollment-dashboard/ Next.js 15 app mounted at /enrollment-dashboard (App Router)
 │  └─ host/           @product/host gateway/proxy (Next.js 15)
 │
 ├─ packages/
@@ -43,8 +45,11 @@ Notes
 
 - Install: `pnpm install` (Node >= 18)
 - Dev (all): `pnpm dev`
-- Dev (single app): `pnpm --filter web|admin|docs|@product/host dev`
-- Local proxy: `pnpm dev:proxy` (web:3001, admin:3002, host:3000)
+- Dev (single app): `pnpm --filter web|admin|docs|retirement|enrollment-dashboard|@product/host dev`
+  - Example: `pnpm --filter enrollment-dashboard dev --port 3004`
+ - Local proxy: `pnpm dev:proxy` (host:3000 proxies web:3001 and admin:3002)
+   - Access via host: `http://localhost:3000/app` and `http://localhost:3000/admin`
+   - Other apps (run standalone): retirement:3003 → `http://localhost:3003/retirement`, enrollment-dashboard:3004 → `http://localhost:3004/enrollment-dashboard`
 - Build (all): `pnpm build`
 - Lint: `pnpm lint` (max warnings 0)
 - Type-check: `pnpm check-types`
@@ -54,6 +59,11 @@ Notes
 ## Web App (Astro) — Base Path
 
 The web app is served from `/app` (see `apps/web/astro.config.mjs`). For absolute links and assets in the web app, prefix with `/app/...` or use relative paths.
+
+## Additional Next.js Apps — Base Paths
+
+- Retirement: served from `/retirement` (see `apps/retirement/next.config.ts`).
+- Enrollment Dashboard: served from `/enrollment-dashboard` with a root redirect using `basePath: false` so Vercel previews work from the domain root (see `apps/enrollment-dashboard/next.config.ts`).
 
 ## Host Gateway (`apps/host`)
 
