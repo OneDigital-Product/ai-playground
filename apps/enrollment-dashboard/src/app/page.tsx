@@ -64,7 +64,7 @@ export default function Home() {
         </Card>
       </div>
       
-      <div className="mt-8">
+      <div className="mt-4 md:mt-6">
         <Card>
           <CardHeader>
             <CardTitle>Quick Start</CardTitle>
