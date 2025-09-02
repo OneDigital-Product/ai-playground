@@ -79,6 +79,7 @@ export interface AppShellProps {
   sidebarFooter?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
+  showTopbarHome?: boolean;
 }
 
 export function AppShell({
@@ -92,6 +93,7 @@ export function AppShell({
   sidebarFooter,
   children,
   className,
+  showTopbarHome = true,
 }: AppShellProps) {
   const Link = linkComponent ?? ((props: LinkProps) => <a {...props} />);
 
@@ -101,6 +103,7 @@ export function AppShell({
         home={home}
         density={density}
         Link={Link}
+        showHome={showTopbarHome}
         right={
           <div className="flex items-center gap-1.5">
             {topbarActions}
@@ -144,6 +147,7 @@ interface TopbarProps extends VariantProps<typeof topbarVariants> {
   Link: LinkComponent;
   right?: React.ReactNode;
   children?: React.ReactNode; // Left slot, e.g., mobile menu trigger
+  showHome?: boolean;
 }
 
 const topbarVariants = cva("sticky top-0 z-40 border-b bg-background/80 backdrop-blur", {
@@ -156,23 +160,25 @@ const topbarVariants = cva("sticky top-0 z-40 border-b bg-background/80 backdrop
   defaultVariants: { density: "compact" },
 });
 
-function Topbar({ home, Link, density, right, children }: TopbarProps) {
+function Topbar({ home, Link, density, right, children, showHome = true }: TopbarProps) {
   const HomeIconCmp = home.icon ?? HomeIcon;
   return (
     <header className={cn(topbarVariants({ density }))}>
-      <div className={cn("mx-auto flex h-full w-full items-center gap-2 px-3 sm:px-4")}>
+      <div className={cn("mx-auto flex h-full w-full items-center gap-2 px-3 sm:px-4")}> 
         <div className="flex items-center gap-1.5 lg:hidden">{children}</div>
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <Link
-            href={home.href}
-            aria-label="Home"
-            className={cn(
-              "inline-flex items-center gap-2 rounded-md px-1.5 py-1 text-sm font-semibold text-foreground hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-            )}
-          >
-            {home.logo ?? <HomeIconCmp className="h-4 w-4" />}
-            <span className="truncate">{home.label}</span>
-          </Link>
+          {showHome ? (
+            <Link
+              href={home.href}
+              aria-label="Home"
+              className={cn(
+                "inline-flex items-center gap-2 rounded-md px-1.5 py-1 text-sm font-semibold text-foreground hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              )}
+            >
+              {home.logo ?? <HomeIconCmp className="h-4 w-4" />}
+              <span className="truncate">{home.label}</span>
+            </Link>
+          ) : null}
         </div>
         <div className="flex items-center gap-1.5">{right}</div>
       </div>

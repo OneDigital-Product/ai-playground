@@ -15,7 +15,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
       label: "Overview",
       collapsible: false,
       items: [
-        { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+        { label: "Dashboard", href: "/", icon: LayoutDashboard, exact: true },
       ],
     },
     {
@@ -37,6 +37,7 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
       currentPath={currentPath}
       density="compact"
       linkComponent={Link}
+      showTopbarHome={false}
       topbarActions={null}
     >
       {children}
@@ -45,4 +46,3 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
 }
 
 export default AppFrame;
-
