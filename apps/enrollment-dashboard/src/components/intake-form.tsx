@@ -453,7 +453,7 @@ export function IntakeForm() {
                             placeholder="Please specify"
                             value={getOther()!.text}
                             onChange={(e) => setOther(true, e.target.value)}
-                            className="ml-2 h-8 w-48"
+                            className="ml-2 w-48"
                             aria-invalid={!!getFieldError('communicationsAddOns')}
                           />
                         )}
