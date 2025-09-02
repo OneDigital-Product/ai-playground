@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { Card, CardContent, CardHeader } from "@repo/ui/components/ui/card";
@@ -22,15 +22,18 @@ import { AlertCircle, Trash2 } from "lucide-react";
 import { api } from "@repo/backend/convex/_generated/api";
 import { IntakeOverview } from "../../../components/intake-overview";
 import { IntakeSections } from "../../../components/intake-sections";
+import { useToast } from "../../../components/toast";
 
 interface IntakeDetailClientProps {
   intakeId: string;
   currentTab: "overview" | "sections";
+  createdFlag?: boolean;
 }
 
-export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientProps) {
+export function IntakeDetailClient({ intakeId, currentTab, createdFlag }: IntakeDetailClientProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
   // Fetch intake data
   const intake = useQuery(api.functions.intakes.get, { intakeId });
@@ -79,6 +82,17 @@ export function IntakeDetailClient({ intakeId, currentTab }: IntakeDetailClientP
       setIsDeleting(false);
     }
   };
+
+  // Show success toast once when arriving with created=1, then clear the flag
+  useEffect(() => {
+    if (createdFlag) {
+      showToast("success", "Intake created successfully");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("created");
+      // Replace instead of push to avoid back button oddities
+      router.replace(url.pathname + (url.search ? `?${url.searchParams.toString()}` : ""));
+    }
+  }, [createdFlag, router, showToast]);
 
 
   // Handle tab change

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
@@ -217,6 +218,8 @@ export function IntakeForm() {
           {errors.error}
         </div>
       )}
+
+      <fieldset disabled={isSubmitting} className="space-y-6">
 
       {/* Basic Information Section */}
       <Card>
@@ -492,9 +495,12 @@ export function IntakeForm() {
           type="submit"
           disabled={isSubmitting}
         >
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isSubmitting ? "Creating Intake..." : "Create Intake"}
         </Button>
       </div>
+
+      </fieldset>
     </form>
   );
 }

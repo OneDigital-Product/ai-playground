@@ -2,8 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@repo/ui/components/ui/button";
 import { Card, CardContent } from "@repo/ui/components/ui/card";
-import { Alert, AlertDescription } from "@repo/ui/components/ui/alert";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { IntakeDetailClient } from "./client";
 
 interface IntakeDetailPageProps {
@@ -44,16 +43,6 @@ export default async function IntakeDetailPage({
         </div>
       </div>
 
-      {/* Success Alert */}
-      {showCreatedAlert && (
-        <Alert className="mb-6 border-green-200 bg-green-50 text-green-800">
-          <CheckCircle className="h-4 w-4" />
-          <AlertDescription>
-            Intake has been successfully created! You can now view and manage the details below.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Client Component for Data Fetching and Tabs */}
       <Suspense
         fallback={
@@ -66,7 +55,7 @@ export default async function IntakeDetailPage({
           </Card>
         }
       >
-        <IntakeDetailClient intakeId={intakeId} currentTab={currentTab} />
+        <IntakeDetailClient intakeId={intakeId} currentTab={currentTab} createdFlag={showCreatedAlert} />
       </Suspense>
     </main>
   );
