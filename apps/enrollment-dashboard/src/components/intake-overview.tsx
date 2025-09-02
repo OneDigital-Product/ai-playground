@@ -13,7 +13,7 @@ interface IntakeData {
   requestorName: string;
   dateReceived: string;
   guideType: "Update Existing Guide" | "New Guide Build";
-  communicationsAddOns: "None" | "OE Letter" | "OE Presentation" | "Both" | "Other";
+  communicationsAddOns: Array<"OE Letter" | "OE Presentation" | "Other" | { type: "Other"; text: string }>;
   status: string;
   complexityScore: number;
   complexityBand: "Minimal" | "Low" | "Medium" | "High";
@@ -35,8 +35,8 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
   return (
     <div className="space-y-4">
       {/* Basic Information */}
-      <Card density="compact">
-        <CardHeader density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="pb-4">
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -62,19 +62,29 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
       </Card>
 
       {/* Guide Information */}
-      <Card density="compact">
-        <CardHeader density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="pb-4">
           <CardTitle>Guide Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Guide Type</label>
               <p className="text-sm">{intake.guideType}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Communications Add-ons</label>
-              <p className="text-sm">{intake.communicationsAddOns}</p>
+              <div className="flex flex-wrap gap-1">
+                {intake.communicationsAddOns?.length ? (
+                  intake.communicationsAddOns.map((v, idx) => (
+                    <span key={idx} className="text-xs rounded px-2 py-0.5 bg-muted">
+                      {typeof v === 'string' ? v : `${v.type}: ${v.text}`}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-sm">None</span>
+                )}
+              </div>
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Requested Production Time</label>
@@ -94,11 +104,11 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
       </Card>
 
       {/* Complexity & Pages Required */}
-      <Card density="compact">
-        <CardHeader density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="pb-4">
           <CardTitle>Complexity & Pages Required</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <div>
             <label className="text-sm font-medium text-muted-foreground block mb-2">Complexity</label>
             <ComplexityBadge 
@@ -124,11 +134,11 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
       </Card>
 
       {/* Additional Information */}
-      <Card density="compact">
-        <CardHeader density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="pb-4">
           <CardTitle>Additional Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <div>
             <label className="text-sm font-medium text-muted-foreground">Payroll Storage URL</label>
             <p className="text-sm font-mono bg-muted p-2 rounded text-xs break-all">

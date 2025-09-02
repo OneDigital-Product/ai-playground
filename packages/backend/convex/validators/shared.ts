@@ -10,13 +10,14 @@ export const guideTypeValidator = v.union(
   v.literal("New Guide Build")
 );
 
-// Communications Add-Ons validator  
-export const communicationsAddOnsValidator = v.union(
-  v.literal("None"),
-  v.literal("OE Letter"),
-  v.literal("OE Presentation"),
-  v.literal("Both"),
-  v.literal("Other")
+// Communications Add-Ons validator (array)
+export const communicationsAddOnsValidator = v.array(
+  v.union(
+    v.literal("OE Letter"),
+    v.literal("OE Presentation"),
+    v.literal("Other"),
+    v.object({ type: v.literal("Other"), text: v.string() })
+  )
 );
 
 // Production Time validator

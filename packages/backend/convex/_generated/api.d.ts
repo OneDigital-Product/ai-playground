@@ -26,12 +26,12 @@ export declare const api: {
         "public",
         {
           clientName: string;
-          communicationsAddOns:
-            | "None"
+          communicationsAddOns: Array<
             | "OE Letter"
             | "OE Presentation"
-            | "Both"
-            | "Other";
+            | "Other"
+            | { text: string; type: "Other" }
+          >;
           guideType: "Update Existing Guide" | "New Guide Build";
           notesGeneral?: string;
           payrollStorageUrl: string;
@@ -126,12 +126,12 @@ export declare const api: {
         "mutation",
         "public",
         {
-          communicationsAddOns?:
-            | "None"
+          communicationsAddOns?: Array<
             | "OE Letter"
             | "OE Presentation"
-            | "Both"
-            | "Other";
+            | "Other"
+            | { text: string; type: "Other" }
+          >;
           guideType?: "Update Existing Guide" | "New Guide Build";
           intakeId: string;
           sectionsChangedFlags?: {
@@ -228,6 +228,14 @@ export declare const api: {
         "mutation",
         "public",
         { author: string; body: string },
+        any
+      >;
+    };
+    migrations: {
+      migrateCommunicationsAddOns: FunctionReference<
+        "mutation",
+        "public",
+        {},
         any
       >;
     };
@@ -442,6 +450,11 @@ export declare const api: {
         },
         any
       >;
+    };
+  };
+  scripts: {
+    migrate_comms_add_ons: {
+      run: FunctionReference<"mutation", "public", {}, any>;
     };
   };
 };

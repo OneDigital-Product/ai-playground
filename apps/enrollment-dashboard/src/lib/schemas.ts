@@ -12,9 +12,9 @@ export const GuideType = {
 export const CommunicationsAddOns = {
   NONE: "None",
   OE_LETTER: "OE Letter",
-  OE_PRESENTATION: "OE Presentation", 
+  OE_PRESENTATION: "OE Presentation",
   BOTH: "Both",
-  OTHER: "Other"
+  OTHER: "Other",
 } as const;
 
 export const ProductionTime = {
@@ -48,6 +48,12 @@ export const ComplexityBand = {
 
 export type GuideType = typeof GuideType[keyof typeof GuideType];
 export type CommunicationsAddOns = typeof CommunicationsAddOns[keyof typeof CommunicationsAddOns];
+
+// New discriminated union for a single Communications Add-On item
+export type CommunicationsAddOnItem =
+  | typeof CommunicationsAddOns.OE_LETTER
+  | typeof CommunicationsAddOns.OE_PRESENTATION
+  | { type: typeof CommunicationsAddOns.OTHER; text: string };
 export type ProductionTime = typeof ProductionTime[keyof typeof ProductionTime];
 export type Status = typeof Status[keyof typeof Status];
 export type SectionCode = typeof SectionCode[keyof typeof SectionCode];
@@ -65,7 +71,7 @@ export type IntakeCreate = {
   requestorName: string;
   payrollStorageUrl: string;
   guideType: GuideType;
-  communicationsAddOns: CommunicationsAddOns;
+  communicationsAddOns: CommunicationsAddOnItem[]; // multi-select (Other may include text)
   requestedProductionTime: ProductionTime;
   notesGeneral?: string;
   sectionsChangedFlags?: SectionsFlags;
@@ -82,7 +88,7 @@ export type Intake = {
   requestorName: string;
   payrollStorageUrl: string;
   guideType: GuideType;
-  communicationsAddOns: CommunicationsAddOns;
+  communicationsAddOns: CommunicationsAddOnItem[]; // multi-select (Other may include text)
   requestedProductionTime: ProductionTime;
   notesGeneral?: string;
   status: Status;
@@ -145,13 +151,18 @@ export const intakeCreateSchema = z.object({
       { message: "Enter a valid URL including http(s)://" }
     ), 
   guideType: z.enum([GuideType.UPDATE_EXISTING_GUIDE, GuideType.NEW_GUIDE_BUILD]),
-  communicationsAddOns: z.enum([
-    CommunicationsAddOns.NONE,
-    CommunicationsAddOns.OE_LETTER,
-    CommunicationsAddOns.OE_PRESENTATION,
-    CommunicationsAddOns.BOTH,
-    CommunicationsAddOns.OTHER
-  ]),
+  communicationsAddOns: z
+    .array(
+      z.union([
+        z.literal(CommunicationsAddOns.OE_LETTER),
+        z.literal(CommunicationsAddOns.OE_PRESENTATION),
+        z.object({
+          type: z.literal(CommunicationsAddOns.OTHER),
+          text: z.string().min(1, "Please specify the Other communication type"),
+        }),
+      ])
+    )
+    .min(1, "Select at least one option"),
   requestedProductionTime: z.enum([ProductionTime.STANDARD, ProductionTime.RUSH]),
   notesGeneral: z.string().optional(),
   sectionsChangedFlags: sectionsSchema.optional(),

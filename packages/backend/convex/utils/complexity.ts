@@ -21,7 +21,17 @@ export interface SectionsFlags {
 export interface ComplexityInput {
   sections_changed_flags?: SectionsFlags;
   guide_type?: 'Update Existing Guide' | 'New Guide Build';
-  communications_add_ons?: 'None' | 'OE Letter' | 'OE Presentation' | 'Both' | 'Other';
+  // During migration, support both older string values and new array with objects
+  communications_add_ons?:
+    | ('None' | 'OE Letter' | 'OE Presentation' | 'Both' | 'Other')
+    | Array<
+        | 'None'
+        | 'Both'
+        | 'OE Letter'
+        | 'OE Presentation'
+        | 'Other'
+        | { type: 'Other'; text: string }
+      >;
 }
 
 export interface ComplexityResult {
@@ -49,15 +59,22 @@ export function calculateComplexity(intakeData: ComplexityInput): ComplexityResu
     score += 0; // Explicitly 0 points
   }
   
-  // Communications Add Ons scoring
-  if (intakeData.communications_add_ons === 'OE Letter') {
-    score += 3;
-  } else if (intakeData.communications_add_ons === 'OE Presentation') {
-    score += 5;
-  } else if (intakeData.communications_add_ons === 'Both') {
-    score += 10;
+  // Communications Add Ons scoring (supports string or array during transition)
+  const arr = Array.isArray(intakeData.communications_add_ons)
+    ? intakeData.communications_add_ons
+    : (intakeData.communications_add_ons ? [intakeData.communications_add_ons] : []);
+
+  const hasLetter = arr.some((v) => v === 'OE Letter');
+  const hasPres = arr.some((v) => v === 'OE Presentation');
+
+  if (hasLetter && hasPres) {
+    score += 10; // Both
+  } else if (hasPres) {
+    score += 5; // OE Presentation
+  } else if (hasLetter) {
+    score += 3; // OE Letter
   }
-  // 'None' and 'Other' implicitly add 0 points
+  // 'None' and 'Other' add 0 points
   
   // Map score to complexity band
   let band: 'Minimal' | 'Low' | 'Medium' | 'High';

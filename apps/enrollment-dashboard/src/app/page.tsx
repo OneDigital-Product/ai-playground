@@ -23,11 +23,11 @@ export default function Home() {
       </div>
       
       <div className={`grid gap-4 md:grid-cols-3 ${isDev ? 'min-h-[420px]' : 'min-h-0'}`}>
-        <Card density="compact">
-          <CardHeader density="compact">
+        <Card className="gap-4 py-5">
+          <CardHeader className="pb-4">
             <CardTitle>Intake Management</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3" density="compact">
+          <CardContent className="space-y-3">
             <p className="text-muted-foreground mb-4">
               Create and manage enrollment guide intake requests.
             </p>
@@ -37,11 +37,11 @@ export default function Home() {
           </CardContent>
         </Card>
         
-        <Card density="compact">
-          <CardHeader density="compact">
+        <Card className="gap-4 py-5">
+          <CardHeader className="pb-4">
             <CardTitle>Dashboard Overview</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3" density="compact">
+          <CardContent className="space-y-3">
             <p className="text-muted-foreground mb-4">
               View statistics and recent activity across all enrollment processes.
             </p>
@@ -51,11 +51,11 @@ export default function Home() {
           </CardContent>
         </Card>
         
-        <Card density="compact">
-          <CardHeader density="compact">
+        <Card className="gap-4 py-5">
+          <CardHeader className="pb-4">
             <CardTitle>File Uploads</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3" density="compact">
+          <CardContent className="space-y-3">
             <p className="text-muted-foreground mb-4">
               Upload and manage files for enrollment guides and documentation.
             </p>
@@ -67,11 +67,11 @@ export default function Home() {
       </div>
       
       <div className={`mt-4 md:mt-6 ${isDev ? 'min-h-[200px]' : 'min-h-0'}`}>
-        <Card density="compact">
-          <CardHeader density="compact">
+        <Card className="gap-4 py-5">
+          <CardHeader className="pb-4">
             <CardTitle>Quick Start</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3" density="compact">
+          <CardContent className="space-y-3">
             <p className="text-muted-foreground mb-4">
               This is an internal admin tool for managing enrollment processes during the migration phase. 
               No authentication is required - all sections are directly accessible.

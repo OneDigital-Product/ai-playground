@@ -115,7 +115,7 @@ export function IntakeDetailClient({ intakeId, currentTab, createdFlag }: Intake
   // Loading state
   if (intake === undefined || sections === undefined) {
     return (
-      <Card>
+      <Card className="gap-4 py-5">
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <p className="text-muted-foreground">Loading intake details...</p>
@@ -138,10 +138,10 @@ export function IntakeDetailClient({ intakeId, currentTab, createdFlag }: Intake
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header Actions */}
-      <Card>
-        <CardHeader>
+      <Card className="gap-4 py-5">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-semibold">{intake.clientName}</h2>

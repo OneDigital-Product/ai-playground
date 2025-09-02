@@ -235,7 +235,7 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
   return (
     <div className="space-y-4">
       <Card
-        className={`border-2 border-dashed transition-colors ${
+        className={`gap-4 py-5 border-2 border-dashed transition-colors ${
           isDragging
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-muted-foreground/50"
@@ -277,7 +277,7 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
       </Card>
 
       {files.length > 0 && (
-        <Card>
+        <Card className="gap-4 py-5">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-medium">Selected Files ({files.length})</h3>

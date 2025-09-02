@@ -132,7 +132,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
 
   if (uploads.length === 0) {
     return (
-      <Card density="compact">
+      <Card className="gap-4 py-5">
         <CardContent className="p-8 text-center">
           <File className="h-8 w-8 text-muted-foreground mx-auto mb-2" aria-hidden="true" focusable="false" />
           <p className="text-sm text-muted-foreground">No files uploaded yet</p>
@@ -151,7 +151,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
   return (
     <div className="space-y-4">
       {Object.entries(uploadsByKind).map(([kind, kindUploads]) => (
-        <Card key={kind}>
+        <Card key={kind} density="compact">
           <CardHeader density="compact">
             <CardTitle className="text-base flex items-center gap-2">
               <Badge variant={KIND_COLORS[kind as keyof typeof KIND_COLORS]}>
@@ -162,7 +162,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent density="compact">
             <div className="space-y-2">
               {kindUploads.map((upload) => (
                 <div
@@ -257,7 +257,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
       ))}
 
       {uploads.length > 0 && (
-        <Card density="compact">
+        <Card className="gap-4 py-5">
           <CardContent className="p-4">
             <div className="text-xs text-muted-foreground text-center">
               Total: {uploads.length} file{uploads.length !== 1 ? "s" : ""} • 

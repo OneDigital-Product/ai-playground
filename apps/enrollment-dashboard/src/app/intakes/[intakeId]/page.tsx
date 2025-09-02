@@ -24,7 +24,7 @@ export default async function IntakeDetailPage({
   const showCreatedAlert = searchParams.created === "1";
 
   return (
-    <main className="container mx-auto p-6">
+    <main className="container mx-auto p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -46,7 +46,7 @@ export default async function IntakeDetailPage({
       {/* Client Component for Data Fetching and Tabs */}
       <Suspense
         fallback={
-          <Card>
+          <Card className="gap-4 py-5">
             <CardContent className="p-8">
               <div className="flex items-center justify-center">
                 <p className="text-muted-foreground">Loading intake details...</p>

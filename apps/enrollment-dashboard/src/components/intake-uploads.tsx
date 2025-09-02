@@ -38,8 +38,8 @@ export function IntakeUploads({ intakeId }: IntakeUploadsProps) {
   };
 
   return (
-    <Card density="compact">
-      <CardHeader density="compact">
+    <Card className="gap-4 py-5">
+      <CardHeader className="pb-4">
         <CardTitle className="flex items-center justify-between">
           <span>Files & Uploads</span>
           <div className="flex items-center gap-2">
