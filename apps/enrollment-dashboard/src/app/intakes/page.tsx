@@ -43,11 +43,11 @@ export default function IntakesPage() {
         </Button>
       </div>
       
-      <Card density="compact">
-        <CardHeader density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="pb-4">
           <CardTitle>Recent Intakes</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3" density="compact">
+        <CardContent className="space-y-3">
           {!intakes ? (
             <p className="text-muted-foreground">Loading...</p>
           ) : intakes.length === 0 ? (

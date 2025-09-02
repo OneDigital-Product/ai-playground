@@ -22,11 +22,11 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} density="compact">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" density="compact">
+          <Card key={i} className="gap-4 py-5">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div className="h-4 w-24 bg-muted animate-pulse rounded" />
             </CardHeader>
-            <CardContent density="compact">
+            <CardContent>
               <div className="h-8 w-16 bg-muted animate-pulse rounded mb-1" />
               <div className="h-3 w-32 bg-muted animate-pulse rounded" />
             </CardContent>
@@ -47,12 +47,12 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
       {/* Total Intakes */}
-      <Card density="compact">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-sm font-medium">Total Intakes</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent density="compact">
+        <CardContent>
           <div className="text-2xl font-bold">{stats.total}</div>
           <p className="text-xs text-muted-foreground">
             {stats.total === 0 ? "No intakes created yet" : "All intake requests"}
@@ -61,12 +61,12 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* In Progress */}
-      <Card density="compact">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-sm font-medium">In Progress</CardTitle>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent density="compact">
+        <CardContent>
           <div className="text-2xl font-bold">{inProgressCount}</div>
           <div className="flex gap-2 text-xs text-muted-foreground">
             {stats.by_status.STARTED > 0 && (
@@ -89,12 +89,12 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* Completed */}
-      <Card density="compact">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-sm font-medium">Completed</CardTitle>
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent density="compact">
+        <CardContent>
           <div className="text-2xl font-bold">{completedCount}</div>
           <p className="text-xs text-muted-foreground">
             Delivered to consultant
@@ -108,8 +108,8 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* Recent Activity */}
-      <Card density="compact">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -127,14 +127,14 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* Complexity Distribution */}
-      <Card className="md:col-span-2" density="compact">
-        <CardHeader density="compact">
+      <Card className="md:col-span-2 gap-4 py-5">
+        <CardHeader className="pb-4">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
             Complexity Distribution
           </CardTitle>
         </CardHeader>
-        <CardContent density="compact">
+        <CardContent>
           {stats.total === 0 ? (
             <p className="text-xs text-muted-foreground">
               No intakes yet. Create your first intake to see complexity analysis.
@@ -158,11 +158,11 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* Status Breakdown */}
-      <Card className="md:col-span-2" density="compact">
-        <CardHeader density="compact">
+      <Card className="md:col-span-2 gap-4 py-5">
+        <CardHeader className="pb-4">
           <CardTitle className="text-sm font-medium">Status Breakdown</CardTitle>
         </CardHeader>
-        <CardContent density="compact">
+        <CardContent>
           {stats.total === 0 ? (
             <p className="text-xs text-muted-foreground">
               No intakes available.

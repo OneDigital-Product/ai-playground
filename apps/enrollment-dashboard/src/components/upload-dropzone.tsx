@@ -234,8 +234,8 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
 
   return (
     <div className="space-y-4">
-      <Card density="compact"
-        className={`border-2 border-dashed transition-colors ${
+      <Card
+        className={`gap-4 py-5 border-2 border-dashed transition-colors ${
           isDragging
             ? "border-primary bg-primary/5"
             : "border-muted-foreground/25 hover:border-muted-foreground/50"
@@ -244,7 +244,7 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <CardContent density="compact" className="p-8 text-center">
+        <CardContent className="p-8 text-center">
           <div className="flex flex-col items-center space-y-4">
             <Upload className="h-8 w-8 text-muted-foreground" aria-hidden="true" focusable="false" />
             <div>
@@ -277,8 +277,8 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
       </Card>
 
       {files.length > 0 && (
-        <Card density="compact">
-          <CardContent density="compact" className="p-4 space-y-4">
+        <Card className="gap-4 py-5">
+          <CardContent className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-medium">Selected Files ({files.length})</h3>
               <Select value={kind} onValueChange={setKind} disabled={isUploading}>

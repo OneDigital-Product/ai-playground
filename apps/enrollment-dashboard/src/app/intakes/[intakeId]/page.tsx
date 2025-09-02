@@ -46,8 +46,8 @@ export default async function IntakeDetailPage({
       {/* Client Component for Data Fetching and Tabs */}
       <Suspense
         fallback={
-          <Card density="compact">
-            <CardContent density="compact" className="p-8">
+          <Card className="gap-4 py-5">
+            <CardContent className="p-8">
               <div className="flex items-center justify-center">
                 <p className="text-muted-foreground">Loading intake details...</p>
               </div>

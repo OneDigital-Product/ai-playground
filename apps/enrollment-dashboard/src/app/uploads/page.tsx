@@ -98,8 +98,8 @@ export default function UploadsPage() {
                   }}
                 />
               ) : (
-                <Card density="compact">
-                  <CardContent density="compact" className="p-4 text-sm text-muted-foreground">
+                <Card className="gap-4 py-5">
+                  <CardContent className="p-4 text-sm text-muted-foreground">
                     Enter or select an Intake to enable uploads.
                   </CardContent>
                 </Card>
@@ -110,11 +110,11 @@ export default function UploadsPage() {
       </div>
       
       {recentUploads.length === 0 ? (
-        <Card density="compact">
-          <CardHeader density="compact">
+        <Card className="gap-4 py-5">
+          <CardHeader className="pb-4">
             <CardTitle>Recent Uploads</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3" density="compact">
+          <CardContent className="space-y-3">
             <p className="text-muted-foreground">
               No uploads available. Upload files to get started.
             </p>

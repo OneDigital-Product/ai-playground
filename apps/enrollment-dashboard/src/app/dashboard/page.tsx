@@ -166,8 +166,8 @@ export default function DashboardPage() {
       />
 
       {/* Main Content */}
-      <Card density="compact">
-        <CardHeader density="compact">
+      <Card className="gap-4 py-5">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle>
               Intakes 
@@ -179,7 +179,7 @@ export default function DashboardPage() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="p-0" density="compact">
+        <CardContent className="p-0">
           {!intakes ? (
             <div className="p-8 text-center">
               <div className="flex items-center justify-center gap-2">
@@ -205,11 +205,11 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       {(!intakes || intakes.length === 0) && (
-        <Card density="compact">
-          <CardHeader density="compact">
+        <Card className="gap-4 py-5">
+          <CardHeader className="pb-4">
             <CardTitle>Get Started</CardTitle>
           </CardHeader>
-          <CardContent density="compact" className="space-y-3">
+          <CardContent className="space-y-3">
             <p className="text-muted-foreground">
               No intakes available yet. Create your first intake to get started with the enrollment dashboard.
             </p>

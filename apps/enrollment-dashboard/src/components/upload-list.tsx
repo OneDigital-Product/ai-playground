@@ -132,8 +132,8 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
 
   if (uploads.length === 0) {
     return (
-      <Card density="compact">
-        <CardContent density="compact" className="p-8 text-center">
+      <Card className="gap-4 py-5">
+        <CardContent className="p-8 text-center">
           <File className="h-8 w-8 text-muted-foreground mx-auto mb-2" aria-hidden="true" focusable="false" />
           <p className="text-sm text-muted-foreground">No files uploaded yet</p>
         </CardContent>
@@ -257,8 +257,8 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
       ))}
 
       {uploads.length > 0 && (
-        <Card density="compact">
-          <CardContent density="compact" className="p-4">
+        <Card className="gap-4 py-5">
+          <CardContent className="p-4">
             <div className="text-xs text-muted-foreground text-center">
               Total: {uploads.length} file{uploads.length !== 1 ? "s" : ""} • 
               {" "}{formatFileSize(uploads.reduce((sum, upload) => sum + upload.bytes, 0))}
