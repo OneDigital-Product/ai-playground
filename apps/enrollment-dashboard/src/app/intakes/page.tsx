@@ -30,7 +30,7 @@ export default function IntakesPage() {
   };
 
   return (
-    <main className="container mx-auto p-6">
+    <main className="container mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Enrollment Intakes</h1>
@@ -43,11 +43,11 @@ export default function IntakesPage() {
         </Button>
       </div>
       
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Recent Intakes</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3" density="compact">
           {!intakes ? (
             <p className="text-muted-foreground">Loading...</p>
           ) : intakes.length === 0 ? (

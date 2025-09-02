@@ -196,3 +196,33 @@ Common pitfalls
 - Missing `basePath: false` on the `/` redirect → 404 on preview root.
 - Divergent build commands between apps → inconsistent environment injection.
 - Missing `transpilePackages` → shared UI/backend code fails to compile in Next apps.
+
+
+## Spacing & Density Guidelines (All Apps)
+
+Context
+- Shared UI components in `packages/ui` (e.g., Card) ship with comfortable defaults (internal gap and paddings).
+- Apps often need denser pages. Compounding utilities (space-y-*, gap-*, p-*) plus shared defaults can lead to overly large spacing.
+
+Best practices
+- Start with app-level overrides; change shared defaults only after repeated cross-app needs.
+- Import Tailwind once: use `@repo/tailwind-config` in app globals. Avoid also importing `tailwindcss` directly.
+- Watch compounding: component spacing + page spacing + grid gaps.
+
+Recommended app density
+- Containers: prefer `p-4` instead of `p-6`.
+- Stacks: prefer `space-y-3` or `space-y-4` instead of `space-y-6`.
+- Grids: use `gap-3` for form grids; `gap-4` for card grids; avoid `gap-6` unless necessary.
+- Cards: override where used for compact density:
+  - `<Card className="gap-4 py-5">`
+  - `<CardHeader className="pb-4">`
+  - `<CardContent className="space-y-3">` (or `space-y-4` depending on content)
+
+When to update shared defaults (@repo/ui)
+- If multiple apps consistently override the same component, consider adding a density variant (comfortable | compact) to the shared component.
+
+Caution
+- Avoid combining large page-level spacing with components that already include paddings/gaps.
+
+Reference implementation
+- `apps/enrollment-dashboard`: compact density applied across home, dashboard, uploads, intake form, and intake detail pages via app-level overrides only.

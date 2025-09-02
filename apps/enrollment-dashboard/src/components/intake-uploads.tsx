@@ -38,8 +38,8 @@ export function IntakeUploads({ intakeId }: IntakeUploadsProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card density="compact">
+      <CardHeader density="compact">
         <CardTitle className="flex items-center justify-between">
           <span>Files & Uploads</span>
           <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export function IntakeUploads({ intakeId }: IntakeUploadsProps) {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-3">
         {/* Upload Section */}
         <Collapsible open={isUploadOpen} onOpenChange={setIsUploadOpen}>
           <CollapsibleTrigger asChild>
@@ -70,7 +70,7 @@ export function IntakeUploads({ intakeId }: IntakeUploadsProps) {
               )}
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4">
+          <CollapsibleContent className="mt-3">
             <UploadDropzone
               intakeId={intakeId}
               onUploadComplete={handleUploadComplete}

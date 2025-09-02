@@ -6,8 +6,8 @@ const isDev = process.env.NODE_ENV !== "production";
 
 export default function Home() {
   return (
-    <main className="container mx-auto p-6">
-      <div className="mb-8">
+    <main className="container mx-auto p-4">
+      <div className="mb-6">
         <h1 className="text-4xl font-bold mb-4">Enrollment Dashboard</h1>
         <p className="text-xl text-muted-foreground">
           Manage enrollment guide intakes and file uploads for internal operations.
@@ -22,12 +22,12 @@ export default function Home() {
         </div>
       </div>
       
-      <div className={`grid gap-6 md:grid-cols-3 ${isDev ? 'min-h-[420px]' : 'min-h-0'}`}>
-        <Card>
-          <CardHeader>
+      <div className={`grid gap-4 md:grid-cols-3 ${isDev ? 'min-h-[420px]' : 'min-h-0'}`}>
+        <Card density="compact">
+          <CardHeader density="compact">
             <CardTitle>Intake Management</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3" density="compact">
             <p className="text-muted-foreground mb-4">
               Create and manage enrollment guide intake requests.
             </p>
@@ -37,11 +37,11 @@ export default function Home() {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
+        <Card density="compact">
+          <CardHeader density="compact">
             <CardTitle>Dashboard Overview</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3" density="compact">
             <p className="text-muted-foreground mb-4">
               View statistics and recent activity across all enrollment processes.
             </p>
@@ -51,11 +51,11 @@ export default function Home() {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader>
+        <Card density="compact">
+          <CardHeader density="compact">
             <CardTitle>File Uploads</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3" density="compact">
             <p className="text-muted-foreground mb-4">
               Upload and manage files for enrollment guides and documentation.
             </p>
@@ -67,11 +67,11 @@ export default function Home() {
       </div>
       
       <div className={`mt-4 md:mt-6 ${isDev ? 'min-h-[200px]' : 'min-h-0'}`}>
-        <Card>
-          <CardHeader>
+        <Card density="compact">
+          <CardHeader density="compact">
             <CardTitle>Quick Start</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3" density="compact">
             <p className="text-muted-foreground mb-4">
               This is an internal admin tool for managing enrollment processes during the migration phase. 
               No authentication is required - all sections are directly accessible.

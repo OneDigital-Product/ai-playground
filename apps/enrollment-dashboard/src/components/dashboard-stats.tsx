@@ -47,8 +47,8 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
       {/* Total Intakes */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card density="compact">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
           <CardTitle className="text-sm font-medium">Total Intakes</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -61,8 +61,8 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* In Progress */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card density="compact">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
           <CardTitle className="text-sm font-medium">In Progress</CardTitle>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -89,8 +89,8 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* Completed */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card density="compact">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
           <CardTitle className="text-sm font-medium">Completed</CardTitle>
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -108,8 +108,8 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
       </Card>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card density="compact">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0" density="compact">
           <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>

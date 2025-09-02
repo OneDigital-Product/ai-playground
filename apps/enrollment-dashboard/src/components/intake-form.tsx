@@ -243,7 +243,7 @@ export function IntakeForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Global Error */}
       {errors.error && (
         <div
@@ -271,15 +271,15 @@ export function IntakeForm() {
         </span>
       )}
 
-      <fieldset disabled={isSubmitting} className="space-y-6">
+      <fieldset disabled={isSubmitting} className="space-y-4">
 
       {/* Basic Information Section */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="clientName">Client Name *</Label>
               <Input
@@ -355,11 +355,11 @@ export function IntakeForm() {
       </Card>
 
       {/* Project Details Section */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Project Details</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
           <div className="space-y-3">
             <Label>Guide Type *</Label>
             <RadioGroup
@@ -435,8 +435,8 @@ export function IntakeForm() {
       </Card>
 
       {/* Sections Configuration */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Guide Sections Configuration</CardTitle>
           <p className="text-sm text-muted-foreground">
             For each section, specify whether to include it in the guide and if it has changes beyond annual updates.
@@ -444,7 +444,7 @@ export function IntakeForm() {
         </CardHeader>
         <CardContent className={process.env.NODE_ENV !== 'production' ? 'min-h-[480px]' : undefined}>
           {/* Mobile: Accordion with index */}
-          <div className="md:hidden space-y-4">
+          <div className="md:hidden space-y-3">
             {/* In-page index */}
             <div className="sticky top-0 z-10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-md p-2">
               <div className="grid grid-cols-8 gap-2">
@@ -496,10 +496,10 @@ export function IntakeForm() {
           </div>
 
           {/* Desktop: Original grid layout */}
-          <div className="hidden md:block space-y-4">
+          <div className="hidden md:block space-y-3">
             {SECTIONS.map((section, index) => (
               <div key={section.code}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">
                       Section {section.code}: {section.name}
@@ -514,7 +514,7 @@ export function IntakeForm() {
                     />
                   </div>
                 </div>
-                {index < SECTIONS.length - 1 && <div className="border-t mt-4" />}
+                {index < SECTIONS.length - 1 && <div className="border-t mt-3" />}
               </div>
             ))}
           </div>
@@ -522,8 +522,8 @@ export function IntakeForm() {
       </Card>
 
       {/* General Notes Section */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>General Notes</CardTitle>
         </CardHeader>
         <CardContent>

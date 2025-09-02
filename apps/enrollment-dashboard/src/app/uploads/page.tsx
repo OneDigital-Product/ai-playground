@@ -41,7 +41,7 @@ export default function UploadsPage() {
   };
 
   return (
-    <main className="container mx-auto p-6">
+    <main className="container mx-auto p-4">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">File Uploads</h1>
@@ -58,8 +58,8 @@ export default function UploadsPage() {
               <DialogTitle>Upload Files</DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="intakeId">Intake ID</Label>
                   <Input
@@ -98,7 +98,7 @@ export default function UploadsPage() {
                   }}
                 />
               ) : (
-                <Card>
+                <Card density="compact">
                   <CardContent className="p-4 text-sm text-muted-foreground">
                     Enter or select an Intake to enable uploads.
                   </CardContent>
@@ -110,11 +110,11 @@ export default function UploadsPage() {
       </div>
       
       {recentUploads.length === 0 ? (
-        <Card>
-          <CardHeader>
+        <Card density="compact">
+          <CardHeader density="compact">
             <CardTitle>Recent Uploads</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3" density="compact">
             <p className="text-muted-foreground">
               No uploads available. Upload files to get started.
             </p>

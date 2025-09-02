@@ -124,7 +124,7 @@ export default function DashboardPage() {
   }, [filters]);
 
   return (
-    <main className="container mx-auto p-6 space-y-6">
+    <main className="container mx-auto p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -166,8 +166,8 @@ export default function DashboardPage() {
       />
 
       {/* Main Content */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <div className="flex items-center justify-between">
             <CardTitle>
               Intakes 
@@ -179,7 +179,7 @@ export default function DashboardPage() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0" density="compact">
           {!intakes ? (
             <div className="p-8 text-center">
               <div className="flex items-center justify-center gap-2">
@@ -205,8 +205,8 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       {(!intakes || intakes.length === 0) && (
-        <Card>
-          <CardHeader>
+        <Card density="compact">
+          <CardHeader density="compact">
             <CardTitle>Get Started</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

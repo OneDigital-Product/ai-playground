@@ -33,14 +33,14 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
   const pagesRequired = getSectionsFromFlags(intake.sectionsIncludedFlags);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Basic Information */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Client Name</label>
               <p className="text-sm font-semibold">{intake.clientName}</p>
@@ -62,8 +62,8 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
       </Card>
 
       {/* Guide Information */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Guide Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -94,8 +94,8 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
       </Card>
 
       {/* Complexity & Pages Required */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Complexity & Pages Required</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -124,8 +124,8 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
       </Card>
 
       {/* Additional Information */}
-      <Card>
-        <CardHeader>
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Additional Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -145,7 +145,7 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Created</label>
               <p className="text-xs text-muted-foreground">
