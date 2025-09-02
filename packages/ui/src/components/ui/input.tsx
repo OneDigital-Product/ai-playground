@@ -20,13 +20,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         type={type || "text"}
         data-slot="input"
-        spellCheck={spellCheck ?? false} // Explicitly set to prevent browser extension interference
-        autoComplete={autoComplete ?? "off"} // Prevent autocomplete interference
-        suppressHydrationWarning={suppressHydrationWarning} // Suppress hydration warnings for browser extension attributes
+        spellCheck={spellCheck ?? false}
+        autoComplete={autoComplete ?? "off"}
+        suppressHydrationWarning={suppressHydrationWarning}
         className={cn(
-          "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-          "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+          // Match shadcn/ui v4 defaults as closely as possible
+          "border-input placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:ring-destructive/20 flex h-9 w-full min-w-0 rounded-md border bg-background px-3 py-1 text-sm shadow-xs transition-colors outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         {...props}
