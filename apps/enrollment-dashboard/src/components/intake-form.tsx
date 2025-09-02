@@ -64,7 +64,7 @@ export function IntakeForm() {
       return () => window.clearTimeout(id);
     }
   }, [errors.error]);
-  
+
   // Form state with proper defaults
   const [formData, setFormData] = useState<FormData>({
     clientName: "",
@@ -94,13 +94,21 @@ export function IntakeForm() {
     if (errors.fieldErrors?.[field]) {
       setErrors(prev => ({
         ...prev,
-        fieldErrors: prev.fieldErrors ? 
+        fieldErrors: prev.fieldErrors ?
           Object.fromEntries(
             Object.entries(prev.fieldErrors).filter(([key]) => key !== field)
           ) : undefined
       }));
     }
   };
+
+
+  // Type guards to safely narrow string values from Radix components
+  const isGuideType = (v: string): v is GuideTypeT =>
+    v === GuideType.UPDATE_EXISTING_GUIDE || v === GuideType.NEW_GUIDE_BUILD;
+
+  const isProductionTime = (v: string): v is ProductionTimeT =>
+    v === ProductionTime.STANDARD || v === ProductionTime.RUSH;
 
   const updateSectionFlags = (sectionCode: keyof typeof SectionCode, flagType: 'changed' | 'included', value: boolean) => {
     const flagsField = flagType === 'changed' ? 'sectionsChangedFlags' : 'sectionsIncludedFlags';
@@ -140,7 +148,7 @@ export function IntakeForm() {
           }
           fieldErrors[path].push(issue.message);
         });
-        
+
         setErrors({
           error: "Please fix the validation errors below.",
           fieldErrors
@@ -227,7 +235,7 @@ export function IntakeForm() {
         return;
       }
       router.push(`/enrollment-dashboard/intakes/${parsed.intakeId}?created=1`);
-      
+
     } catch (error) {
       console.error('Form submission error:', error);
       // Network/infra failures
@@ -366,7 +374,11 @@ export function IntakeForm() {
               <Label>Guide Type *</Label>
               <RadioGroup
                 value={formData.guideType}
-                onValueChange={(value) => updateFormData('guideType', value as GuideTypeT)}
+                onValueChange={(value) => {
+                  if (isGuideType(value)) {
+                    updateFormData('guideType', value);
+                  }
+                }}
                 className="flex flex-wrap gap-4"
                 aria-invalid={!!getFieldError('guideType')}
               >
@@ -471,7 +483,11 @@ export function IntakeForm() {
               <Label>Requested Production Time *</Label>
               <RadioGroup
                 value={formData.requestedProductionTime}
-                onValueChange={(value) => updateFormData('requestedProductionTime', value as ProductionTimeT)}
+                onValueChange={(value) => {
+                  if (isProductionTime(value)) {
+                    updateFormData('requestedProductionTime', value);
+                  }
+                }}
                 className="flex flex-wrap gap-4"
               >
                 <div className="inline-flex items-center gap-2">
