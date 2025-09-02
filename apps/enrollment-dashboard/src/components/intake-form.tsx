@@ -283,11 +283,11 @@ export function IntakeForm() {
       <fieldset disabled={isSubmitting} className="space-y-4">
 
       {/* Basic Information Section */}
-      <Card className="gap-4 py-5">
-        <CardHeader className="pb-4">
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent density="compact">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="clientName">Client Name *</Label>
@@ -364,11 +364,11 @@ export function IntakeForm() {
       </Card>
 
       {/* Project Details Section */}
-      <Card className="gap-4 py-5">
-        <CardHeader className="pb-4">
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Project Details</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent density="compact">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label>Guide Type *</Label>
@@ -508,8 +508,8 @@ export function IntakeForm() {
       </Card>
 
       {/* Sections Configuration */}
-      <Card className="gap-4 py-5">
-        <CardHeader className="pb-4">
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>Guide Sections Configuration</CardTitle>
           <p className="text-sm text-muted-foreground">
             For each section, specify whether to include it in the guide and if it has changes beyond annual updates.
@@ -595,11 +595,11 @@ export function IntakeForm() {
       </Card>
 
       {/* General Notes Section */}
-      <Card className="gap-4 py-5">
-        <CardHeader className="pb-4">
+      <Card density="compact">
+        <CardHeader density="compact">
           <CardTitle>General Notes</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent density="compact">
           <div className="space-y-2">
             <Label htmlFor="notesGeneral">Additional Notes or Comments</Label>
             <Textarea

@@ -67,9 +67,10 @@ export function IntakeSections({ sections, intake, onRefresh }: IntakeSectionsPr
           return (
             <Card 
               key={sectionCode}
-              className={`gap-4 py-5 border-l-4 ${hasData ? "border-l-primary" : "border-l-muted"}`}
+              density="compact"
+              className={`border-l-4 ${hasData ? "border-l-primary" : "border-l-muted"}`}
             >
-              <CardHeader className="pb-4">
+              <CardHeader density="compact">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">
                     Section {sectionCode}: {sectionName}

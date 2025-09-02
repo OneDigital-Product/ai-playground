@@ -10,6 +10,7 @@
   ],
   "exports": {
     "./styles.css": "./src/styles.css",
+    "./component-layer.css": "./src/component-layer.css",
     "./components/*": "./src/components/*",
     "./lib/*": "./src/lib/*",
     "./*": "./src/*.tsx"

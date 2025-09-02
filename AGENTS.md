@@ -16,6 +16,8 @@ For deeper `apps/web` guidance, see `apps/web/AGENTS.md`.
 
 ## Shared UI Components (shadcn/ui + Tailwind v4)
 
+**⚠️ IMPORTANT: Before making any UI changes, read `TAILWIND_V4_MONOREPO_GUIDE.md` for critical spacing and import patterns to avoid common issues.**
+
 Use the shared UI library in `packages/ui` and the shared Tailwind theme in `packages/tailwind-config` for a consistent design system across apps.
 
 What’s included

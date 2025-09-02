@@ -1,6 +1,8 @@
 # UI Package — Card Density Variant
 
-This document explains the new density prop supported by Card components in the shared UI package. It centralizes spacing control (comfortable vs compact) and lets apps opt into a denser layout without hand-written class overrides.
+**⚠️ IMPORTANT: Before making UI changes, read `TAILWIND_V4_MONOREPO_GUIDE.md` in the repo root for critical spacing patterns and import rules.**
+
+This document explains the new density prop supported by Card components in the shared UI package. It centralizes spacing control (comfortable vs compact vs auto) and lets apps opt into different layouts without hand-written class overrides.
 
 ## Overview
 - Card, CardHeader, CardContent, and CardFooter now accept a density prop.

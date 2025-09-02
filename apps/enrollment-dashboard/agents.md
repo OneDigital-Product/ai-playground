@@ -1,8 +1,11 @@
-Enrollment Dashboard — Architecture Notes (Hybrid Convex + Next.js)
+# Enrollment Dashboard — Architecture Notes (Hybrid Convex + Next.js)
 
-Overview
+**⚠️ CRITICAL: Read `TAILWIND_V4_MONOREPO_GUIDE.md` in the repo root before making ANY UI changes to avoid spacing and import issues.**
+
+## Overview
 - This app uses Convex for backend data, business logic, and storage, and Next.js (App Router) for UI and domain concerns.
 - Favor Convex functions (queries, mutations, actions) for application logic; use Next.js only where Next-specific features add value.
+- UI uses `density="compact"` for data-dense pages - this app is the reference implementation for compact spacing patterns.
 
 When to use Convex
 - Data access & business logic: intakes, sections, status updates, stats, CSV generation.
