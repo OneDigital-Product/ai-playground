@@ -6,15 +6,15 @@ temperature: 0.2
 # Permissions: be safe by default; allow common ops, ask for risky, deny destructive
 permission:
   edit: allow
-  webfetch: ask
+  webfetch: allow
   bash:
-    "*": ask
+    "*": allow
     "mv *": allow
     "mkdir *": allow
     "git status": allow
     "git add *": allow
-    "git commit *": ask
-    "git push": ask
+    "git commit *": allow
+    "git push": allow
     "rm -rf *": deny
 ---
 You are the Orchestrator agent. Your job is to coordinate implementation from numbered markdown instruction files into real code changes using the Dev subagent.

@@ -11,16 +11,16 @@ tools:
 permission:
   edit: allow
   bash:
-    "*": ask
+    "*": allow
     "git status": allow
     "pnpm lint": allow
     "pnpm check-types": allow
-    "pnpm build": ask
-    "pnpm test": ask
+    "pnpm build": allow
+    "pnpm test": allow
     "git add .": allow
     'git commit -m "*"': allow
     "git push": allow
-  webfetch: ask
+  webfetch: allow
 ---
 You are the Dev subagent. You implement requirements from markdown files provided by the Orchestrator.
 

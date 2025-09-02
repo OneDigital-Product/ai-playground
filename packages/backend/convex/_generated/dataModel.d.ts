@@ -27,6 +27,139 @@ import type { GenericId } from "convex/values";
  */
 
 export type DataModel = {
+  intakes: {
+    document: {
+      clientName: string;
+      communicationsAddOns:
+        | "None"
+        | "OE Letter"
+        | "OE Presentation"
+        | "Both"
+        | "Other";
+      complexityBand: "Minimal" | "Low" | "Medium" | "High";
+      complexityScore: number;
+      createdAt: string;
+      dateReceived: string;
+      guideType: "Update Existing Guide" | "New Guide Build";
+      intakeId: string;
+      notesGeneral?: string;
+      payrollStorageUrl: string;
+      planYear: number;
+      requestedProductionTime: "Standard" | "Rush";
+      requestorName: string;
+      sectionsChangedFlags: {
+        A: boolean;
+        B: boolean;
+        C: boolean;
+        D: boolean;
+        E: boolean;
+        F: boolean;
+        G: boolean;
+        H: boolean;
+        I: boolean;
+        J: boolean;
+        K: boolean;
+        L: boolean;
+        M: boolean;
+        N: boolean;
+        O: boolean;
+        P: boolean;
+        Q: boolean;
+      };
+      sectionsIncludedFlags: {
+        A: boolean;
+        B: boolean;
+        C: boolean;
+        D: boolean;
+        E: boolean;
+        F: boolean;
+        G: boolean;
+        H: boolean;
+        I: boolean;
+        J: boolean;
+        K: boolean;
+        L: boolean;
+        M: boolean;
+        N: boolean;
+        O: boolean;
+        P: boolean;
+        Q: boolean;
+      };
+      status:
+        | "NOT_STARTED"
+        | "STARTED"
+        | "ROADBLOCK"
+        | "READY_FOR_QA"
+        | "DELIVERED_TO_CONSULTANT";
+      updatedAt: string;
+      _id: Id<"intakes">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "clientName"
+      | "communicationsAddOns"
+      | "complexityBand"
+      | "complexityScore"
+      | "createdAt"
+      | "dateReceived"
+      | "guideType"
+      | "intakeId"
+      | "notesGeneral"
+      | "payrollStorageUrl"
+      | "planYear"
+      | "requestedProductionTime"
+      | "requestorName"
+      | "sectionsChangedFlags.A"
+      | "sectionsChangedFlags.B"
+      | "sectionsChangedFlags.C"
+      | "sectionsChangedFlags.D"
+      | "sectionsChangedFlags.E"
+      | "sectionsChangedFlags.F"
+      | "sectionsChangedFlags.G"
+      | "sectionsChangedFlags.H"
+      | "sectionsChangedFlags.I"
+      | "sectionsChangedFlags.J"
+      | "sectionsChangedFlags.K"
+      | "sectionsChangedFlags.L"
+      | "sectionsChangedFlags.M"
+      | "sectionsChangedFlags.N"
+      | "sectionsChangedFlags.O"
+      | "sectionsChangedFlags.P"
+      | "sectionsChangedFlags.Q"
+      | "sectionsIncludedFlags.A"
+      | "sectionsIncludedFlags.B"
+      | "sectionsIncludedFlags.C"
+      | "sectionsIncludedFlags.D"
+      | "sectionsIncludedFlags.E"
+      | "sectionsIncludedFlags.F"
+      | "sectionsIncludedFlags.G"
+      | "sectionsIncludedFlags.H"
+      | "sectionsIncludedFlags.I"
+      | "sectionsIncludedFlags.J"
+      | "sectionsIncludedFlags.K"
+      | "sectionsIncludedFlags.L"
+      | "sectionsIncludedFlags.M"
+      | "sectionsIncludedFlags.N"
+      | "sectionsIncludedFlags.O"
+      | "sectionsIncludedFlags.P"
+      | "sectionsIncludedFlags.Q"
+      | "status"
+      | "updatedAt";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_complexityBand: ["complexityBand", "_creationTime"];
+      by_dateReceived: ["dateReceived", "_creationTime"];
+      by_intakeId: ["intakeId", "_creationTime"];
+      by_planYear: ["planYear", "_creationTime"];
+      by_requestorName: ["requestorName", "_creationTime"];
+      by_status: ["status", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   messages: {
     document: {
       author: string;
@@ -45,8 +178,8 @@ export type DataModel = {
   retirementPlans: {
     document: {
       eligibleEmployees: number;
-      participants: number;
       investmentReturn: number;
+      participants: number;
       _id: Id<"retirementPlans">;
       _creationTime: number;
     };
@@ -54,11 +187,83 @@ export type DataModel = {
       | "_creationTime"
       | "_id"
       | "eligibleEmployees"
-      | "participants"
-      | "investmentReturn";
+      | "investmentReturn"
+      | "participants";
     indexes: {
       by_id: ["_id"];
       by_creation_time: ["_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
+  section_details: {
+    document: {
+      createdAt: string;
+      intakeId: string;
+      payload: { change_description?: string };
+      sectionCode:
+        | "A"
+        | "B"
+        | "C"
+        | "D"
+        | "E"
+        | "F"
+        | "G"
+        | "H"
+        | "I"
+        | "J"
+        | "K"
+        | "L"
+        | "M"
+        | "N"
+        | "O"
+        | "P"
+        | "Q";
+      _id: Id<"section_details">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "createdAt"
+      | "intakeId"
+      | "payload.change_description"
+      | "sectionCode";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_intakeId: ["intakeId", "_creationTime"];
+      by_intakeId_sectionCode: ["intakeId", "sectionCode", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
+  uploads: {
+    document: {
+      bytes: number;
+      createdAt: string;
+      intakeId: string;
+      kind: "GUIDE" | "PLAN_DOC" | "PAYROLL_SCREEN" | "OTHER";
+      mimeType: string;
+      originalName: string;
+      storedKey: string;
+      _id: Id<"uploads">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "bytes"
+      | "createdAt"
+      | "intakeId"
+      | "kind"
+      | "mimeType"
+      | "originalName"
+      | "storedKey";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_intakeId: ["intakeId", "_creationTime"];
     };
     searchIndexes: {};
     vectorIndexes: {};
