@@ -19,12 +19,13 @@ export default defineSchema({
     requestorName: v.string(),
     payrollStorageUrl: v.string(),
     guideType: v.union(v.literal("Update Existing Guide"), v.literal("New Guide Build")),
-    communicationsAddOns: v.union(
-      v.literal("None"), 
-      v.literal("OE Letter"), 
-      v.literal("OE Presentation"), 
-      v.literal("Both"), 
-      v.literal("Other")
+    communicationsAddOns: v.array(
+      v.union(
+        v.literal("OE Letter"),
+        v.literal("OE Presentation"),
+        v.literal("Other"),
+        v.object({ type: v.literal("Other"), text: v.string() })
+      )
     ),
     requestedProductionTime: v.union(v.literal("Standard"), v.literal("Rush")),
     notesGeneral: v.optional(v.string()),

@@ -30,12 +30,12 @@ export type DataModel = {
   intakes: {
     document: {
       clientName: string;
-      communicationsAddOns:
-        | "None"
+      communicationsAddOns: Array<
         | "OE Letter"
         | "OE Presentation"
-        | "Both"
-        | "Other";
+        | "Other"
+        | { text: string; type: "Other" }
+      >;
       complexityBand: "Minimal" | "Low" | "Medium" | "High";
       complexityScore: number;
       createdAt: string;

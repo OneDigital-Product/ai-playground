@@ -10,8 +10,9 @@ import { Label } from "@repo/ui/components/ui/label";
 import { Textarea } from "@repo/ui/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/ui/radio-group";
+import { Checkbox } from "@repo/ui/components/ui/checkbox";
 // import { Alert, AlertDescription } from "@repo/ui/components/ui/alert";
-import { intakeCreateSchema, GuideType, CommunicationsAddOns, ProductionTime, SectionCode, type IntakeCreate } from "@/lib/schemas";
+import { intakeCreateSchema, GuideType, CommunicationsAddOns, ProductionTime, SectionCode, type IntakeCreate, type CommunicationsAddOnItem } from "@/lib/schemas";
 import { REQUESTOR_NAMES } from "@/lib/constants";
 import SectionConfig from "./section-config";
 
@@ -71,7 +72,7 @@ export function IntakeForm() {
     requestorName: "",
     payrollStorageUrl: "",
     guideType: GuideType.UPDATE_EXISTING_GUIDE,
-    communicationsAddOns: CommunicationsAddOns.NONE,
+    communicationsAddOns: [],
     requestedProductionTime: ProductionTime.STANDARD,
     notesGeneral: "",
     sectionsChangedFlags: {
@@ -87,7 +88,7 @@ export function IntakeForm() {
     sectionDescriptions: {}
   });
 
-  const updateFormData = (field: keyof FormData, value: string | number | boolean | Record<string, boolean>) => {
+  const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear field-specific errors when user starts typing
     if (errors.fieldErrors?.[field]) {
@@ -162,7 +163,7 @@ export function IntakeForm() {
             requestorName: 'requestorName',
             payrollStorageUrl: 'payrollStorageUrl',
             guideType: 'guide-update', // first radio id
-            communicationsAddOns: 'comm-none', // first radio id
+            communicationsAddOns: 'comm-letter', // first checkbox id
             requestedProductionTime: 'time-standard', // first radio id
           };
           setFirstInvalidId(idMap[firstKey]);
@@ -279,7 +280,7 @@ export function IntakeForm() {
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="clientName">Client Name *</Label>
               <Input
@@ -359,77 +360,133 @@ export function IntakeForm() {
         <CardHeader density="compact">
           <CardTitle>Project Details</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <Label>Guide Type *</Label>
-            <RadioGroup
-              value={formData.guideType}
-              onValueChange={(value) => updateFormData('guideType', value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={GuideType.UPDATE_EXISTING_GUIDE} id="guide-update" />
-                <Label htmlFor="guide-update">Update Existing Guide</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={GuideType.NEW_GUIDE_BUILD} id="guide-new" />
-                <Label htmlFor="guide-new">New Guide Build</Label>
-              </div>
-            </RadioGroup>
-            {getFieldError('guideType') && (
-              <p className="text-sm text-destructive">{getFieldError('guideType')}</p>
-            )}
-          </div>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label>Guide Type *</Label>
+              <RadioGroup
+                value={formData.guideType}
+                onValueChange={(value) => updateFormData('guideType', value)}
+                className="flex flex-wrap gap-4"
+                aria-invalid={!!getFieldError('guideType')}
+              >
+                <div className="inline-flex items-center gap-2">
+                  <RadioGroupItem value={GuideType.UPDATE_EXISTING_GUIDE} id="guide-update" />
+                  <Label htmlFor="guide-update" className="text-sm">Update Existing Guide</Label>
+                </div>
+                <div className="inline-flex items-center gap-2">
+                  <RadioGroupItem value={GuideType.NEW_GUIDE_BUILD} id="guide-new" />
+                  <Label htmlFor="guide-new" className="text-sm">New Guide Build</Label>
+                </div>
+              </RadioGroup>
+              {getFieldError('guideType') && (
+                <p className="text-sm text-destructive">{getFieldError('guideType')}</p>
+              )}
+            </div>
 
-          <div className="space-y-3">
-            <Label>Communications Add-Ons *</Label>
-            <RadioGroup
-              value={formData.communicationsAddOns}
-              onValueChange={(value) => updateFormData('communicationsAddOns', value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={CommunicationsAddOns.NONE} id="comm-none" />
-                <Label htmlFor="comm-none">None</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={CommunicationsAddOns.OE_LETTER} id="comm-letter" />
-                <Label htmlFor="comm-letter">OE Letter</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={CommunicationsAddOns.OE_PRESENTATION} id="comm-presentation" />
-                <Label htmlFor="comm-presentation">OE Presentation</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={CommunicationsAddOns.BOTH} id="comm-both" />
-                <Label htmlFor="comm-both">Both</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={CommunicationsAddOns.OTHER} id="comm-other" />
-                <Label htmlFor="comm-other">Other</Label>
-              </div>
-            </RadioGroup>
-            {getFieldError('communicationsAddOns') && (
-              <p className="text-sm text-destructive">{getFieldError('communicationsAddOns')}</p>
-            )}
-          </div>
+            <div className="space-y-2">
+              <Label>Communications Add-Ons *</Label>
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Helper to toggle values in the array */}
+                {(() => {
+                  const value = formData.communicationsAddOns as CommunicationsAddOnItem[] || [];
+                  const set = (next: CommunicationsAddOnItem[]) => updateFormData('communicationsAddOns', next);
+                  const hasLiteral = (opt: typeof CommunicationsAddOns.OE_LETTER | typeof CommunicationsAddOns.OE_PRESENTATION) => value.some((v) => v === opt);
+                  const toggleLiteral = (opt: typeof CommunicationsAddOns.OE_LETTER | typeof CommunicationsAddOns.OE_PRESENTATION, checked: boolean) => {
+                    const present = hasLiteral(opt);
+                    const literals = value.filter((v): v is typeof CommunicationsAddOns.OE_LETTER | typeof CommunicationsAddOns.OE_PRESENTATION => typeof v === 'string');
+                    const others = value.filter((v) => typeof v === 'object');
+                    let nextLiterals = literals.filter((v) => v !== opt);
+                    if (checked && !present) nextLiterals = [...literals, opt];
+                    return [...nextLiterals, ...others];
+                  };
+                  const getOther = () => value.find((v) => typeof v === 'object' && v && 'type' in v && v.type === CommunicationsAddOns.OTHER) as { type: typeof CommunicationsAddOns.OTHER; text: string } | undefined;
+                  const setOther = (enabled: boolean, text?: string) => {
+                    const withoutOther = value.filter((v) => !(typeof v === 'object' && v && 'type' in v && v.type === CommunicationsAddOns.OTHER));
+                    if (!enabled) return set(withoutOther);
+                    const current = getOther();
+                    const nextText = typeof text === 'string' ? text : (current?.text || "");
+                    return set([...withoutOther, { type: CommunicationsAddOns.OTHER, text: nextText }]);
+                  };
 
-          <div className="space-y-3">
-            <Label>Requested Production Time *</Label>
-            <RadioGroup
-              value={formData.requestedProductionTime}
-              onValueChange={(value) => updateFormData('requestedProductionTime', value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={ProductionTime.STANDARD} id="time-standard" />
-                <Label htmlFor="time-standard">Standard</Label>
+                  return (
+                    <>
+                      {/* OE Letter */}
+                      <div className="inline-flex items-center gap-2">
+                        <Checkbox
+                          id="comm-letter"
+                          checked={hasLiteral(CommunicationsAddOns.OE_LETTER)}
+                          onCheckedChange={(checked) => {
+                            const next = toggleLiteral(CommunicationsAddOns.OE_LETTER, !!checked);
+                            set(next);
+                          }}
+                        />
+                        <Label htmlFor="comm-letter" className="text-sm">OE Letter</Label>
+                      </div>
+
+                      {/* OE Presentation */}
+                      <div className="inline-flex items-center gap-2">
+                        <Checkbox
+                          id="comm-presentation"
+                          checked={hasLiteral(CommunicationsAddOns.OE_PRESENTATION)}
+                          onCheckedChange={(checked) => {
+                            const next = toggleLiteral(CommunicationsAddOns.OE_PRESENTATION, !!checked);
+                            set(next);
+                          }}
+                        />
+                        <Label htmlFor="comm-presentation" className="text-sm">OE Presentation</Label>
+                      </div>
+
+                      {/* Other */}
+                      <div className="inline-flex items-center gap-2">
+                        <Checkbox
+                          id="comm-other"
+                          checked={!!getOther()}
+                          onCheckedChange={(checked) => {
+                            setOther(!!checked);
+                          }}
+                        />
+                        <Label htmlFor="comm-other" className="text-sm">Other</Label>
+                        {getOther() && (
+                          <Input
+                            id="comm-other-text"
+                            placeholder="Please specify"
+                            value={getOther()!.text}
+                            onChange={(e) => setOther(true, e.target.value)}
+                            className="ml-2 h-8 w-48"
+                            aria-invalid={!!getFieldError('communicationsAddOns')}
+                          />
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value={ProductionTime.RUSH} id="time-rush" />
-                <Label htmlFor="time-rush">Rush</Label>
-              </div>
-            </RadioGroup>
-            {getFieldError('requestedProductionTime') && (
-              <p className="text-sm text-destructive">{getFieldError('requestedProductionTime')}</p>
-            )}
+              {getFieldError('communicationsAddOns') && (
+                <p className="text-sm text-destructive">{getFieldError('communicationsAddOns')}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Requested Production Time *</Label>
+              <RadioGroup
+                value={formData.requestedProductionTime}
+                onValueChange={(value) => updateFormData('requestedProductionTime', value)}
+                className="flex flex-wrap gap-4"
+              >
+                <div className="inline-flex items-center gap-2">
+                  <RadioGroupItem value={ProductionTime.STANDARD} id="time-standard" />
+                  <Label htmlFor="time-standard" className="text-sm">Standard</Label>
+                </div>
+                <div className="inline-flex items-center gap-2">
+                  <RadioGroupItem value={ProductionTime.RUSH} id="time-rush" />
+                  <Label htmlFor="time-rush" className="text-sm">Rush</Label>
+                </div>
+              </RadioGroup>
+              {getFieldError('requestedProductionTime') && (
+                <p className="text-sm text-destructive">{getFieldError('requestedProductionTime')}</p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -544,16 +601,18 @@ export function IntakeForm() {
       </Card>
 
       {/* Submit Button */}
-      <div className="flex justify-end space-x-4">
+      <div className="flex justify-end space-x-2">
         <Button
           type="button"
           variant="outline"
+          size="sm"
           onClick={() => router.back()}
         >
           Cancel
         </Button>
         <Button
           type="submit"
+          size="sm"
           disabled={isSubmitting}
         >
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

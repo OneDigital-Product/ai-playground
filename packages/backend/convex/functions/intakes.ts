@@ -11,7 +11,8 @@ import {
   validateNonEmptyString,
   validatePlanYear,
   sectionsValidator,
-  sectionCodeValidator
+  sectionCodeValidator,
+  communicationsAddOnsValidator,
 } from "../validators/shared.js";
 import { applyFiltersAndSorting, type ListArgs } from "./helpers/listFilters.js";
 import type { Doc } from "../_generated/dataModel.js";
@@ -49,7 +50,7 @@ export const create = mutation({
     const { score, band } = calculateComplexity({
       sections_changed_flags: sectionsChangedFlags,
       guide_type: args.guideType,
-      communications_add_ons: args.communicationsAddOns,
+      communications_add_ons: args.communicationsAddOns as Array<'OE Letter' | 'OE Presentation' | 'Other' | { type: 'Other'; text: string }>,
     });
     
     const id = await ctx.db.insert("intakes", {
@@ -59,7 +60,7 @@ export const create = mutation({
       requestorName,
       payrollStorageUrl,
       guideType: args.guideType,
-      communicationsAddOns: args.communicationsAddOns,
+      communicationsAddOns: args.communicationsAddOns as ("OE Letter" | "OE Presentation" | "Other" | { type: "Other"; text: string })[],
       requestedProductionTime: args.requestedProductionTime,
       notesGeneral: args.notesGeneral,
       status: "NOT_STARTED",
@@ -188,13 +189,7 @@ export const updateComplexityFactors = mutation({
     intakeId: v.string(),
     sectionsChangedFlags: v.optional(sectionsValidator),
     guideType: v.optional(v.union(v.literal("Update Existing Guide"), v.literal("New Guide Build"))),
-    communicationsAddOns: v.optional(v.union(
-      v.literal("None"),
-      v.literal("OE Letter"), 
-      v.literal("OE Presentation"),
-      v.literal("Both"),
-      v.literal("Other")
-    )),
+    communicationsAddOns: v.optional(communicationsAddOnsValidator),
   },
   handler: async (ctx, args) => {
     const intake = await ctx.db
@@ -211,7 +206,7 @@ export const updateComplexityFactors = mutation({
       updatedAt: string;
       sectionsChangedFlags?: SectionsFlags;
       guideType?: "Update Existing Guide" | "New Guide Build";
-      communicationsAddOns?: "None" | "OE Letter" | "OE Presentation" | "Both" | "Other";
+      communicationsAddOns?: ("OE Letter" | "OE Presentation" | "Other" | { type: "Other"; text: string })[];
       complexityScore?: number;
       complexityBand?: "Minimal" | "Low" | "Medium" | "High";
     } = {
@@ -227,7 +222,7 @@ export const updateComplexityFactors = mutation({
     }
     
     if (args.communicationsAddOns !== undefined) {
-      updateData.communicationsAddOns = args.communicationsAddOns;
+      updateData.communicationsAddOns = args.communicationsAddOns as ("OE Letter" | "OE Presentation" | "Other" | { type: "Other"; text: string })[];
     }
     
     // Recalculate complexity using updated values merged with existing ones
@@ -239,7 +234,7 @@ export const updateComplexityFactors = mutation({
     const { score, band } = calculateComplexity({
       sections_changed_flags: updatedIntake.sectionsChangedFlags,
       guide_type: updatedIntake.guideType,
-      communications_add_ons: updatedIntake.communicationsAddOns,
+      communications_add_ons: updatedIntake.communicationsAddOns as Array<'OE Letter' | 'OE Presentation' | 'Other' | { type: 'Other'; text: string }>,
     });
     
     updateData.complexityScore = score;
@@ -487,7 +482,11 @@ export const exportCsv = query({
         i.complexityBand,
         i.complexityScore,
         i.guideType,
-        i.communicationsAddOns,
+        Array.isArray(i.communicationsAddOns)
+          ? (i.communicationsAddOns as Array<'None' | 'Both' | 'OE Letter' | 'OE Presentation' | 'Other' | { type: 'Other'; text: string }>)
+              .map((v) => (typeof v === 'string' ? v : `${v.type}: ${v.text}`))
+              .join("; ")
+          : String(i.communicationsAddOns),
         i.requestedProductionTime,
         i.dateReceived,
         i.payrollStorageUrl,

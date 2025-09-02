@@ -13,7 +13,7 @@ interface IntakeData {
   requestorName: string;
   dateReceived: string;
   guideType: "Update Existing Guide" | "New Guide Build";
-  communicationsAddOns: "None" | "OE Letter" | "OE Presentation" | "Both" | "Other";
+  communicationsAddOns: Array<"OE Letter" | "OE Presentation" | "Other" | { type: "Other"; text: string }>;
   status: string;
   complexityScore: number;
   complexityBand: "Minimal" | "Low" | "Medium" | "High";
@@ -74,7 +74,17 @@ export function IntakeOverview({ intake }: IntakeOverviewProps) {
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Communications Add-ons</label>
-              <p className="text-sm">{intake.communicationsAddOns}</p>
+              <div className="flex flex-wrap gap-1">
+                {intake.communicationsAddOns?.length ? (
+                  intake.communicationsAddOns.map((v, idx) => (
+                    <span key={idx} className="text-xs rounded px-2 py-0.5 bg-muted">
+                      {typeof v === 'string' ? v : `${v.type}: ${v.text}`}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-sm">None</span>
+                )}
+              </div>
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Requested Production Time</label>

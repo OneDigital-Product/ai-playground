@@ -241,9 +241,13 @@ export function IntakesTable({ intakes, filters, sortField, sortOrder, onSortCha
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant="secondary" className="text-xs">
-                  {intake.communicationsAddOns}
-                </Badge>
+                <div className="flex flex-wrap gap-1">
+                  {(Array.isArray(intake.communicationsAddOns) ? intake.communicationsAddOns : [intake.communicationsAddOns]).map((v, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-2xs">
+                      {typeof v === 'string' ? v : `${v.type}: ${v.text}`}
+                    </Badge>
+                  ))}
+                </div>
               </TableCell>
               <TableCell>
                 <ComplexityBadge 
