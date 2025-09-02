@@ -224,11 +224,11 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
   const getStatusIcon = (status: FileUpload["status"]) => {
     switch (status) {
       case "success":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-green-500" aria-hidden="true" focusable="false" />;
       case "error":
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <AlertCircle className="h-4 w-4 text-red-500" aria-hidden="true" focusable="false" />;
       default:
-        return <File className="h-4 w-4 text-muted-foreground" />;
+        return <File className="h-4 w-4 text-muted-foreground" aria-hidden="true" focusable="false" />;
     }
   };
 
@@ -246,7 +246,7 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
       >
         <CardContent className="p-8 text-center">
           <div className="flex flex-col items-center space-y-4">
-            <Upload className="h-8 w-8 text-muted-foreground" />
+            <Upload className="h-8 w-8 text-muted-foreground" aria-hidden="true" focusable="false" />
             <div>
               <p className="text-sm font-medium">
                 Drag and drop files here, or{" "}
@@ -328,8 +328,9 @@ export function UploadDropzone({ intakeId, onUploadComplete, onUploaded }: Uploa
                         size="sm"
                         onClick={() => removeFile(fileUpload.id)}
                         disabled={isUploading}
+                        aria-label={`Remove ${fileUpload.file.name}`}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4" aria-hidden="true" focusable="false" />
                       </Button>
                     )}
                   </div>

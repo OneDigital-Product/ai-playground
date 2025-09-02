@@ -134,7 +134,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
     return (
       <Card>
         <CardContent className="p-8 text-center">
-          <File className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+          <File className="h-8 w-8 text-muted-foreground mx-auto mb-2" aria-hidden="true" focusable="false" />
           <p className="text-sm text-muted-foreground">No files uploaded yet</p>
         </CardContent>
       </Card>
@@ -192,7 +192,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
                       onClick={() => handleDownload(upload)}
                       disabled={deletingIds.has(upload._id)}
                     >
-                      <Download className="h-4 w-4 mr-1" />
+                      <Download className="h-4 w-4 mr-1" aria-hidden="true" focusable="false" />
                       Download
                     </Button>
 
@@ -202,8 +202,9 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
                           variant="ghost"
                           size="sm"
                           disabled={deletingIds.has(upload._id)}
+                          aria-label="Open file actions menu"
                         >
-                          <MoreHorizontal className="h-4 w-4" />
+                          <MoreHorizontal className="h-4 w-4" aria-hidden="true" focusable="false" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -211,7 +212,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
                           onClick={() => handleDownload(upload)}
                           disabled={deletingIds.has(upload._id)}
                         >
-                          <Download className="h-4 w-4 mr-2" />
+                          <Download className="h-4 w-4 mr-2" aria-hidden="true" focusable="false" />
                           Download
                         </DropdownMenuItem>
                         <AlertDialog>
@@ -221,7 +222,7 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
                               disabled={deletingIds.has(upload._id)}
                               className="text-red-600 focus:text-red-600"
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
+                              <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" focusable="false" />
                               {deletingIds.has(upload._id) ? "Deleting..." : "Delete"}
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
