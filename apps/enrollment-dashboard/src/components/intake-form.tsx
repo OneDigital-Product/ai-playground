@@ -432,7 +432,7 @@ export function IntakeForm() {
             For each section, specify whether to include it in the guide and if it has changes beyond annual updates.
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className={process.env.NODE_ENV !== 'production' ? 'min-h-[480px]' : undefined}>
           {/* Mobile: Accordion with index */}
           <div className="md:hidden space-y-4">
             {/* In-page index */}

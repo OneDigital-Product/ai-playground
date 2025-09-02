@@ -2,6 +2,8 @@ import { Button } from "@repo/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import Link from "next/link";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 export default function Home() {
   return (
     <main className="container mx-auto p-6">
@@ -20,7 +22,7 @@ export default function Home() {
         </div>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className={`grid gap-6 md:grid-cols-3 ${isDev ? 'min-h-[420px]' : 'min-h-0'}`}>
         <Card>
           <CardHeader>
             <CardTitle>Intake Management</CardTitle>
@@ -64,7 +66,7 @@ export default function Home() {
         </Card>
       </div>
       
-      <div className="mt-4 md:mt-6">
+      <div className={`mt-4 md:mt-6 ${isDev ? 'min-h-[200px]' : 'min-h-0'}`}>
         <Card>
           <CardHeader>
             <CardTitle>Quick Start</CardTitle>
