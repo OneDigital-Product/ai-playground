@@ -52,6 +52,7 @@ export function IntakeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const [firstInvalidId, setFirstInvalidId] = useState<string | null>(null);
 
   // Move focus to the banner when an error appears
   useEffect(() => {
@@ -141,6 +142,31 @@ export function IntakeForm() {
           error: "Please fix the validation errors below.",
           fieldErrors
         });
+        // Determine first invalid field's element id to focus after the summary
+        const errorOrder = [
+          'clientName',
+          'planYear',
+          'requestorName',
+          'payrollStorageUrl',
+          'guideType',
+          'communicationsAddOns',
+          'requestedProductionTime',
+        ];
+        const firstKey = errorOrder.find((key) => fieldErrors[key]?.length);
+        if (firstKey) {
+          const idMap: Record<string, string> = {
+            clientName: 'clientName',
+            planYear: 'planYear',
+            requestorName: 'requestorName',
+            payrollStorageUrl: 'payrollStorageUrl',
+            guideType: 'guide-update', // first radio id
+            communicationsAddOns: 'comm-none', // first radio id
+            requestedProductionTime: 'time-standard', // first radio id
+          };
+          setFirstInvalidId(idMap[firstKey]);
+        } else {
+          setFirstInvalidId(null);
+        }
         setIsSubmitting(false);
         return;
       }
@@ -218,6 +244,20 @@ export function IntakeForm() {
           {errors.error}
         </div>
       )}
+      {errors.error && (
+        <span
+          tabIndex={0}
+          onFocus={() => {
+            if (firstInvalidId) {
+              const el = document.getElementById(firstInvalidId);
+              el?.focus();
+            }
+          }}
+          className="sr-only"
+        >
+          Jump to first error
+        </span>
+      )}
 
       <fieldset disabled={isSubmitting} className="space-y-6">
 
@@ -248,7 +288,7 @@ export function IntakeForm() {
                 value={formData.planYear.toString()}
                 onValueChange={(value) => updateFormData('planYear', parseInt(value))}
               >
-                <SelectTrigger className={getFieldError('planYear') ? 'border-destructive' : ''}>
+                <SelectTrigger id="planYear" className={getFieldError('planYear') ? 'border-destructive' : ''}>
                   <SelectValue placeholder="Select plan year" />
                 </SelectTrigger>
                 <SelectContent>
@@ -267,7 +307,7 @@ export function IntakeForm() {
                 value={formData.requestorName}
                 onValueChange={(value) => updateFormData('requestorName', value)}
               >
-                <SelectTrigger className={getFieldError('requestorName') ? 'border-destructive' : ''}>
+                <SelectTrigger id="requestorName" className={getFieldError('requestorName') ? 'border-destructive' : ''}>
                   <SelectValue placeholder="Select requestor" />
                 </SelectTrigger>
                 <SelectContent>
