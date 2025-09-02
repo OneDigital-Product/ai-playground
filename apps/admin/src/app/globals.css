@@ -1,2 +1,2 @@
-/* Import Tailwind via shared config only to avoid duplication */
+@import "tailwindcss" source("../../../../");
 @import "@repo/tailwind-config";
