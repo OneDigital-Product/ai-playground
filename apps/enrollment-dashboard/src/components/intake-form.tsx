@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/ui/radio-group";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 // import { Alert, AlertDescription } from "@repo/ui/components/ui/alert";
-import { intakeCreateSchema, GuideType, CommunicationsAddOns, ProductionTime, SectionCode, type IntakeCreate, type CommunicationsAddOnItem } from "@/lib/schemas";
+import { intakeCreateSchema, GuideType, CommunicationsAddOns, ProductionTime, SectionCode, type IntakeCreate, type CommunicationsAddOnItem, type GuideType as GuideTypeT, type ProductionTime as ProductionTimeT } from "@/lib/schemas";
 import { REQUESTOR_NAMES } from "@/lib/constants";
 import SectionConfig from "./section-config";
 
@@ -366,7 +366,7 @@ export function IntakeForm() {
               <Label>Guide Type *</Label>
               <RadioGroup
                 value={formData.guideType}
-                onValueChange={(value) => updateFormData('guideType', value)}
+                onValueChange={(value) => updateFormData('guideType', value as GuideTypeT)}
                 className="flex flex-wrap gap-4"
                 aria-invalid={!!getFieldError('guideType')}
               >
@@ -471,7 +471,7 @@ export function IntakeForm() {
               <Label>Requested Production Time *</Label>
               <RadioGroup
                 value={formData.requestedProductionTime}
-                onValueChange={(value) => updateFormData('requestedProductionTime', value)}
+                onValueChange={(value) => updateFormData('requestedProductionTime', value as ProductionTimeT)}
                 className="flex flex-wrap gap-4"
               >
                 <div className="inline-flex items-center gap-2">
