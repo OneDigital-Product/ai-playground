@@ -10,23 +10,17 @@ export default function Home() {
         <p className="text-xl text-muted-foreground">
           Manage enrollment guide intakes and file uploads for internal operations.
         </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button asChild>
+            <Link href="/intakes/new">Create First Intake</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/intakes">Manage Intakes</Link>
+          </Button>
+        </div>
       </div>
       
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Dashboard Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              View statistics and recent activity across all enrollment processes.
-            </p>
-            <Button asChild className="w-full">
-              <Link href="/dashboard">View Dashboard</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        
         <Card>
           <CardHeader>
             <CardTitle>Intake Management</CardTitle>
@@ -37,6 +31,20 @@ export default function Home() {
             </p>
             <Button asChild className="w-full">
               <Link href="/intakes">Manage Intakes</Link>
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Dashboard Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              View statistics and recent activity across all enrollment processes.
+            </p>
+            <Button asChild className="w-full">
+              <Link href="/dashboard">View Dashboard</Link>
             </Button>
           </CardContent>
         </Card>
