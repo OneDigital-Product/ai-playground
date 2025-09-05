@@ -1,12 +1,13 @@
 Enrollment Dashboard (Next.js + Convex)
 
 Overview
+- Tracks Enrollment Guide intakes and operations: create, configure sections, upload files, update status, and export CSV.
 - Next.js App Router app mounted under `/enrollment-dashboard` (see `next.config.ts`). Uses shared `@repo/ui` components and Tailwind v4 theme.
 - Backend data via Convex functions in `packages/backend/convex`. Convex URL is injected during build on Vercel.
 
 Features
 - Dashboard: sortable/filtered list, stats header, CSV export.
-- Intake Create: single-page form; computes complexity; redirects to detail on success.
+- Intake Create: single-page form with Zod validation; computes complexity; redirects to detail on success.
 - Intake Detail: Overview (basic info, complexity, pages required, uploads) and Sections tabs.
 - Status Update: inline select on dashboard rows and on detail page.
 - Section Editing: per-section description upsert; change/include flags.
@@ -43,7 +44,7 @@ API Routes (thin wrappers)
 - CSV Export: `GET /enrollment-dashboard/api/dashboard.csv?{filters}` returns `text/csv` (server-sorted by `sortBy/order`).
 
 Schemas & Types
-- Frontend Zod: `apps/enrollment-dashboard/src/lib/schemas.ts` (enums, IntakeCreate, status update, filters, sectionDescriptions).
+- Frontend Zod: `apps/enrollment-dashboard/src/lib/schemas.ts` (enums, IntakeCreate, status update, filters, sectionDescriptions). Communications Add‑Ons is a Checkbox multi‑select supporting `OE Letter`, `OE Presentation`, and `Other` with custom text.
 - Shared constants: `apps/enrollment-dashboard/src/lib/constants.ts` (`REQUESTOR_NAMES`).
 - Backend validators: `packages/backend/convex/validators/shared.ts`.
 
@@ -52,19 +53,29 @@ Convex Functions (overview)
 - Sections: `upsert`, `getByIntake`, `bulkCreate`, `deleteByIntake`.
 - Uploads: `uploadFile`, `create`, `listByIntake`, `get`, `deleteUpload`, `getDownloadUrl`.
 
-Local Development
-- Install: `pnpm install`
-- Run dev: `pnpm --filter enrollment-dashboard dev`
-- Start all apps: `pnpm dev`
-- Convex dev (backend): `pnpm --filter @repo/backend exec npx convex dev`
+Setup & Local Development
+- Prereqs: Node 18+, pnpm, Convex CLI (`npm i -g convex` optional for local).
+- Install deps: `pnpm install`
+- Start Convex dev (backend): `pnpm --filter @repo/backend exec npx convex dev`
+  - Copy the printed URL to `apps/enrollment-dashboard/.env.local` as `NEXT_PUBLIC_CONVEX_URL`
+- Run the app: `pnpm --filter enrollment-dashboard dev`
 - Lint: `pnpm lint`
 - Type-check: `pnpm check-types`
 
-Environment
-- `NEXT_PUBLIC_CONVEX_URL` required. In Vercel, provided by the Convex wrapper in `vercel.json`.
+Environment Variables
+- Required: `NEXT_PUBLIC_CONVEX_URL` (Convex deployment URL). In Vercel, injected automatically by the Convex wrapper in `vercel.json`. In local dev, supply via `.env.local`.
 
-Design System
-- Components from `@repo/ui`, Tailwind v4 theme via `@repo/tailwind-config` (see `src/app/globals.css`).
+Build & Deployment
+- Build (local): `pnpm --filter enrollment-dashboard build`
+- Vercel: Uses `vercel.json` build command shown above; ensure `CONVEX_DEPLOY_KEY` is set in the Vercel project.
+
+Design System & Shared UI
+- Components from `@repo/ui` (shadcn/ui primitives and AppShell). Tailwind v4 theme via `@repo/tailwind-config` imported in `src/app/globals.css`.
+- Spacing: Use Card `density="compact"` throughout for consistency (see `apps/enrollment-dashboard/COMPONENT_FIXES.md`).
+
+Relationship to Other Apps
+- Depends on `packages/backend` (Convex) for data and `packages/ui` for shared UI.
+- Coexists with `apps/host` (base site), `apps/admin`, `apps/web` (Astro), etc. Monorepo scripts in root `package.json` manage dev/build across apps.
 
 Requirements & Tasks
-- See `.development/enrollment-dashboard` for requirements and implementation tasks (done/ contains completed items).
+- See `.development/enrollment-dashboard` for requirements and implementation notes (done/ contains completed items).
