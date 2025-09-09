@@ -9,6 +9,7 @@
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
     "smoke:csv": "node ./scripts/smoke/csv-and-uploads.smoke.mjs",
+    "smoke:intakes": "pnpm --filter @repo/backend exec node ./scripts/smoke/intakes.smoke.mjs",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

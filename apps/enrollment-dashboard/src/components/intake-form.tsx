@@ -15,6 +15,8 @@ import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import { intakeCreateSchema, GuideType, CommunicationsAddOns, ProductionTime, SectionCode, type IntakeCreate, type CommunicationsAddOnItem, type GuideType as GuideTypeT, type ProductionTime as ProductionTimeT } from "@/lib/schemas";
 import { REQUESTOR_NAMES } from "@/lib/constants";
 import SectionConfig from "./section-config";
+import { useMutation } from "convex/react";
+import { api } from "@repo/backend/convex/_generated/api";
 
 // Requestor names are centralized in lib/constants
 
@@ -56,6 +58,8 @@ export function IntakeForm() {
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [firstInvalidId, setFirstInvalidId] = useState<string | null>(null);
   const [openSectionCode, setOpenSectionCode] = useState<keyof typeof SectionCode | null>(null);
+  const createIntake = useMutation(api.functions.intakes.create);
+  const bulkCreateSections = useMutation(api.functions.sections.bulkCreate);
 
   // Move focus to the banner when an error appears
   useEffect(() => {
@@ -182,66 +186,42 @@ export function IntakeForm() {
         return;
       }
 
-      // Submit to API
-      const response = await fetch('/enrollment-dashboard/api/intakes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      // Use Convex mutations directly (SDK path per ADR)
+      // Prepare args for create (omit sectionDescriptions which is UI-only)
+      const { sectionDescriptions = {}, ...rest } = formData;
+      const intakeArgs: Omit<FormData, 'sectionDescriptions'> = rest;
+      const result = await createIntake(intakeArgs);
 
-      // Some responses may not include a JSON body on failure; guard parsing
-      let parsed: unknown = undefined;
-      try {
-        parsed = await response.json();
-      } catch {
-        // ignore body parse errors
+      const intakeId = (result as unknown as { intakeId: string }).intakeId;
+      if (typeof intakeId !== 'string' || !intakeId) {
+        setErrors({ error: 'Unexpected response from backend; missing intakeId.' });
+        setIsSubmitting(false);
+        return;
       }
 
-      const isRecord = (v: unknown): v is Record<string, unknown> =>
-        typeof v === 'object' && v !== null;
-
-      if (!response.ok) {
-        // 4xx: show server-provided validation/domain error and keep inputs intact
-        if (response.status >= 400 && response.status < 500) {
-          const err = isRecord(parsed) ? parsed : undefined;
-          setErrors({
-            error: (err && typeof err.error === 'string' ? err.error : undefined) || 'Please fix the errors and try again.',
-            fieldErrors: (err && isRecord(err.fieldErrors) ? (err.fieldErrors as Record<string, string[]>) : undefined),
-            statusCode: response.status,
-          });
-          setIsSubmitting(false);
-          return;
+      // Seed initial sections if any were marked changed and provided descriptions
+      const changedFlags = intakeArgs.sectionsChangedFlags;
+      if (changedFlags) {
+        const sections = Object.entries(changedFlags)
+          .filter(([code, changed]) => Boolean(changed) && !!sectionDescriptions[code])
+          .map(([sectionCode]) => ({
+            intakeId,
+            sectionCode: sectionCode as keyof typeof SectionCode,
+            payload: { change_description: sectionDescriptions[sectionCode]! },
+          }));
+        if (sections.length > 0) {
+          await bulkCreateSections({ sections } as { sections: Array<{ intakeId: string; sectionCode: keyof typeof SectionCode; payload: { change_description?: string } }> });
         }
-
-        // 5xx: show distinct infra/backend guidance
-        const err = isRecord(parsed) ? parsed : undefined;
-        setErrors({
-          error:
-            (err && typeof err.error === 'string' ? err.error : undefined) ||
-            'Backend error: Convex URL may be misconfigured or the backend is unavailable. In local dev, run "npx convex dev" and set NEXT_PUBLIC_CONVEX_URL in apps/enrollment-dashboard/.env.local. In preview, verify env config.',
-          fieldErrors: (err && isRecord(err.fieldErrors) ? (err.fieldErrors as Record<string, string[]>) : undefined),
-          statusCode: response.status,
-        });
-        setIsSubmitting(false);
-        return;
       }
 
-      // Redirect to the intake detail page on success
-      if (!isRecord(parsed) || typeof parsed.intakeId !== 'string') {
-        setErrors({ error: 'Unexpected response from server; missing intakeId.' });
-        setIsSubmitting(false);
-        return;
-      }
-      router.push(`/enrollment-dashboard/intakes/${parsed.intakeId}?created=1`);
+      router.push(`/enrollment-dashboard/intakes/${intakeId}?created=1`);
 
     } catch (error) {
       console.error('Form submission error:', error);
       // Network/infra failures
       setErrors({
         error:
-          'Network error: Unable to reach the backend. Ensure Convex is running (npx convex dev) and NEXT_PUBLIC_CONVEX_URL is configured.',
+          'Backend error or validation failed. Ensure Convex is running (npx convex dev) and inputs are valid.',
       });
       setIsSubmitting(false);
     }

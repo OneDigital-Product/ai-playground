@@ -8,6 +8,8 @@ import { Label } from "@repo/ui/components/ui/label";
 import { Edit, Save, X } from "lucide-react";
 import { type SectionCode } from "../lib/sections";
 import { useToast } from "./toast";
+import { useMutation } from "convex/react";
+import { api } from "@repo/backend/convex/_generated/api";
 
 interface SectionEditorProps {
   intakeId: string;
@@ -32,6 +34,8 @@ export function SectionEditor({
   const [editIncluded, setEditIncluded] = useState(included);
   const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
+  const upsertSection = useMutation(api.functions.sections.upsert);
+  const updateSectionFlags = useMutation(api.functions.intakes.updateSectionFlags);
 
   const handleStartEdit = () => {
     setEditDescription(description);
@@ -51,41 +55,23 @@ export function SectionEditor({
     setIsLoading(true);
     
     try {
-      // Update section description if changed
+      // Update section description if changed via Convex SDK
       if (editDescription !== description) {
-        const response = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}/sections/${sectionCode}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            change_description: editDescription,
-          }),
+        await upsertSection({
+          intakeId,
+          sectionCode,
+          payload: { change_description: editDescription },
         });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to update section description");
-        }
       }
 
-      // Update flags if changed
+      // Update flags if changed via Convex SDK
       if (editChanged !== changed || editIncluded !== included) {
-        const response = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}/sections/${sectionCode}/flags`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...(editChanged !== changed && { changed: editChanged }),
-            ...(editIncluded !== included && { included: editIncluded }),
-          }),
+        await updateSectionFlags({
+          intakeId,
+          sectionCode,
+          ...(editChanged !== changed ? { changed: editChanged } : {}),
+          ...(editIncluded !== included ? { included: editIncluded } : {}),
         });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to update section flags");
-        }
       }
 
       showToast("success", "Section updated successfully");
