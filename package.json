@@ -8,6 +8,7 @@
     "pr": "bash scripts/create-pr.sh",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
+    "smoke:csv": "node ./scripts/smoke/csv-and-uploads.smoke.mjs",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

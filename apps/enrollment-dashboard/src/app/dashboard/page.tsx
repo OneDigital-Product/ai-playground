@@ -10,6 +10,7 @@ import { api } from "@repo/backend/convex/_generated/api";
 import { DashboardStats } from "../../components/dashboard-stats";
 import { DashboardFilters, type DashboardFilters as FiltersType } from "../../components/dashboard-filters";
 import { IntakesTable } from "../../components/intakes-table";
+import { useToast } from "../../components/toast";
 
 type SortField =
   | "clientName"
@@ -37,6 +38,7 @@ export default function DashboardPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [sortField, setSortField] = useState<SortField>("dateReceived");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const { showToast } = useToast();
 
   // Fetch data
   const stats = useQuery(api.functions.intakes.stats, {});
@@ -104,24 +106,61 @@ export default function DashboardPage() {
         queryParams.set('requestedProductionTime', JSON.stringify(filters.requestedProductionTime));
       }
 
-      // Trigger download
-      const url = `/enrollment-dashboard/api/dashboard.csv?${queryParams.toString()}`;
-      
-      // Create a temporary link to trigger download
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `enrollment-dashboard-export-${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Trigger download via Convex HTTP endpoint
+      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+      if (!convexUrl) {
+        throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
+      }
+
+      const base = convexUrl.replace(/\/$/, "");
+      const nextRoute = `/enrollment-dashboard/api/dashboard.csv?${queryParams.toString()}`;
+      const tryUrls = [
+        `${base}/enrollment/dashboard/csv?${queryParams.toString()}`,
+        `${base}/enrollment/dashboard.csv?${queryParams.toString()}`,
+        nextRoute,
+      ];
+
+      let res: Response | undefined;
+      for (const candidate of tryUrls) {
+        const attempt = await fetch(candidate, {
+          method: "GET",
+          headers: { Accept: "text/csv" },
+          credentials: "omit",
+          cache: "no-store",
+        });
+        if (attempt.ok) {
+          res = attempt;
+          break;
+        }
+      }
+
+      if (!res || !res.ok) {
+        const msg = `Export failed (${res?.status ?? 0})`;
+        throw new Error(msg);
+      }
+
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `enrollment-dashboard-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+
+      showToast("success", "CSV exported");
       
     } catch (error) {
       console.error('Export failed:', error);
-      // Could show a toast notification here
+      showToast(
+        "error",
+        error instanceof Error ? error.message : "Failed to export CSV"
+      );
     } finally {
       setIsExporting(false);
     }
-  }, [filters]);
+  }, [filters, showToast]);
 
   return (
     <main className="container mx-auto p-4 space-y-4">
