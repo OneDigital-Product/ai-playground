@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { setTimeout as sleep } from 'node:timers/promises';
 
-const base = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(/\/$/, '');
+const base = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(/\/$/, '').replace('.convex.cloud', '.convex.site');
 if (!base) {
   console.error('ERROR: NEXT_PUBLIC_CONVEX_URL is not set');
   process.exit(1);
@@ -45,4 +45,3 @@ async function checkDeleteNotFound() {
   const allOk = results.every(Boolean);
   if (!allOk) process.exit(2);
 })();
-

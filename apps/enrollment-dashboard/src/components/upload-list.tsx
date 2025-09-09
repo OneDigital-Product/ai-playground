@@ -91,7 +91,8 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
       // Use Convex HTTP endpoint to redirect to signed URL
       const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
       if (!convexUrl) throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
-      const downloadUrl = `${convexUrl.replace(/\/$/, "")}/enrollment/uploads/download?id=${encodeURIComponent(upload._id)}`;
+      const httpBase = convexUrl.replace(/\/$/, "").replace(".convex.cloud", ".convex.site");
+      const downloadUrl = `${httpBase}/enrollment/uploads/download?id=${encodeURIComponent(upload._id)}`;
       window.open(downloadUrl, "_blank");
       showToast("success", `Downloading ${upload.originalName}`);
     } catch (error) {
@@ -108,8 +109,9 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
     try {
       const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
       if (!convexUrl) throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
+      const httpBase = convexUrl.replace(/\/$/, "").replace(".convex.cloud", ".convex.site");
       const response = await fetch(
-        `${convexUrl.replace(/\/$/, "")}/enrollment/uploads?id=${encodeURIComponent(upload._id)}`,
+        `${httpBase}/enrollment/uploads?id=${encodeURIComponent(upload._id)}`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },

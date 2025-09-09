@@ -136,8 +136,10 @@ http.route({
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Download failed";
+      const lower = message.toLowerCase();
+      const status = lower.includes("not found") ? 404 : 500;
       return new Response(JSON.stringify({ error: message }), {
-        status: 500,
+        status,
         headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
     }

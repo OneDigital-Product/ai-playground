@@ -112,7 +112,8 @@ export default function DashboardPage() {
         throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
       }
 
-      const base = convexUrl.replace(/\/$/, "");
+      // Convex HTTP Actions are served from the `.convex.site` host
+      const base = convexUrl.replace(/\/$/, "").replace(".convex.cloud", ".convex.site");
       const nextRoute = `/enrollment-dashboard/api/dashboard.csv?${queryParams.toString()}`;
       const tryUrls = [
         `${base}/enrollment/dashboard/csv?${queryParams.toString()}`,
