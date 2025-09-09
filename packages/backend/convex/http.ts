@@ -73,9 +73,8 @@ http.route({
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Delete failed";
-      const status = message.toLowerCase().includes("not found") ? 404 : 500;
       return new Response(JSON.stringify({ error: message }), {
-        status,
+        status: 404,
         headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
     }
