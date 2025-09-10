@@ -5,6 +5,7 @@ const ADMIN_ORIGIN = process.env.ADMIN_ORIGIN ?? 'http://127.0.0.1';
 const REPORTING_ORIGIN = process.env.REPORTING_ORIGIN ?? 'http://127.0.0.1';
 
 const nextConfig = {
+  transpilePackages: ["@repo/ui", "@repo/backend"],
   async redirects() {
     // Redirect root to /app in production only; show homepage in dev for smoke tests
     return process.env.NODE_ENV === 'production'

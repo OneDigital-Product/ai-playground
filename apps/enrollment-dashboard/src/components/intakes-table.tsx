@@ -35,6 +35,8 @@ import { StatusSelect, Status } from "./status-select";
 import { ComplexityBadge } from "./complexity-badge";
 import { Intake } from "../lib/schemas";
 import { DashboardFilters } from "./dashboard-filters";
+import { useAction } from "convex/react";
+import { api } from "@repo/backend/convex/_generated/api";
 
 type SortField = 
   | "clientName" 
@@ -60,6 +62,7 @@ interface IntakesTableProps {
 
 export function IntakesTable({ intakes, filters, sortField, sortOrder, onSortChange, onStatusChange, onIntakeDeleted }: IntakesTableProps) {
   const [deletingIntakeId, setDeletingIntakeId] = useState<string | null>(null);
+  const deleteIntake = useAction(api.functions.intakes.deleteIntake);
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) {
@@ -91,14 +94,7 @@ export function IntakesTable({ intakes, filters, sortField, sortOrder, onSortCha
     setDeletingIntakeId(intakeId);
     
     try {
-      const response = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete intake');
-      }
+      await deleteIntake({ intakeId });
       
       // Call the callback to refresh the list
       onIntakeDeleted?.();

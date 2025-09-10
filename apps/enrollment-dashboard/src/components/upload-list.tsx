@@ -88,9 +88,12 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
 
   const handleDownload = async (upload: Upload) => {
     try {
-      // Use window.open to trigger download in a new tab/window
-      const downloadUrl = `/enrollment-dashboard/api/uploads/${upload._id}/download`;
-      window.open(downloadUrl, '_blank');
+      // Use Convex HTTP endpoint to redirect to signed URL
+      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+      if (!convexUrl) throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
+      const httpBase = convexUrl.replace(/\/$/, "").replace(".convex.cloud", ".convex.site");
+      const downloadUrl = `${httpBase}/enrollment/uploads/download?id=${encodeURIComponent(upload._id)}`;
+      window.open(downloadUrl, "_blank");
       showToast("success", `Downloading ${upload.originalName}`);
     } catch (error) {
       console.error("Download error:", error);
@@ -104,9 +107,16 @@ export function UploadList({ uploads, onUploadDeleted }: UploadListProps) {
     setDeletingIds(prev => new Set(prev).add(upload._id));
     
     try {
-      const response = await fetch(`/enrollment-dashboard/api/uploads/${upload._id}`, {
-        method: "DELETE",
-      });
+      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+      if (!convexUrl) throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
+      const httpBase = convexUrl.replace(/\/$/, "").replace(".convex.cloud", ".convex.site");
+      const response = await fetch(
+        `${httpBase}/enrollment/uploads?id=${encodeURIComponent(upload._id)}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();

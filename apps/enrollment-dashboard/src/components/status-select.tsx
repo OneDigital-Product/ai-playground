@@ -10,6 +10,8 @@ import {
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { useToast } from "./toast";
+import { useMutation } from "convex/react";
+import { api } from "@repo/backend/convex/_generated/api";
 
 export type Status = "NOT_STARTED" | "STARTED" | "ROADBLOCK" | "READY_FOR_QA" | "DELIVERED_TO_CONSULTANT";
 
@@ -42,6 +44,7 @@ export function StatusSelect({
   const [localStatus, setLocalStatus] = useState<Status>(currentStatus);
   
   const { showToast } = useToast();
+  const updateStatus = useMutation(api.functions.intakes.updateStatus);
 
   const handleStatusChange = async (newStatus: Status) => {
     if (newStatus === localStatus || isUpdating) return;
@@ -51,16 +54,7 @@ export function StatusSelect({
     setIsUpdating(true);
 
     try {
-      const resp = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}/status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!resp.ok) {
-        const payload = await resp.json().catch(() => ({}));
-        throw new Error(payload.error || "Failed to update status");
-      }
-
+      await updateStatus({ intakeId, status: newStatus });
       showToast("success", `Status updated to ${STATUS_OPTIONS.find(opt => opt.value === newStatus)?.label}`);
       onStatusChange?.(newStatus);
     } catch (error) {
