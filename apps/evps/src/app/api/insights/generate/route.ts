@@ -62,7 +62,7 @@ const azureEndpoint = (() => {
     return `${u.origin}/openai`;
   } catch {
     // Best-effort fallback: strip anything after the host and ensure /openai suffix
-    const withoutQuery = rawAzureEndpoint.split('?')[0];
+    const withoutQuery = rawAzureEndpoint.split('?')[0] ?? '';
     const withoutPath = withoutQuery.replace(/(https?:\/\/[^/]+).*/, '$1');
     return `${withoutPath.replace(/\/$/, '')}/openai`;
   }
@@ -139,6 +139,7 @@ function adjustInsightPrompt(
     | 'shorter'
     | 'longer'
     | 'bullets'
+    | 'recommendation'
     | 'neutral'
     | 'consultative'
     | 'consultive'
@@ -191,7 +192,8 @@ function deterministicSummary(
   if (!data.length) return `No data available for ${title}.`;
   const total = data.reduce((s, d) => s + (Number.isFinite(d.value) ? d.value : 0), 0) || 1;
   const sorted = [...data].sort((a, b) => b.value - a.value);
-  const [top1, top2] = [sorted[0], sorted[1]];
+  const top1 = sorted[0]!;
+  const top2 = sorted[1];
   const pct = (v: number) => ((v / total) * 100).toFixed(1);
   const rangeMin = Math.min(...sorted.map(d => (d.value / total) * 100));
   const rangeMax = Math.max(...sorted.map(d => (d.value / total) * 100));
@@ -394,8 +396,6 @@ export async function POST(request: NextRequest) {
       model: azureModel,
       system,
       prompt,
-      // Reasoning models: prefer minimal thinking for latency
-      reasoning: { effort: 'low' },
       maxOutputTokens: 512,
     });
 
@@ -463,7 +463,6 @@ ${styleHint ? `\n${styleHint}\n` : ''}
         model: azureModel,
         system,
         prompt: retryPrompt,
-        reasoning: { effort: 'low' },
         maxOutputTokens: wasLength ? 1024 : 384,
       });
 

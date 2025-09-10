@@ -172,7 +172,7 @@ export default function Dashboard() {
   // Adjust existing text with presets via server; preserves user edits/content
   const handleInsightAdjust = useCallback(async (
     existingText: string,
-    preset: 'shorter' | 'longer' | 'bullets' | 'recommendation',
+    preset: 'shorter' | 'longer' | 'bullets' | 'recommendation' | 'neutral' | 'consultative' | 'positive' | 'action' | 'conservative' | 'persuasive',
   ): Promise<string> => {
     const response = await fetch('/evps/api/insights/generate', {
       method: 'POST',
