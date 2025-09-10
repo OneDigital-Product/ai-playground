@@ -8,35 +8,6 @@
         "@upstash/context7-mcp@latest"
       ],
       "env": {}
-    },
-    "Playwright": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest"
-      ],
-      "env": {}
-    },
-    "Shadcn-UI": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "shadcn-ui-mcp-server"
-      ],
-      "env": {}
-    },
-    "Convex": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "convex@latest",
-        "mcp",
-        "start"
-      ],
-      "env": {}
     }
   }
 }
