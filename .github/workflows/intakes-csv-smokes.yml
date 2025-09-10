@@ -1,4 +1,4 @@
-name: Intakes & CSV Smokes
+name: "Intakes & CSV Smokes"
 
 on:
   workflow_dispatch: {}
