@@ -23,6 +23,7 @@ import { api } from "@repo/backend/convex/_generated/api";
 import { IntakeOverview } from "../../../components/intake-overview";
 import { IntakeSections } from "../../../components/intake-sections";
 import { useToast } from "../../../components/toast";
+import { useAction } from "convex/react";
 
 interface IntakeDetailClientProps {
   intakeId: string;
@@ -34,6 +35,7 @@ export function IntakeDetailClient({ intakeId, currentTab, createdFlag }: Intake
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const { showToast } = useToast();
+  const deleteIntake = useAction(api.functions.intakes.deleteIntake);
 
   // Fetch intake data
   const intake = useQuery(api.functions.intakes.get, { intakeId });
@@ -52,14 +54,7 @@ export function IntakeDetailClient({ intakeId, currentTab, createdFlag }: Intake
     setIsDeleting(true);
     
     try {
-      const response = await fetch(`/enrollment-dashboard/api/intakes/${intakeId}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete intake');
-      }
+      await deleteIntake({ intakeId });
       
       // Show success toast if available
       if (window.__toastInstance) {

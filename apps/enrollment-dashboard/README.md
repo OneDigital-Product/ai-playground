@@ -27,8 +27,7 @@ Data Access
   - Section Upsert: `api.functions.sections.upsert`
   - Section Flags: `api.functions.intakes.updateSectionFlags`
   - Queries: `api.functions.intakes.get`, `api.functions.sections.getByIntake`, `api.functions.intakes.list`, etc.
-- Next routes (temporary):
-  - Intake Delete: `DELETE /enrollment-dashboard/api/intakes/[intakeId]` (calls Convex action `intakes.deleteIntake`)
+- Delete Intake: `api.functions.intakes.deleteIntake` (Convex action via SDK)
 - Convex HTTP endpoints (server-hosted on `<your>.convex.site`):
   - Uploads Create: `POST /enrollment/uploads?intakeId=...&kind=GUIDE|PLAN_DOC|PAYROLL_SCREEN|OTHER` (body: file blob)
   - Upload Delete: `DELETE /enrollment/uploads?id=<uploadId>`
