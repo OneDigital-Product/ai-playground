@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { SimplePieChart, type SimplePieChartData } from '@repo/ui/components/ui/simple-pie-chart';
+import { SimplePieChart } from '@repo/ui/components/ui/simple-pie-chart';
 import { ChartInsight, type ChartInsight as ChartInsightType } from '@repo/ui/components/ui/chart-insight';
 import type { DashboardData, ChartDataPoint } from '@/types/dashboard';
 import dashboardData from '@/data/dashboard-data.json';
@@ -19,7 +19,7 @@ export default function Dashboard() {
     title: string,
     customPrompt?: string
   ): Promise<string> => {
-    const chartKey = title.replace(/\s+/g, '').toLowerCase();
+    const chartKey = title === "Employee Demographics Overview" ? "consolidatedinsight" : title.replace(/\s+/g, '').toLowerCase();
     
     setLoadingStates(prev => ({ ...prev, [chartKey]: true }));
     setErrors(prev => ({ ...prev, [chartKey]: '' }));
@@ -81,8 +81,12 @@ export default function Dashboard() {
     }
   }, []);
 
-  const generateInsightForChart = useCallback(async (chartKey: string, data: SimplePieChartData[], title: string): Promise<void> => {
-    await handleInsightGenerate(data, title);
+  const generateConsolidatedInsight = useCallback(async (): Promise<void> => {
+    await handleInsightGenerate(
+      [...typedDashboardData.ageDistribution.data, ...typedDashboardData.careerStage.data, ...typedDashboardData.lifeStage.data],
+      "Employee Demographics Overview",
+      `Analyze the demographic patterns across age distribution, career stage, and life stage data from our Employee Value Perception Study (n=4,939). Provide insights on key trends, potential correlations, and strategic implications for the organization.`
+    );
   }, [handleInsightGenerate]);
 
   return (
@@ -103,60 +107,46 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Age Distribution Chart */}
           <div className="lg:col-span-1">
-            <div className="space-y-4">
-              <SimplePieChart
-                data={typedDashboardData.ageDistribution.data}
-                title={typedDashboardData.ageDistribution.title}
-                showLegend={true}
-                showTooltip={true}
-                className="h-full"
-              />
-              <ChartInsight
-                insight={insights['agedistribution']}
-                onInsightGenerate={() => generateInsightForChart('agedistribution', typedDashboardData.ageDistribution.data, typedDashboardData.ageDistribution.title)}
-                isGenerating={loadingStates['agedistribution']}
-                error={errors['agedistribution']}
-              />
-            </div>
+            <SimplePieChart
+              data={typedDashboardData.ageDistribution.data}
+              title={typedDashboardData.ageDistribution.title}
+              showLegend={true}
+              showTooltip={true}
+              className="h-full"
+            />
           </div>
 
           {/* Career Stage Chart */}
           <div className="lg:col-span-1">
-            <div className="space-y-4">
-              <SimplePieChart
-                data={typedDashboardData.careerStage.data}
-                title={typedDashboardData.careerStage.title}
-                showLegend={true}
-                showTooltip={true}
-                className="h-full"
-              />
-              <ChartInsight
-                insight={insights['careerstagedistribution']}
-                onInsightGenerate={() => generateInsightForChart('careerstagedistribution', typedDashboardData.careerStage.data, typedDashboardData.careerStage.title)}
-                isGenerating={loadingStates['careerstagedistribution']}
-                error={errors['careerstagedistribution']}
-              />
-            </div>
+            <SimplePieChart
+              data={typedDashboardData.careerStage.data}
+              title={typedDashboardData.careerStage.title}
+              showLegend={true}
+              showTooltip={true}
+              className="h-full"
+            />
           </div>
 
           {/* Life Stage Chart */}
           <div className="lg:col-span-2 xl:col-span-1">
-            <div className="space-y-4">
-              <SimplePieChart
-                data={typedDashboardData.lifeStage.data}
-                title={typedDashboardData.lifeStage.title}
-                showLegend={true}
-                showTooltip={true}
-                className="h-full"
-              />
-              <ChartInsight
-                insight={insights['lifestagedistribution']}
-                onInsightGenerate={() => generateInsightForChart('lifestagedistribution', typedDashboardData.lifeStage.data, typedDashboardData.lifeStage.title)}
-                isGenerating={loadingStates['lifestagedistribution']}
-                error={errors['lifestagedistribution']}
-              />
-            </div>
+            <SimplePieChart
+              data={typedDashboardData.lifeStage.data}
+              title={typedDashboardData.lifeStage.title}
+              showLegend={true}
+              showTooltip={true}
+              className="h-full"
+            />
           </div>
+        </div>
+
+        {/* Consolidated AI Insight */}
+        <div className="mt-12">
+          <ChartInsight
+            insight={insights['consolidatedinsight']}
+            onInsightGenerate={generateConsolidatedInsight}
+            isGenerating={loadingStates['consolidatedinsight']}
+            error={errors['consolidatedinsight']}
+          />
         </div>
 
       </div>
