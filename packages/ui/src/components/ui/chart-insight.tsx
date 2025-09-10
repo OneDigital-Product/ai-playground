@@ -1,8 +1,10 @@
 "use client"
 
 import React, { useState } from "react"
-import { RefreshCw, Loader2 } from "lucide-react"
+import { RefreshCw, Loader2, Edit2 } from "lucide-react"
 import { Button } from "./button"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./sheet"
+import { Textarea } from "./textarea"
 
 export interface ChartInsight {
   id: string
@@ -14,6 +16,7 @@ export interface ChartInsight {
 export interface ChartInsightProps {
   insight?: ChartInsight
   onInsightGenerate?: () => Promise<void>
+  onInsightUpdate?: (insightId: string, newText: string) => void
   isGenerating?: boolean
   error?: string
   className?: string
@@ -22,11 +25,14 @@ export interface ChartInsightProps {
 export function ChartInsight({
   insight,
   onInsightGenerate,
+  onInsightUpdate,
   isGenerating = false,
   error,
   className = "",
 }: ChartInsightProps) {
   const [isRegenerating, setIsRegenerating] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedText, setEditedText] = useState(insight?.text || '')
 
   const handleGenerateInsight = async () => {
     if (!onInsightGenerate) return
@@ -38,6 +44,23 @@ export function ChartInsight({
       setIsRegenerating(false)
     }
   }
+
+  const handleSaveEdit = () => {
+    if (insight?.id && onInsightUpdate && editedText.trim()) {
+      onInsightUpdate(insight.id, editedText.trim())
+      setIsEditing(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditedText(insight?.text || '')
+    setIsEditing(false)
+  }
+
+  // Update editedText when insight changes
+  React.useEffect(() => {
+    setEditedText(insight?.text || '')
+  }, [insight?.text])
 
   return (
     <div className={`mt-4 ${className}`}>
@@ -64,19 +87,70 @@ export function ChartInsight({
               Generated {insight.generatedAt.toLocaleDateString()}
               {insight.isEdited && ' • Edited'}
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleGenerateInsight}
-              disabled={isGenerating || isRegenerating}
-            >
-              {isGenerating || isRegenerating ? (
-                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4 mr-1" />
+            <div className="flex gap-2">
+              {onInsightUpdate && (
+                <Sheet open={isEditing} onOpenChange={setIsEditing}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Edit2 className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>Edit Insight</SheetTitle>
+                      <SheetDescription>
+                        Modify the insight text manually.
+                      </SheetDescription>
+                    </SheetHeader>
+                    
+                    <div className="space-y-4 mt-6">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Insight Text
+                        </label>
+                        <Textarea
+                          value={editedText}
+                          onChange={(e) => setEditedText(e.target.value)}
+                          className="min-h-[120px]"
+                          placeholder="Enter your insight text..."
+                        />
+                      </div>
+                      
+                      <div className="flex gap-2 pt-4">
+                        <Button 
+                          onClick={handleSaveEdit}
+                          disabled={!editedText.trim()}
+                          className="flex-1"
+                        >
+                          Save Changes
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          onClick={handleCancelEdit}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               )}
-              Refresh
-            </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleGenerateInsight}
+                disabled={isGenerating || isRegenerating}
+              >
+                {isGenerating || isRegenerating ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                )}
+                Refresh
+              </Button>
+            </div>
           </div>
         </div>
       )}

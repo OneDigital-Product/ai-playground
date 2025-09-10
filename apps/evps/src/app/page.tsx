@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { SimplePieChart } from '@repo/ui/components/ui/simple-pie-chart';
 import { ChartInsight, type ChartInsight as ChartInsightType } from '@repo/ui/components/ui/chart-insight';
 import type { DashboardData, ChartDataPoint } from '@/types/dashboard';
@@ -9,10 +9,41 @@ import dashboardData from '@/data/dashboard-data.json';
 // Convert JSON data to typed data
 const typedDashboardData = dashboardData as DashboardData;
 
+// Storage key for insights
+const INSIGHTS_STORAGE_KEY = 'evps-insights';
+
 export default function Dashboard() {
   const [insights, setInsights] = useState<Record<string, ChartInsightType>>({});
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Load insights from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(INSIGHTS_STORAGE_KEY);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          // Convert date strings back to Date objects
+          Object.keys(parsed).forEach(key => {
+            if (parsed[key].generatedAt) {
+              parsed[key].generatedAt = new Date(parsed[key].generatedAt);
+            }
+          });
+          setInsights(parsed);
+        } catch (error) {
+          console.error('Failed to parse stored insights:', error);
+        }
+      }
+    }
+  }, []);
+
+  // Save insights to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Object.keys(insights).length > 0) {
+      localStorage.setItem(INSIGHTS_STORAGE_KEY, JSON.stringify(insights));
+    }
+  }, [insights]);
 
   const handleInsightGenerate = useCallback(async (
     data: ChartDataPoint[],
@@ -81,12 +112,27 @@ export default function Dashboard() {
     }
   }, []);
 
+  const handleInsightUpdate = useCallback((insightId: string, newText: string) => {
+    setInsights(prev => ({
+      ...prev,
+      [insightId]: {
+        ...prev[insightId],
+        text: newText,
+        isEdited: true,
+      }
+    }));
+  }, []);
+
   const generateConsolidatedInsight = useCallback(async (): Promise<void> => {
-    await handleInsightGenerate(
-      [...typedDashboardData.ageDistribution.data, ...typedDashboardData.careerStage.data, ...typedDashboardData.lifeStage.data],
-      "Employee Demographics Overview",
-      `Analyze the demographic patterns across age distribution, career stage, and life stage data from our Employee Value Perception Study (n=4,939). Provide insights on key trends, potential correlations, and strategic implications for the organization.`
-    );
+    try {
+      await handleInsightGenerate(
+        [...typedDashboardData.ageDistribution.data, ...typedDashboardData.careerStage.data, ...typedDashboardData.lifeStage.data],
+        "Employee Demographics Overview",
+        `Analyze the demographic patterns across age distribution, career stage, and life stage data from our Employee Value Perception Study (n=4,939). Provide insights on key trends, potential correlations, and strategic implications for the organization.`
+      );
+    } catch (error) {
+      console.error('Failed to generate consolidated insight:', error);
+    }
   }, [handleInsightGenerate]);
 
   return (
@@ -144,6 +190,7 @@ export default function Dashboard() {
           <ChartInsight
             insight={insights['consolidatedinsight']}
             onInsightGenerate={generateConsolidatedInsight}
+            onInsightUpdate={handleInsightUpdate}
             isGenerating={loadingStates['consolidatedinsight']}
             error={errors['consolidatedinsight']}
           />
