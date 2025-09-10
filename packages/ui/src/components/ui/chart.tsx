@@ -43,10 +43,10 @@ const ChartTooltipContent = React.forwardRef<
     label?: string
     hideLabel?: boolean
   }
->(({ active, payload, label, hideLabel = false, className, ...props }, ref) => {
+>(({ active, payload, label, hideLabel = false, className }, ref) => {
   if (active && payload && payload.length) {
     return (
-      <ChartTooltip ref={ref} className={className} {...props}>
+      <ChartTooltip ref={ref} className={className}>
         {!hideLabel && label && (
           <div className="text-sm font-medium">{label}</div>
         )}
@@ -76,7 +76,7 @@ interface ChartLegendProps {
 }
 
 const ChartLegend = React.forwardRef<HTMLDivElement, ChartLegendProps>(
-  ({ payload, className, ...props }, ref) => {
+  ({ payload, className }, ref) => {
     if (!payload?.length) {
       return null
     }
@@ -85,7 +85,6 @@ const ChartLegend = React.forwardRef<HTMLDivElement, ChartLegendProps>(
       <div
         ref={ref}
         className={cn("flex flex-wrap justify-center gap-4", className)}
-        {...props}
       >
         {payload.map((item, index) => (
           <div key={index} className="flex items-center gap-2">

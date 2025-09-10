@@ -15,7 +15,8 @@ export interface ChartInsight {
 
 export interface ChartInsightProps {
   insight?: ChartInsight
-  onInsightGenerate?: () => Promise<void>
+  // Optionally accept a custom prompt to guide regeneration
+  onInsightGenerate?: (customPrompt?: string) => Promise<void>
   onInsightUpdate?: (insightId: string, newText: string) => void
   isGenerating?: boolean
   error?: string
@@ -33,6 +34,7 @@ export function ChartInsight({
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedText, setEditedText] = useState(insight?.text || '')
+  const [promptText, setPromptText] = useState('')
 
   const handleGenerateInsight = async () => {
     if (!onInsightGenerate) return
@@ -55,6 +57,18 @@ export function ChartInsight({
   const handleCancelEdit = () => {
     setEditedText(insight?.text || '')
     setIsEditing(false)
+  }
+
+  const handleApplyPrompt = async () => {
+    if (!onInsightGenerate) return
+    setIsRegenerating(true)
+    try {
+      await onInsightGenerate(promptText.trim() || undefined)
+      setIsEditing(false)
+      setPromptText('')
+    } finally {
+      setIsRegenerating(false)
+    }
   }
 
   // Update editedText when insight changes
@@ -100,7 +114,8 @@ export function ChartInsight({
                     <SheetHeader>
                       <SheetTitle>Edit Insight</SheetTitle>
                       <SheetDescription>
-                        Modify the insight text manually.
+                        Modify the insight manually or provide a prompt to
+                        have AI update it based on your instructions.
                       </SheetDescription>
                     </SheetHeader>
                     
@@ -115,6 +130,32 @@ export function ChartInsight({
                           className="min-h-[120px]"
                           placeholder="Enter your insight text..."
                         />
+                      </div>
+                      
+                      <div className="pt-2">
+                        <label className="text-sm font-medium mb-2 block">
+                          AI Prompt (optional)
+                        </label>
+                        <Textarea
+                          value={promptText}
+                          onChange={(e) => setPromptText(e.target.value)}
+                          className="min-h-[100px]"
+                          placeholder="E.g., Emphasize cross-chart correlations and keep to two sentences."
+                        />
+                        <div className="flex gap-2 pt-3">
+                          <Button 
+                            variant="outline"
+                            onClick={handleApplyPrompt}
+                            disabled={isGenerating || isRegenerating || !promptText.trim()}
+                          >
+                            {isGenerating || isRegenerating ? (
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-4 w-4 mr-1" />
+                            )}
+                            Update with AI
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="flex gap-2 pt-4">

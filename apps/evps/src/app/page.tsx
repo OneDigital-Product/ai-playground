@@ -13,9 +13,40 @@ const typedDashboardData = dashboardData as DashboardData;
 const INSIGHTS_STORAGE_KEY = 'evps-insights';
 
 export default function Dashboard() {
-  const [insights, setInsights] = useState<Record<string, ChartInsightType>>({});
+  // Extend stored insight with a dataHash to invalidate cache on data changes
+  type StoredInsight = ChartInsightType & { dataHash?: string };
+  const [insights, setInsights] = useState<Record<string, StoredInsight>>({});
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Compute a stable hash for the consolidated dataset to support cache invalidation
+  const computeConsolidatedDataHash = (): string => {
+    const payload = {
+      age: {
+        title: typedDashboardData.ageDistribution.title,
+        lastUpdated: typedDashboardData.ageDistribution.lastUpdated,
+        data: typedDashboardData.ageDistribution.data.map(d => ({ name: d.name, value: d.value, color: d.color })),
+      },
+      career: {
+        title: typedDashboardData.careerStage.title,
+        lastUpdated: typedDashboardData.careerStage.lastUpdated,
+        data: typedDashboardData.careerStage.data.map(d => ({ name: d.name, value: d.value, color: d.color })),
+      },
+      life: {
+        title: typedDashboardData.lifeStage.title,
+        lastUpdated: typedDashboardData.lifeStage.lastUpdated,
+        data: typedDashboardData.lifeStage.data.map(d => ({ name: d.name, value: d.value, color: d.color })),
+      },
+    };
+    const str = JSON.stringify(payload);
+    // Lightweight deterministic 32-bit hash (FNV-1a)
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = (h >>> 0) * 0x01000193;
+    }
+    return `v1_${(h >>> 0).toString(16)}`;
+  };
 
   // Load insights from localStorage on mount
   useEffect(() => {
@@ -48,7 +79,8 @@ export default function Dashboard() {
   const handleInsightGenerate = useCallback(async (
     data: ChartDataPoint[],
     title: string,
-    customPrompt?: string
+    customPrompt?: string,
+    dataHash?: string,
   ): Promise<string> => {
     const chartKey = title === "Employee Demographics Overview" ? "consolidatedinsight" : title.replace(/\s+/g, '').toLowerCase();
     
@@ -70,38 +102,33 @@ export default function Dashboard() {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to generate insight: ${response.status}`);
+        let serverMessage = '';
+        try {
+          const errJson = await response.json();
+          const base = errJson?.error ? String(errJson.error) : '';
+          const code = errJson?.code ? ` (${String(errJson.code)})` : '';
+          const msg = errJson?.message ? `: ${String(errJson.message)}` : '';
+          serverMessage = base || code || msg ? ` - ${base}${code}${msg}` : '';
+        } catch {}
+        throw new Error(`Failed to generate insight: ${response.status}${serverMessage}`);
+      }
+      const { text } = await response.json();
+      if (!text || typeof text !== 'string' || !text.trim()) {
+        throw new Error('No insight received from AI');
       }
 
-      // Handle streaming response
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No response body available');
-      }
+      setInsights(prev => ({
+        ...prev,
+        [chartKey]: {
+          id: chartKey,
+          text,
+          generatedAt: new Date(),
+          isEdited: false,
+          dataHash,
+        }
+      }));
 
-      let fullText = '';
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        fullText += chunk;
-        
-        // Update insight in real-time as it streams
-        setInsights(prev => ({
-          ...prev,
-          [chartKey]: {
-            id: `${chartKey}-${Date.now()}`,
-            text: fullText,
-            generatedAt: new Date(),
-            isEdited: false,
-          }
-        }));
-      }
-
-      return fullText;
+      return text;
     } catch (error) {
       console.error('Error generating insight:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate insight';
@@ -114,15 +141,16 @@ export default function Dashboard() {
 
   const handleInsightUpdate = useCallback((insightId: string, newText: string) => {
     setInsights(prev => {
-      const existingInsight = prev[insightId];
+      // We store by chart key (e.g., 'consolidatedinsight'), and we set id equal to the key
+      const key = insightId;
+      const existingInsight = prev[key];
       if (!existingInsight) {
-        console.warn('Attempting to update non-existent insight:', insightId);
+        console.warn('Attempting to update non-existent insight:', key);
         return prev;
       }
-      
       return {
         ...prev,
-        [insightId]: {
+        [key]: {
           ...existingInsight,
           text: newText,
           isEdited: true,
@@ -131,17 +159,39 @@ export default function Dashboard() {
     });
   }, []);
 
-  const generateConsolidatedInsight = useCallback(async (): Promise<void> => {
+  const generateConsolidatedInsight = useCallback(async (customPrompt?: string): Promise<void> => {
     try {
+      const combined = [
+        ...typedDashboardData.ageDistribution.data,
+        ...typedDashboardData.careerStage.data,
+        ...typedDashboardData.lifeStage.data,
+      ];
+      const dataHash = computeConsolidatedDataHash();
       await handleInsightGenerate(
-        [...typedDashboardData.ageDistribution.data, ...typedDashboardData.careerStage.data, ...typedDashboardData.lifeStage.data],
+        combined,
         "Employee Demographics Overview",
-        `Analyze the demographic patterns across age distribution, career stage, and life stage data from our Employee Value Perception Study (n=4,939). Provide insights on key trends, potential correlations, and strategic implications for the organization.`
+        customPrompt ?? `Summarize the aggregate distributions (age, career stage, life stage) from an anonymized employee survey (n=4,939).
+Use neutral, business-focused language; avoid sensitive or personal inferences.
+Provide 2 short sentences: (1) describe notable distribution patterns; (2) suggest one general, non-sensitive action grounded only in the provided counts.`,
+        dataHash,
       );
     } catch (error) {
       console.error('Failed to generate consolidated insight:', error);
     }
   }, [handleInsightGenerate]);
+
+  // Auto-generate consolidated insight if missing or data changed
+  useEffect(() => {
+    const key = 'consolidatedinsight';
+    const currentHash = computeConsolidatedDataHash();
+    const existing = insights[key];
+    const needsGeneration = !existing || existing.dataHash !== currentHash;
+    if (needsGeneration && !loadingStates[key]) {
+      // Fire and forget; errors are handled inside and displayed via error state
+      generateConsolidatedInsight();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typedDashboardData.ageDistribution.lastUpdated, typedDashboardData.careerStage.lastUpdated, typedDashboardData.lifeStage.lastUpdated]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
