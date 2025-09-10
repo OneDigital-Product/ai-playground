@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import ReactMarkdown from "react-markdown"
+import type { Components as MarkdownComponents } from "react-markdown"
 import remarkGfm from "remark-gfm"
 import remarkBreaks from "remark-breaks"
 import { RefreshCw, Loader2, Edit2, Heading, Type, Bold, Italic, List, ListOrdered } from "lucide-react"
@@ -32,7 +33,20 @@ export interface ChartInsightProps {
   // Optionally accept a custom prompt to guide regeneration
   onInsightGenerate?: (customPrompt?: string) => Promise<void>
   // Adjust existing text in-place using presets; returns new text
-  onInsightAdjust?: (existingText: string, preset: 'shorter' | 'longer' | 'bullets' | 'neutral' | 'consultative' | 'positive' | 'action' | 'conservative' | 'persuasive') => Promise<string>
+  onInsightAdjust?: (
+    existingText: string,
+    preset:
+      | 'shorter'
+      | 'longer'
+      | 'bullets'
+      | 'recommendation'
+      | 'neutral'
+      | 'consultative'
+      | 'positive'
+      | 'action'
+      | 'conservative'
+      | 'persuasive'
+  ) => Promise<string>
   onInsightUpdate?: (insightId: string, newText: string) => void
   onDiscardChanges?: () => void
   isGenerating?: boolean
@@ -176,7 +190,9 @@ export function ChartInsight({
         const hint = preset === 'shorter'
           ? 'Make the summary concise and brief; 1-2 sentences; short; concise.'
           : 'Make the summary more detailed; add one extra sentence with context; longer; detailed.'
-        await onInsightGenerate(hint)
+        if (onInsightGenerate) {
+          await onInsightGenerate(hint)
+        }
         setIsEditing(false)
       }
     } finally {
@@ -208,40 +224,48 @@ export function ChartInsight({
       {insight && (
         <div className="space-y-4">
           <div className="text-base md:text-lg text-gray-700 leading-relaxed">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkBreaks]}
-              components={{
-                h2: ({ node, children }) => (
+            {(() => {
+              const components: MarkdownComponents = {
+                h2: ({ children }) => (
                   <h2 className="text-xl md:text-2xl font-semibold mb-3">{children}</h2>
                 ),
-                p: ({ node, children }) => (
+                p: ({ children }) => (
                   <p className="mb-3 last:mb-0">{children}</p>
                 ),
-                ul: ({ node, children }) => (
+                ul: ({ children }) => (
                   <ul className="list-disc pl-5 space-y-1.5">{children}</ul>
                 ),
-                ol: ({ node, children }) => (
+                ol: ({ children }) => (
                   <ol className="list-decimal pl-5 space-y-1.5">{children}</ol>
                 ),
-                li: ({ node, children }) => <li>{children}</li>,
-                strong: ({ node, children }) => (
+                li: ({ children }) => <li>{children}</li>,
+                strong: ({ children }) => (
                   <strong className="font-semibold">{children}</strong>
                 ),
-                em: ({ node, children }) => <em className="italic">{children}</em>,
+                em: ({ children }) => <em className="italic">{children}</em>,
                 a: ({ href, children }) => (
                   <a href={href} className="underline text-blue-600 hover:text-blue-700" target="_blank" rel="noreferrer">
                     {children}
                   </a>
                 ),
-                code: ({ node, inline, children }) => (
-                  <code className={inline ? "px-1 py-0.5 rounded bg-gray-100" : "block p-2 rounded bg-gray-100"}>
-                    {children}
-                  </code>
-                ),
-              }}
-            >
-              {insight.text}
-            </ReactMarkdown>
+                code: (props) => {
+                  const { inline, children } = props as { inline?: boolean; children: React.ReactNode }
+                  return (
+                    <code className={inline ? "px-1 py-0.5 rounded bg-gray-100" : "block p-2 rounded bg-gray-100"}>
+                      {children}
+                    </code>
+                  )
+                },
+              }
+              return (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkBreaks]}
+                  components={components}
+                >
+                  {insight.text}
+                </ReactMarkdown>
+              )
+            })()}
           </div>
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
