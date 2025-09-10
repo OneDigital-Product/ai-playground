@@ -41,6 +41,5 @@ jobs:
         run: pnpm smoke:csv
 
       - name: Skip notice (missing NEXT_PUBLIC_CONVEX_URL)
-        if: ${{ !secrets.NEXT_PUBLIC_CONVEX_URL }}
-        run: echo "Skipping smokes: NEXT_PUBLIC_CONVEX_URL not set"
-
+        if: ${{ secrets.NEXT_PUBLIC_CONVEX_URL == '' }}
+        run: echo Skipping smokes - NEXT_PUBLIC_CONVEX_URL not set
