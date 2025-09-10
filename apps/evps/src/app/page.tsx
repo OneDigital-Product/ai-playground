@@ -25,7 +25,7 @@ export default function Dashboard() {
     setErrors(prev => ({ ...prev, [chartKey]: '' }));
     
     try {
-      const response = await fetch('/api/insights/generate', {
+      const response = await fetch('/evps/api/insights/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
