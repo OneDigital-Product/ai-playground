@@ -1,9 +1,12 @@
 name: Intakes and CSV Smokes
 
 on:
+  # Allow manual runs when permitted
   workflow_dispatch: {}
+  # Run on any branch push so feature branches trigger CI
   push:
-    branches: [ main ]
+    branches: [ "**" ]
+  # Also run on PRs targeting main
   pull_request:
     branches: [ main ]
 
