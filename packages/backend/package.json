@@ -14,8 +14,7 @@
     "test": "npx tsx convex/utils/complexity.test.ts"
   },
   "dependencies": {
-    "convex": "^1.16.0",
-    "neverthrow": "^8.1.0"
+    "convex": "^1.16.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
