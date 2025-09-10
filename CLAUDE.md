@@ -13,6 +13,7 @@ This is a Turborepo monorepo with pnpm workspaces. TypeScript (strict) across al
 - `apps/host/` - Next.js 15 gateway/proxy app (main domain owner)
 - `apps/retirement/` - Next.js 15 app (served under `/retirement`)
 - `apps/enrollment-dashboard/` - Next.js 15 app (served under `/enrollment-dashboard`)
+- `apps/evps/` - Next.js 15 app (served under `/evps`)
 - `apps/to-dos/` - Next.js 15 to-do app
 
 **Shared Packages:**
@@ -95,6 +96,7 @@ REPORTING_ORIGIN=https://aks.example.com
 - Admin: served from `/admin` base path
 - Retirement: served from `/retirement` base path
 - Enrollment Dashboard: served from `/enrollment-dashboard` base path
+- EVPS: served from `/evps` base path
 
 ## Code Quality Standards
 
