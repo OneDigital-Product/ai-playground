@@ -50,12 +50,12 @@ export function SimplePieChart({
   outerRadius = 120,
 }: SimplePieChartProps) {
   return (
-    <Card className={className}>
-      <CardHeader>
+    <Card density="compact" className={className}>
+      <CardHeader density="compact">
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer className="mx-auto aspect-square max-h-[300px]">
+      <CardContent density="compact">
+        <ChartContainer className="mx-auto aspect-square max-h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
               <Pie

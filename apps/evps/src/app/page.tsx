@@ -104,7 +104,7 @@ export default function Dashboard() {
         </div>
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {/* Age Distribution Chart */}
           <div className="lg:col-span-1">
             <SimplePieChart
@@ -112,7 +112,7 @@ export default function Dashboard() {
               title={typedDashboardData.ageDistribution.title}
               showLegend={true}
               showTooltip={true}
-              className="h-full"
+              className=""
             />
           </div>
 
@@ -123,7 +123,7 @@ export default function Dashboard() {
               title={typedDashboardData.careerStage.title}
               showLegend={true}
               showTooltip={true}
-              className="h-full"
+              className=""
             />
           </div>
 
@@ -134,13 +134,13 @@ export default function Dashboard() {
               title={typedDashboardData.lifeStage.title}
               showLegend={true}
               showTooltip={true}
-              className="h-full"
+              className=""
             />
           </div>
         </div>
 
         {/* Consolidated AI Insight */}
-        <div className="mt-12">
+        <div className="mt-8">
           <ChartInsight
             insight={insights['consolidatedinsight']}
             onInsightGenerate={generateConsolidatedInsight}
