@@ -113,7 +113,11 @@ function shouldTriggerForLockfileChanges(root, appPkg) {
     const appRelativeDir = path.relative(root, path.dirname(path.join(root, appPkg.name === 'web' ? 'apps/web' : 
       appPkg.name === 'docs' ? 'apps/docs' : 
       appPkg.name === 'admin' ? 'apps/admin' : 
-      appPkg.name === '@product/host' ? 'apps/host' : 'unknown')));
+      appPkg.name === '@product/host' ? 'apps/host' : 
+      appPkg.name === 'evps' ? 'apps/evps' :
+      appPkg.name === 'enrollment-dashboard' ? 'apps/enrollment-dashboard' :
+      appPkg.name === 'retirement' ? 'apps/retirement' :
+      appPkg.name === 'to-dos' ? 'apps/to-dos' : 'unknown')));
     
     // Look for changes in this specific app's lockfile section
     if (diffContent.includes(`${appRelativeDir}:`)) {
