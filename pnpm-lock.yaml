@@ -216,9 +216,6 @@ importers:
       convex:
         specifier: ^1.16.0
         version: 1.26.2(react@19.1.0)
-      neverthrow:
-        specifier: ^8.1.0
-        version: 8.2.0
       next:
         specifier: 15.5.2
         version: 15.5.2(react-dom@19.1.0)(react@19.1.0)
@@ -485,6 +482,9 @@ importers:
       convex:
         specifier: ^1.16.0
         version: 1.26.2(react@19.1.0)
+      neverthrow:
+        specifier: ^8.1.0
+        version: 8.2.0
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
