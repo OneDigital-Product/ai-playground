@@ -19,6 +19,7 @@ export interface SimplePieChartProps {
   showTooltip?: boolean
   innerRadius?: number
   outerRadius?: number
+  legendHeight?: number
 }
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -47,15 +48,26 @@ export function SimplePieChart({
   showLegend = true,
   showTooltip = true,
   innerRadius = 0,
-  outerRadius = 120,
+  // Slightly larger radius with added container height for boardroom readability
+  outerRadius = 140,
+  // Reserve more space for multi-row legends
+  legendHeight = 120,
 }: SimplePieChartProps) {
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
+    <Card density="dense" className={className}>
+      <CardHeader density="compact" className="pb-2">
+        <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer className="mx-auto aspect-square max-h-[300px]">
+      <CardContent density="compact">
+        {/*
+          Tailwind v4 spacing guidance: prefer compact density at the
+          component level and ensure the inner chart container has
+          enough height to accommodate the legend rendered by Recharts.
+          Increasing max height here prevents legend overlap without
+          forcing page-level spacing changes.
+        */}
+        {/* Per Tailwind v4 guide: set explicit height at component layer; no fixed aspect ratio */}
+        <ChartContainer className="mx-auto h-[500px] md:h-[600px]">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
               <Pie
@@ -77,7 +89,7 @@ export function SimplePieChart({
                 <Legend
                   content={<ChartLegend />}
                   verticalAlign="bottom"
-                  height={36}
+                  height={legendHeight}
                 />
               )}
             </RechartsPieChart>

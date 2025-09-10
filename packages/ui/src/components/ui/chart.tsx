@@ -12,7 +12,8 @@ const ChartContainer = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex aspect-video justify-center text-xs [&_.recharts-pie-label-text]:fill-foreground [&_.recharts-pie-label-line]:stroke-foreground [&_.recharts-tooltip-content]:rounded-md [&_.recharts-tooltip-content]:border [&_.recharts-tooltip-content]:bg-background [&_.recharts-tooltip-content]:p-2 [&_.recharts-tooltip-content]:shadow-md",
+      // Do not force aspect ratio; let consumers set explicit height per Tailwind v4 guide
+      "flex justify-center text-sm md:text-base [&_.recharts-pie-label-text]:fill-foreground [&_.recharts-pie-label-line]:stroke-foreground [&_.recharts-tooltip-content]:rounded-md [&_.recharts-tooltip-content]:border [&_.recharts-tooltip-content]:bg-background [&_.recharts-tooltip-content]:p-2 [&_.recharts-tooltip-content]:shadow-md",
       className
     )}
     {...props}
@@ -43,12 +44,12 @@ const ChartTooltipContent = React.forwardRef<
     label?: string
     hideLabel?: boolean
   }
->(({ active, payload, label, hideLabel = false, className, ...props }, ref) => {
+>(({ active, payload, label, hideLabel = false, className }, ref) => {
   if (active && payload && payload.length) {
     return (
-      <ChartTooltip ref={ref} className={className} {...props}>
+      <ChartTooltip ref={ref} className={className}>
         {!hideLabel && label && (
-          <div className="text-sm font-medium">{label}</div>
+          <div className="text-base md:text-lg font-medium">{label}</div>
         )}
         <div className="space-y-1">
           {payload.map((item, index) => (
@@ -57,8 +58,8 @@ const ChartTooltipContent = React.forwardRef<
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-sm">{item.name}</span>
-              <span className="text-sm font-medium">{item.value}</span>
+              <span className="text-base md:text-lg">{item.name}</span>
+              <span className="text-base md:text-lg font-medium">{item.value}</span>
             </div>
           ))}
         </div>
@@ -76,7 +77,7 @@ interface ChartLegendProps {
 }
 
 const ChartLegend = React.forwardRef<HTMLDivElement, ChartLegendProps>(
-  ({ payload, className, ...props }, ref) => {
+  ({ payload, className }, ref) => {
     if (!payload?.length) {
       return null
     }
@@ -84,8 +85,7 @@ const ChartLegend = React.forwardRef<HTMLDivElement, ChartLegendProps>(
     return (
       <div
         ref={ref}
-        className={cn("flex flex-wrap justify-center gap-4", className)}
-        {...props}
+        className={cn("mt-1 flex flex-wrap justify-center gap-4 text-base md:text-lg", className)}
       >
         {payload.map((item, index) => (
           <div key={index} className="flex items-center gap-2">
@@ -93,7 +93,7 @@ const ChartLegend = React.forwardRef<HTMLDivElement, ChartLegendProps>(
               className="h-3 w-3 rounded-full"
               style={{ backgroundColor: item.color }}
             />
-            <span className="text-sm text-muted-foreground">{item.value}</span>
+            <span className="text-base md:text-lg text-muted-foreground">{item.value}</span>
           </div>
         ))}
       </div>

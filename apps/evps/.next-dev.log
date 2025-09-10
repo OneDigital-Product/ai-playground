@@ -1,0 +1,31 @@
+
+> evps@0.1.0 dev /Users/andrewharvey/dev/ai-playground/apps/evps
+> next dev --turbopack
+
+   ▲ Next.js 15.5.2 (Turbopack)
+   - Local:        http://localhost:3005
+   - Network:      http://10.10.10.53:3005
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 772ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1762ms
+ GET / 200 in 2003ms
+ ✓ Compiled /api/insights/generate in 383ms
+[Error [AI_LoadSettingError]: Azure OpenAI resource name setting is missing. Pass it using the 'resourceName' parameter or the AZURE_RESOURCE_NAME environment variable.] {
+  cause: undefined
+}
+ POST /api/insights/generate 200 in 742ms
+ ✓ Compiled /_not-found/page in 124ms
+ GET /_next/internal/helpers.ts 404 in 194ms
+ ✓ Compiled in 73ms
+ ⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+   ▲ Next.js 15.5.2 (Turbopack)
+   - Local:        http://localhost:3005
+   - Network:      http://10.10.10.53:3005
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 715ms
+[?25h
