@@ -6,15 +6,15 @@ const nextConfig: NextConfig = {
   basePath: "/evps",
   transpilePackages: ["@repo/ui", "@repo/backend"],
   async redirects() {
-    return isPreview
-      ? [
-          {
-            source: "/",
-            destination: "/evps",
-            permanent: false,
-          },
-        ]
-      : [];
+    return [
+      {
+        source: "/",
+        destination: "/evps",
+        permanent: false,
+        // Ensure this redirect applies at the domain root, not under basePath
+        basePath: false,
+      },
+    ];
   },
 };
 

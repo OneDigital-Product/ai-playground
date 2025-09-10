@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ChartWithInsight, type ChartInsight } from '@repo/ui/components/ui/chart-with-insight';
-import type { DashboardData, ChartDataPoint, InsightData } from '@/types/dashboard';
+import type { DashboardData, ChartDataPoint } from '@/types/dashboard';
 import dashboardData from '@/data/dashboard-data.json';
 
 // Convert JSON data to typed data

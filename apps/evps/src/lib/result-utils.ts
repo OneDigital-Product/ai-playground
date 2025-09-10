@@ -3,9 +3,7 @@ import {
   ResultAsync, 
   ok, 
   err, 
-  fromPromise, 
-  combine, 
-  combineWithAllErrors 
+  fromPromise
 } from 'neverthrow';
 import { 
   EVPSError, 
@@ -80,8 +78,7 @@ export const safePromise = <T>(
 
 // Convex-specific promise wrapper
 export const safeConvexCall = <T>(
-  promise: Promise<T>,
-  operation = 'Convex operation'
+  promise: Promise<T>
 ): EVPSResultAsync<T> => {
   return fromPromise(promise, (error) => fromConvexError(error));
 };
@@ -90,18 +87,20 @@ export const safeConvexCall = <T>(
 export const combineValidations = <T extends readonly unknown[]>(
   results: { [K in keyof T]: EVPSResult<T[K]> }
 ): EVPSResult<T> => {
-  return combine(results);
+  return Result.combine(results) as EVPSResult<T>;
 };
 
 export const combineValidationsWithAllErrors = <T extends readonly unknown[]>(
   results: { [K in keyof T]: EVPSResult<T[K]> }
 ): EVPSResult<T> => {
-  return combineWithAllErrors(results).mapErr(errors => {
+  return Result.combineWithAllErrors(results).mapErr(errors => {
     // Merge all validation errors into a single ValidationError
-    const allMessages = errors.map(e => e.message).join('; ');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const allMessages = errors.map((e: any) => e.message).join('; ');
     const allDetails: Record<string, string[]> = {};
     
-    errors.forEach(error => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    errors.forEach((error: any) => {
       if (error instanceof ValidationError && error.details) {
         Object.entries(error.details).forEach(([key, values]) => {
           if (!allDetails[key]) {
@@ -113,7 +112,7 @@ export const combineValidationsWithAllErrors = <T extends readonly unknown[]>(
     });
     
     return createValidationError(allMessages, allDetails);
-  });
+  }) as EVPSResult<T>;
 };
 
 // Form validation chain builder
@@ -149,7 +148,7 @@ export class AsyncValidationChain<T> {
     return new AsyncValidationChain(ResultAsync.fromSafePromise(Promise.resolve(value)));
   }
 
-  static fromResult<T>(result: EVPSResult<T>): AsyncValidationChain<T> {
+  static fromResult<T>(result: EVPSResult<T>): AsyncValidationChain<EVPSResult<T>> {
     return new AsyncValidationChain(ResultAsync.fromSafePromise(Promise.resolve(result)));
   }
 
@@ -174,7 +173,7 @@ export class AsyncValidationChain<T> {
 export const sequenceResults = <T>(
   results: EVPSResult<T>[]
 ): EVPSResult<T[]> => {
-  return combine(results);
+  return Result.combine(results) as EVPSResult<T[]>;
 };
 
 export const sequenceResultsAsync = <T>(

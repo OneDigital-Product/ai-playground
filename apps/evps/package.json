@@ -22,11 +22,12 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@repo/tailwind-config": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@repo/tailwind-config": "workspace:*",
+    "@typescript-eslint/parser": "^8.43.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "eslint-plugin-neverthrow": "^1.1.4",
