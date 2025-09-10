@@ -165,7 +165,7 @@ export function ChartWithInsight({
               ) : (
                 <RefreshCw className="h-4 w-4 mr-1" />
               )}
-              {insight ? 'Refresh' : 'Generate'}
+              {insight ? 'Re-generate' : 'Generate'}
             </Button>
           </div>
         </CardTitle>
