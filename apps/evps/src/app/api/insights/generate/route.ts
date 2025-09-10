@@ -16,13 +16,9 @@ const InsightRequestSchema = z.object({
 });
 
 // Configure Azure OpenAI
-const azureModel = azure('gpt-5-mini', {
-  apiKey: process.env.AZURE_OPENAI_API_KEY!,
-  baseURL: process.env.AZURE_OPENAI_ENDPOINT!,
-  apiVersion: '2024-02-01',
-});
+const azureModel = azure('gpt-4o-mini');
 
-function generateInsightPrompt(data: any[], title: string, customPrompt?: string): string {
+function generateInsightPrompt(data: { name: string; value: number }[], title: string, customPrompt?: string): string {
   if (customPrompt) {
     return `${customPrompt}
 
@@ -66,16 +62,16 @@ export async function POST(request: NextRequest) {
       model: azureModel,
       prompt,
       temperature: 0.7,
-      maxTokens: 200,
+      maxOutputTokens: 200,
     });
 
-    return result.toAIStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Error generating insight:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

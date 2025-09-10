@@ -2,7 +2,7 @@ import { ConvexReactClient } from 'convex/react';
 import { FunctionReference, OptionalRestArgs } from 'convex/server';
 import { ResultAsync } from 'neverthrow';
 import { safeConvexCall, EVPSResultAsync } from './result-utils';
-import { fromConvexError, createConvexError } from './errors';
+// Removed unused imports - fromConvexError, createConvexError
 
 // Type-safe Convex client wrapper that returns Results instead of throwing
 export class SafeConvexClient {
@@ -13,7 +13,7 @@ export class SafeConvexClient {
     query: Query,
     ...args: OptionalRestArgs<Query>
   ): EVPSResultAsync<Awaited<ReturnType<Query['_returnType']>>> {
-    return safeConvexCall(this.client.query(query, ...args) as Promise<any>);
+    return safeConvexCall(this.client.query(query, ...args) as Promise<Awaited<ReturnType<Query['_returnType']>>>);
   }
 
   // Safe mutation wrapper  
@@ -21,7 +21,7 @@ export class SafeConvexClient {
     mutation: Mutation,
     ...args: OptionalRestArgs<Mutation>
   ): EVPSResultAsync<Awaited<ReturnType<Mutation['_returnType']>>> {
-    return safeConvexCall(this.client.mutation(mutation, ...args) as Promise<any>);
+    return safeConvexCall(this.client.mutation(mutation, ...args) as Promise<Awaited<ReturnType<Mutation['_returnType']>>>);
   }
 
   // Safe action wrapper
@@ -29,7 +29,7 @@ export class SafeConvexClient {
     action: Action,
     ...args: OptionalRestArgs<Action>
   ): EVPSResultAsync<Awaited<ReturnType<Action['_returnType']>>> {
-    return safeConvexCall(this.client.action(action, ...args) as Promise<any>);
+    return safeConvexCall(this.client.action(action, ...args) as Promise<Awaited<ReturnType<Action['_returnType']>>>);
   }
 }
 
@@ -134,14 +134,18 @@ export const uploadFile = (
   return safeConvexCall(
     (async () => {
       const arrayBuffer = await file.arrayBuffer();
-      return client.action(uploadAction, {
+      const result = await client.action(uploadAction, {
         file: arrayBuffer,
         fileName: file.name,
         contentType: file.type,
         metadata
-      }) as Promise<{ storageId: string; url: string }>;
+      });
+      if (result.isOk()) {
+        return result.value as { storageId: string; url: string };
+      }
+      throw result.error;
     })()
-  ).mapErr(fromConvexError);
+  );
 };
 
 // File download utility
@@ -159,6 +163,7 @@ export const downloadFile = (
 export const watchQuery = <T>(
   client: SafeConvexClient,
   query: FunctionReference<'query'>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any,
   callback: (result: EVPSResultAsync<T>) => void,
   intervalMs = 1000
@@ -186,9 +191,9 @@ export const watchQuery = <T>(
 // Transaction-like utility for multiple mutations
 // Note: Convex doesn't have traditional transactions, but this ensures
 // all mutations complete or none do
-export const performTransaction = async <T>(
+export const performTransaction = async (
   operations: (() => EVPSResultAsync<unknown>)[]
-): EVPSResultAsync<unknown[]> => {
+): Promise<EVPSResultAsync<unknown[]>> => {
   const results: unknown[] = [];
   
   for (const operation of operations) {
@@ -196,7 +201,7 @@ export const performTransaction = async <T>(
     
     if (result.isErr()) {
       // If any operation fails, return the error
-      return ResultAsync.fromSafePromise(Promise.resolve(result)) as EVPSResultAsync<unknown[]>;
+      return ResultAsync.fromSafePromise(Promise.reject(result.error));
     }
     
     results.push(result.value);
@@ -206,20 +211,22 @@ export const performTransaction = async <T>(
 };
 
 // Health check utility
-export const healthCheck = (
+export const healthCheck = async (
   client: SafeConvexClient,
   healthQuery: FunctionReference<'query'>
-): EVPSResultAsync<{ status: 'ok' | 'error'; timestamp: number }> => {
-  return client.query(healthQuery, {}).then(result =>
-    result.map(data => ({
+): Promise<EVPSResultAsync<{ status: 'ok' | 'error'; timestamp: number }>> => {
+  const result = await client.query(healthQuery, {});
+  
+  if (result.isOk()) {
+    return ResultAsync.fromSafePromise(Promise.resolve({
       status: 'ok' as const,
       timestamp: Date.now(),
-      ...data
-    }))
-  ).orElse(() => 
-    ResultAsync.fromSafePromise(Promise.resolve({
-      status: 'error' as const,
-      timestamp: Date.now()
-    }))
-  ) as EVPSResultAsync<{ status: 'ok' | 'error'; timestamp: number }>;
+      ...result.value
+    }));
+  }
+  
+  return ResultAsync.fromSafePromise(Promise.resolve({
+    status: 'error' as const,
+    timestamp: Date.now()
+  }));
 };
