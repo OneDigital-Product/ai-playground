@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { azure, createAzure } from '@ai-sdk/azure';
+import { createAzure } from '@ai-sdk/azure';
 import { generateText } from 'ai';
 import { z } from 'zod';
 
@@ -317,7 +317,7 @@ function deterministicAdjust(
   }
 
   // Neutral tone: remove emphatic words
-  let neutral = text
+  const neutral = text
     .replace(/\b(significant|notable|dramatic|remarkable|critical|huge|massive)\b/gi, 'clear')
     .replace(/\b(very|highly|extremely|strongly)\b/gi, '')
     .replace(/\s{2,}/g, ' ')
@@ -400,9 +400,24 @@ export async function POST(request: NextRequest) {
     });
 
     // Try multiple extraction paths for reasoning models
-    let text = (result.text ?? '').trim();
+    type RawContent = { type?: string; text?: string };
+    type RawOutputItem = { type?: string; content?: RawContent[] };
+    type ResponseLike = {
+      output_text?: unknown;
+      output?: RawOutputItem[];
+      finishReason?: string;
+    };
+    type ResultLike = {
+      text?: string | null;
+      response?: ResponseLike;
+      finishReason?: string;
+      usage?: Record<string, unknown>;
+    };
+
+    const resultLike = result as ResultLike;
+    let text = (resultLike.text ?? '').trim();
     if (!text) {
-      const raw = (result as any)?.response;
+      const raw = resultLike.response;
       const alt = (raw?.output_text ?? '').toString().trim();
       if (alt) text = alt;
       // Attempt to reconstruct from outputs if present
@@ -424,20 +439,24 @@ export async function POST(request: NextRequest) {
 
     if (!text) {
       // Provide actionable diagnostics when the model produced no text
-      const finishReason = (result as any)?.finishReason ?? (result as any)?.response?.finishReason;
-      const usage = (result as any)?.usage;
+      const finishReason = resultLike?.finishReason ?? resultLike?.response?.finishReason;
+      const usage = resultLike?.usage;
       console.warn('Azure model returned empty text', { finishReason, usage });
       // If the reason was length, retry once with a higher cap
-      const wasLength = (result as any)?.finishReason === 'length' || (result as any)?.response?.finishReason === 'length';
+      const wasLength = resultLike?.finishReason === 'length' || resultLike?.response?.finishReason === 'length';
       let retryPrompt: string;
       if (isAdjust) {
         // Safer retry for adjust mode
-        retryPrompt = adjustInsightPrompt((validatedData as any).existingText, styleHint, (validatedData as any).adjustment);
+        {
+          const { existingText, adjustment } = validatedData as z.infer<typeof AdjustSchema>;
+          retryPrompt = adjustInsightPrompt(existingText, styleHint, adjustment);
+        }
       } else {
+        const { chartData } = validatedData as z.infer<typeof GenerateSchema>;
         retryPrompt = `Summarize the aggregate category distribution below in 2 short sentences.
 Only describe percentages and counts from the data. Avoid sensitive or personal topics.
 ${styleHint ? `\n${styleHint}\n` : ''}
-\n${JSON.stringify((validatedData as any).chartData.map((d: any) => ({ name: d.name, value: d.value })))}`;
+\n${JSON.stringify(chartData.map(d => ({ name: d.name, value: d.value })))}`;
       }
 
       const retry = await generateText({
@@ -448,9 +467,10 @@ ${styleHint ? `\n${styleHint}\n` : ''}
         maxOutputTokens: wasLength ? 1024 : 384,
       });
 
-      let retryText = (retry.text ?? '').trim();
+      const retryLike = retry as ResultLike;
+      let retryText = (retryLike.text ?? '').trim();
       if (!retryText) {
-        const raw = (retry as any)?.response;
+        const raw = retryLike.response;
         const alt = (raw?.output_text ?? '').toString().trim();
         if (alt) retryText = alt;
         if (!retryText && Array.isArray(raw?.output)) {
@@ -471,11 +491,13 @@ ${styleHint ? `\n${styleHint}\n` : ''}
       if (!retryText) {
         // Fall back
         if (isAdjust) {
-          const fallback = deterministicAdjust((validatedData as any).existingText, (validatedData as any).adjustment, styleHint);
+          const { existingText, adjustment } = validatedData as z.infer<typeof AdjustSchema>;
+          const fallback = deterministicAdjust(existingText, adjustment, styleHint);
           console.warn('Returning deterministic fallback adjust due to empty model output.');
           return NextResponse.json({ text: fallback, source: 'deterministic' });
         } else {
-          const fallback = deterministicSummary((validatedData as any).chartData, (validatedData as any).chartTitle, styleHint);
+          const { chartData, chartTitle } = validatedData as z.infer<typeof GenerateSchema>;
+          const fallback = deterministicSummary(chartData, chartTitle, styleHint);
           console.warn('Returning deterministic fallback summary due to empty model output.');
           return NextResponse.json({ text: fallback, source: 'deterministic' });
         }
@@ -487,10 +509,16 @@ ${styleHint ? `\n${styleHint}\n` : ''}
     return NextResponse.json({ text, source: 'model' });
   } catch (error) {
     // Normalize and surface useful Azure error info without leaking secrets
-    const anyErr = error as any;
-    const status: number | undefined = anyErr?.status || anyErr?.cause?.status || anyErr?.response?.status;
-    const code: string | undefined = anyErr?.code || anyErr?.cause?.code || anyErr?.response?.data?.error?.code;
-    const message: string = anyErr?.message || 'Unknown error';
+    const errObj = error as Partial<{
+      status: number;
+      code: string;
+      message: string;
+      cause: { status?: number; code?: string };
+      response: { status?: number; data?: { error?: { code?: string } } };
+    }>;
+    const status: number | undefined = errObj?.status || errObj?.cause?.status || errObj?.response?.status;
+    const code: string | undefined = errObj?.code || errObj?.cause?.code || errObj?.response?.data?.error?.code;
+    const message: string = errObj?.message || 'Unknown error';
 
     // Log compact diagnostics on the server
     console.error('Error generating insight:', {

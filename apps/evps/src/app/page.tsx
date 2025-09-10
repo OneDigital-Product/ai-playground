@@ -146,7 +146,7 @@ export default function Dashboard() {
     } finally {
       setLoadingStates(prev => ({ ...prev, [chartKey]: false }));
     }
-  }, []);
+  }, [showToast]);
 
   const handleInsightUpdate = useCallback((insightId: string, newText: string) => {
     setInsights(prev => {
@@ -167,7 +167,7 @@ export default function Dashboard() {
       };
     });
     try { showToast('success', 'Insight updated'); } catch {}
-  }, []);
+  }, [showToast]);
 
   // Adjust existing text with presets via server; preserves user edits/content
   const handleInsightAdjust = useCallback(async (
@@ -180,7 +180,8 @@ export default function Dashboard() {
       body: JSON.stringify({ existingText, adjustment: preset }),
     });
     if (!response.ok) {
-      const errJson = await response.json().catch(() => ({} as any));
+      type ErrorResponse = { error?: unknown; code?: unknown; message?: unknown };
+      const errJson: ErrorResponse = await response.json().catch(() => ({} as ErrorResponse));
       const base = errJson?.error ? String(errJson.error) : '';
       const code = errJson?.code ? ` (${String(errJson.code)})` : '';
       const msg = errJson?.message ? `: ${String(errJson.message)}` : '';
