@@ -4,7 +4,8 @@ import { generateText } from 'ai';
 import { z } from 'zod';
 
 // Input validation schema
-const InsightRequestSchema = z.object({
+// Two request shapes: generate from data, or adjust existing text
+const GenerateSchema = z.object({
   chartData: z.array(z.object({
     name: z.string(),
     value: z.number(),
@@ -14,6 +15,29 @@ const InsightRequestSchema = z.object({
   chartType: z.string().default('pie'),
   customPrompt: z.string().optional(),
 });
+
+const AdjustSchema = z.object({
+  existingText: z.string().min(1),
+  adjustment: z
+    .enum([
+      'shorter',
+      'longer',
+      'bullets',
+      'recommendation',
+      'neutral',
+      // tone presets
+      'consultative',
+      'consultive', // alias
+      'positive',
+      'action',
+      'conservative',
+      'persuasive',
+    ])
+    .optional(),
+  customPrompt: z.string().optional(),
+});
+
+const InsightRequestSchema = z.union([GenerateSchema, AdjustSchema]);
 
 // Configure Azure OpenAI
 // Resolve deployment name from common env var keys.
@@ -60,6 +84,10 @@ const azureResourceName =
     }
   })();
 
+// Feature flag: temporary deterministic-only mode to avoid slow/empty AI loops.
+// Set EVPS_AI_DETERMINISTIC_ONLY=0 to re-enable model calls.
+const DETERMINISTIC_ONLY = (process.env.EVPS_AI_DETERMINISTIC_ONLY ?? '1') !== '0';
+
 // Instantiate model with explicit options when available to avoid relying on implicit env names.
 // Create a configured Azure provider and then select the deployment model.
 const azureProvider = createAzure({
@@ -80,7 +108,7 @@ function generateInsightPrompt(
   if (customPrompt) {
     return `${customPrompt}
 
-Chart Data: ${JSON.stringify(data, null, 2)}
+Chart Data: ${JSON.stringify(data)}
 Chart Title: ${title}
 
 Please provide a concise, actionable insight based on this data.`;
@@ -104,9 +132,61 @@ Provide 2 short sentences that:
 Avoid sensitive or personal topics, protected-class judgments, or causal claims.`;
 }
 
+function adjustInsightPrompt(
+  existingText: string,
+  styleHint?: string,
+  preset?:
+    | 'shorter'
+    | 'longer'
+    | 'bullets'
+    | 'neutral'
+    | 'consultative'
+    | 'consultive'
+    | 'positive'
+    | 'action'
+    | 'conservative'
+    | 'persuasive',
+): string {
+  const canonical = preset === 'consultive' ? 'consultative' : preset;
+  const apply =
+    styleHint?.trim() ||
+    (canonical === 'shorter'
+      ? 'Make the text concise (1–2 sentences).'
+      : canonical === 'longer'
+      ? 'Make the text a bit more detailed, adding one neutral sentence without inventing new facts.'
+      : canonical === 'bullets'
+      ? 'Format as 2–3 bullet points.'
+      : canonical === 'neutral'
+      ? 'Use a neutral, business-focused tone only.'
+      : canonical === 'consultative'
+      ? 'Use a consultative tone: constructive, client-friendly guidance; one neutral recommendation; preserve facts; no new information.'
+      : canonical === 'positive'
+      ? 'Use a positive tone: highlight strengths and opportunities without overstating; preserve facts; no new information.'
+      : canonical === 'action'
+      ? 'Use an action-oriented tone: start with an action verb and one next step; keep it concise; preserve facts; no new information.'
+      : canonical === 'conservative'
+      ? 'Use a cautious, conservative tone: qualify claims (may/appears/suggests); avoid absolutes; preserve facts; no new information.'
+      : canonical === 'persuasive'
+      ? 'Use a persuasive tone: lead with a clear recommendation, then brief justification; preserve facts; no new information.'
+      : 'Improve clarity and readability.');
+
+  return `Revise the insight text below according to the instruction. 
+Keep all facts, numbers, and claims exactly as written. 
+Do not add new information. 
+Return only the revised text (no explanations).
+
+Instruction: ${apply}
+
+Insight:
+"""
+${existingText}
+"""`;
+}
+
 function deterministicSummary(
   data: { name: string; value: number }[],
   title: string,
+  styleHint?: string,
 ): string {
   if (!data.length) return `No data available for ${title}.`;
   const total = data.reduce((s, d) => s + (Number.isFinite(d.value) ? d.value : 0), 0) || 1;
@@ -119,7 +199,135 @@ function deterministicSummary(
     (top2 ? `, followed by ${top2.name} at ${pct(top2.value)}%` : '') +
     (sorted.length > 2 ? `; other categories range from ${rangeMin.toFixed(1)}% to ${rangeMax.toFixed(1)}%.` : '.');
   const second = `Consider tailoring communications or resources to the largest groups while ensuring smaller segments remain included.`;
-  return `${first} ${second}`;
+
+  const hint = (styleHint || '').toLowerCase();
+  const wantBullets = /\b(bullet|bullets|list|bullet points)\b/.test(hint);
+  const wantConcise = /\b(concise|brief|short)\b/.test(hint);
+  const wantLonger = /\b(long|longer|detailed|expand|more)\b/.test(hint);
+
+  if (wantBullets) {
+    if (wantLonger && top2) {
+      const third = `Other categories range from ${rangeMin.toFixed(1)}% to ${rangeMax.toFixed(1)}%.`;
+      return emphasizeNumbers(`- ${first}\n- ${second}\n- ${third}`);
+    }
+    return emphasizeNumbers(`- ${first}\n- ${wantConcise ? 'Keep actions concise and neutral.' : second}`);
+  }
+  if (wantConcise) {
+    return emphasizeNumbers(`${first}`); // one sentence only
+  }
+  if (wantLonger) {
+    const third = `Smaller segments span ${rangeMin.toFixed(1)}%–${rangeMax.toFixed(1)}%, suggesting varied representation across categories.`;
+    return emphasizeNumbers(`${first} ${second} ${third}`);
+  }
+  return emphasizeNumbers(`${first} ${second}`);
+}
+
+function deterministicAdjust(
+  existingText: string,
+  preset?:
+    | 'shorter'
+    | 'longer'
+    | 'bullets'
+    | 'recommendation'
+    | 'neutral'
+    | 'consultative'
+    | 'consultive'
+    | 'positive'
+    | 'action'
+    | 'conservative'
+    | 'persuasive',
+  styleHint?: string,
+): string {
+  const text = (existingText || '').trim();
+  if (!text) return '';
+
+  const hint = (styleHint || '').toLowerCase();
+  const wantBullets = preset === 'bullets' || /\b(bullet|bullets|list|bullet points)\b/.test(hint);
+  const wantConcise = preset === 'shorter' || /\b(concise|brief|short)\b/.test(hint);
+  const wantLonger = preset === 'longer' || /\b(long|longer|detailed|expand|more)\b/.test(hint);
+
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (wantBullets) {
+    // Bullet the entire content by sentence or line, limiting to 6 for readability
+    const lines = text.includes('\n') ? text.split(/\n+/).map(s => s.trim()).filter(Boolean) : sentences;
+    const items = lines.slice(0, 6);
+    return emphasizeNumbers(items.map(i => `- ${i.replace(/^[*-]\s+/, '')}`).join('\n'));
+  }
+
+  if (wantConcise) {
+    // Keep first 1–2 sentences or ~220 chars, remove parentheticals
+    const base = (sentences[0] || '') + (sentences[1] ? ' ' + sentences[1] : '');
+    const sanitized = base.replace(/\([^)]*\)/g, '');
+    const trimmed = sanitized.length > 220 ? sanitized.slice(0, 220).replace(/\s\S*$/, '…') : sanitized;
+    return emphasizeNumbers(trimmed.trim());
+  }
+
+  if (wantLonger) {
+    // Expand by splitting complex clauses and adding a neutral context line
+    const expanded = text.replace(/;\s+/g, '. ').replace(/\s—\s/g, '. ').replace(/:\s+/g, ': ');
+    const extra = 'Additionally, ensure smaller segments remain included while prioritizing the largest groups.';
+    return emphasizeNumbers(expanded.includes(extra) ? expanded : `${expanded} ${extra}`);
+  }
+
+  // Tone adjustments
+  const canonical = preset === 'consultive' ? 'consultative' : preset;
+
+  if (canonical === 'consultative') {
+    // Client-friendly guidance applied across the whole text
+    const t = text.replace(/\b(you|we)\b/gi, 'the team').replace(/\b(should|must)\b/gi, 'should consider');
+    const rec = 'Consider tailoring communications to the largest groups while keeping smaller segments included.';
+    return emphasizeNumbers(t.includes(rec) ? t : `${t} ${rec}`);
+  }
+
+  if (canonical === 'positive') {
+    let t = text.replace(/\b(challenge|problem|weakness|decline|low|drop|decrease)\b/gi, 'opportunity');
+    if (!/[.!?]$/.test(t)) t += '.';
+    const add = 'This presents opportunities to build on strengths.';
+    return emphasizeNumbers(t.includes(add) ? t : `${t} ${add}`);
+  }
+
+  if (canonical === 'action') {
+    // Lead with an action line, then retain the text
+    const lead = 'Action: Focus efforts on the most represented categories and reinforce inclusion for smaller groups.';
+    return emphasizeNumbers(text.startsWith('Action:') ? text : `${lead} ${text}`);
+  }
+
+  if (canonical === 'conservative') {
+    // Add hedges and remove absolutes across the whole text
+    let t = text
+      .replace(/\b(will|prove|shows|demonstrates|confirms)\b/gi, 'suggests')
+      .replace(/\b(always|never|definitely|certainly)\b/gi, 'often');
+    if (!/\b(may|appears|suggests)\b/i.test(t)) t = `The data may indicate that ${t.charAt(0).toLowerCase()}${t.slice(1)}`;
+    return emphasizeNumbers(t);
+  }
+
+  if (canonical === 'persuasive') {
+    const lead = 'Recommendation: Focus on the largest segments and ensure smaller groups remain included.';
+    return emphasizeNumbers(text.startsWith('Recommendation:') ? text : `${lead} ${text}`);
+  }
+
+  if (canonical === 'recommendation') {
+    const lead = 'Recommendation: Focus on the largest segments and ensure smaller groups remain included.';
+    const stripped = text.replace(/^Recommendation:[^\n]*\n?/i, '').trim();
+    return emphasizeNumbers(`${lead} ${stripped}`);
+  }
+
+  // Neutral tone: remove emphatic words
+  let neutral = text
+    .replace(/\b(significant|notable|dramatic|remarkable|critical|huge|massive)\b/gi, 'clear')
+    .replace(/\b(very|highly|extremely|strongly)\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  return emphasizeNumbers(neutral);
+}
+
+// Emphasize numeric figures and percentages by default for readability
+function emphasizeNumbers(input: string): string {
+  return input.replace(/(?<!\*)\b(\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)(%?)(?!\*)\b/g, '**$1$2**');
 }
 
 export async function POST(request: NextRequest) {
@@ -141,56 +349,142 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = InsightRequestSchema.parse(body);
 
-    const { chartData, chartTitle, customPrompt } = validatedData;
+    // Determine mode and inputs
+    const isAdjust = 'existingText' in validatedData;
+    let prompt: string;
+    let styleHint: string | undefined;
+    if (isAdjust) {
+      const { existingText, adjustment, customPrompt } = validatedData as z.infer<typeof AdjustSchema>;
+      styleHint = customPrompt?.trim()
+        ? `Style hint (apply only if safe): ${customPrompt.trim().slice(0, 220)}`
+        : adjustment ? `Apply preset: ${adjustment}.` : undefined;
+      prompt = adjustInsightPrompt(existingText, styleHint, adjustment);
+    } else {
+      const { chartData, chartTitle, customPrompt } = validatedData as z.infer<typeof GenerateSchema>;
+      styleHint = customPrompt?.trim()
+        ? `Style hint (apply only if safe): ${customPrompt.trim().slice(0, 220)}`
+        : undefined;
+      // Generate insight prompt
+      prompt = generateInsightPrompt(chartData, chartTitle, customPrompt);
+    }
 
-    // Generate insight prompt
-    const prompt = generateInsightPrompt(chartData, chartTitle, customPrompt);
+    // Short-circuit: deterministic-only mode (temporary)
+    if (DETERMINISTIC_ONLY) {
+      if (isAdjust) {
+        const { existingText, adjustment } = validatedData as z.infer<typeof AdjustSchema>;
+        const text = deterministicAdjust(existingText, adjustment, styleHint);
+        const changed = text.trim() !== existingText.trim();
+        return NextResponse.json({ text, changed, source: 'deterministic' });
+      } else {
+        const { chartData, chartTitle } = validatedData as z.infer<typeof GenerateSchema>;
+        const text = deterministicSummary(chartData, chartTitle, styleHint);
+        return NextResponse.json({ text, changed: true, source: 'deterministic' });
+      }
+    }
 
-    const system =
-      'You summarize aggregate, anonymized data. Keep a neutral tone, avoid sensitive inferences, and base statements only on provided counts.';
+    const system = [
+      isAdjust
+        ? 'You revise user-provided text. Keep a neutral tone, avoid sensitive inferences, preserve all facts and numbers, and return only the revised text.'
+        : 'You summarize aggregate, anonymized data. Keep a neutral tone, avoid sensitive inferences, and base statements only on provided counts.',
+      styleHint ? 'Incorporate the provided style hint only if it does not introduce sensitive content.' : undefined,
+    ].filter(Boolean).join(' ');
 
     // Generate a non-streaming response for simpler client handling
     const result = await generateText({
       model: azureModel,
       system,
       prompt,
-      temperature: 0.2,
-      maxOutputTokens: 300,
+      // Reasoning models: prefer minimal thinking for latency
+      reasoning: { effort: 'low' },
+      maxOutputTokens: 512,
     });
 
-    const text = (result.text ?? '').trim();
+    // Try multiple extraction paths for reasoning models
+    let text = (result.text ?? '').trim();
+    if (!text) {
+      const raw = (result as any)?.response;
+      const alt = (raw?.output_text ?? '').toString().trim();
+      if (alt) text = alt;
+      // Attempt to reconstruct from outputs if present
+      if (!text && Array.isArray(raw?.output)) {
+        try {
+          const parts: string[] = [];
+          for (const item of raw.output) {
+            if (item?.type === 'message' && Array.isArray(item?.content)) {
+              for (const c of item.content) {
+                if (c?.type === 'output_text' && typeof c?.text === 'string') parts.push(c.text);
+                if (c?.type === 'text' && typeof c?.text === 'string') parts.push(c.text);
+              }
+            }
+          }
+          if (parts.length) text = parts.join('\n').trim();
+        } catch {}
+      }
+    }
 
     if (!text) {
       // Provide actionable diagnostics when the model produced no text
       const finishReason = (result as any)?.finishReason ?? (result as any)?.response?.finishReason;
       const usage = (result as any)?.usage;
       console.warn('Azure model returned empty text', { finishReason, usage });
-      // Fallback: retry once with a simplified, explicitly safe prompt
-      const safePrompt = `Summarize the aggregate category distribution below in 2 short sentences.
+      // If the reason was length, retry once with a higher cap
+      const wasLength = (result as any)?.finishReason === 'length' || (result as any)?.response?.finishReason === 'length';
+      let retryPrompt: string;
+      if (isAdjust) {
+        // Safer retry for adjust mode
+        retryPrompt = adjustInsightPrompt((validatedData as any).existingText, styleHint, (validatedData as any).adjustment);
+      } else {
+        retryPrompt = `Summarize the aggregate category distribution below in 2 short sentences.
 Only describe percentages and counts from the data. Avoid sensitive or personal topics.
-
-${JSON.stringify(validatedData.chartData.map(d => ({ name: d.name, value: d.value })), null, 2)}`;
+${styleHint ? `\n${styleHint}\n` : ''}
+\n${JSON.stringify((validatedData as any).chartData.map((d: any) => ({ name: d.name, value: d.value })))}`;
+      }
 
       const retry = await generateText({
         model: azureModel,
         system,
-        prompt: safePrompt,
-        temperature: 0.1,
-        maxOutputTokens: 200,
+        prompt: retryPrompt,
+        reasoning: { effort: 'low' },
+        maxOutputTokens: wasLength ? 1024 : 384,
       });
 
-      const retryText = (retry.text ?? '').trim();
+      let retryText = (retry.text ?? '').trim();
       if (!retryText) {
-        // Fall back to a deterministic, neutral summary derived from counts only
-        const fallback = deterministicSummary(validatedData.chartData, validatedData.chartTitle);
-        console.warn('Returning deterministic fallback summary due to empty model output.');
-        return NextResponse.json({ text: fallback, source: 'deterministic' });
+        const raw = (retry as any)?.response;
+        const alt = (raw?.output_text ?? '').toString().trim();
+        if (alt) retryText = alt;
+        if (!retryText && Array.isArray(raw?.output)) {
+          try {
+            const parts: string[] = [];
+            for (const item of raw.output) {
+              if (item?.type === 'message' && Array.isArray(item?.content)) {
+                for (const c of item.content) {
+                  if (c?.type === 'output_text' && typeof c?.text === 'string') parts.push(c.text);
+                  if (c?.type === 'text' && typeof c?.text === 'string') parts.push(c.text);
+                }
+              }
+            }
+            if (parts.length) retryText = parts.join('\n').trim();
+          } catch {}
+        }
+      }
+      if (!retryText) {
+        // Fall back
+        if (isAdjust) {
+          const fallback = deterministicAdjust((validatedData as any).existingText, (validatedData as any).adjustment, styleHint);
+          console.warn('Returning deterministic fallback adjust due to empty model output.');
+          return NextResponse.json({ text: fallback, source: 'deterministic' });
+        } else {
+          const fallback = deterministicSummary((validatedData as any).chartData, (validatedData as any).chartTitle, styleHint);
+          console.warn('Returning deterministic fallback summary due to empty model output.');
+          return NextResponse.json({ text: fallback, source: 'deterministic' });
+        }
       }
 
-      return NextResponse.json({ text: retryText });
+      return NextResponse.json({ text: retryText, source: 'model' });
     }
 
-    return NextResponse.json({ text });
+    return NextResponse.json({ text, source: 'model' });
   } catch (error) {
     // Normalize and surface useful Azure error info without leaking secrets
     const anyErr = error as any;

@@ -5,6 +5,7 @@ import { SimplePieChart } from '@repo/ui/components/ui/simple-pie-chart';
 import { ChartInsight, type ChartInsight as ChartInsightType } from '@repo/ui/components/ui/chart-insight';
 import type { DashboardData, ChartDataPoint } from '@/types/dashboard';
 import dashboardData from '@/data/dashboard-data.json';
+import { useToast } from '@/components/toast';
 
 // Convert JSON data to typed data
 const typedDashboardData = dashboardData as DashboardData;
@@ -18,6 +19,8 @@ export default function Dashboard() {
   const [insights, setInsights] = useState<Record<string, StoredInsight>>({});
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [hydrated, setHydrated] = useState(false);
+  const { showToast } = useToast();
 
   // Compute a stable hash for the consolidated dataset to support cache invalidation
   const computeConsolidatedDataHash = (): string => {
@@ -67,6 +70,8 @@ export default function Dashboard() {
         }
       }
     }
+    // Mark hydration complete so autogen runs only after cache load
+    setHydrated(true);
   }, []);
 
   // Save insights to localStorage whenever they change
@@ -128,6 +133,10 @@ export default function Dashboard() {
         }
       }));
 
+      try {
+        showToast('success', 'Insight generated');
+      } catch {}
+
       return text;
     } catch (error) {
       console.error('Error generating insight:', error);
@@ -157,7 +166,50 @@ export default function Dashboard() {
         }
       };
     });
+    try { showToast('success', 'Insight updated'); } catch {}
   }, []);
+
+  // Adjust existing text with presets via server; preserves user edits/content
+  const handleInsightAdjust = useCallback(async (
+    existingText: string,
+    preset: 'shorter' | 'longer' | 'bullets' | 'recommendation',
+  ): Promise<string> => {
+    const response = await fetch('/evps/api/insights/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ existingText, adjustment: preset }),
+    });
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({} as any));
+      const base = errJson?.error ? String(errJson.error) : '';
+      const code = errJson?.code ? ` (${String(errJson.code)})` : '';
+      const msg = errJson?.message ? `: ${String(errJson.message)}` : '';
+      throw new Error(`Failed to adjust insight: ${response.status}${base || code || msg}`);
+    }
+    const { text, changed } = await response.json();
+    if (!text || typeof text !== 'string') throw new Error('No adjusted text received');
+    // Only update + toast when there is a real change
+    if (changed) {
+      const key = 'consolidatedinsight';
+      setInsights(prev => {
+        const existing = prev[key];
+        if (!existing) return prev;
+        return {
+          ...prev,
+          [key]: {
+            ...existing,
+            text,
+            isEdited: true,
+            generatedAt: new Date(),
+          },
+        };
+      });
+      try { showToast('success', 'Insight updated'); } catch {}
+    } else {
+      try { showToast('success', 'No changes to apply'); } catch {}
+    }
+    return text;
+  }, [showToast, setInsights]);
 
   const generateConsolidatedInsight = useCallback(async (customPrompt?: string): Promise<void> => {
     try {
@@ -182,26 +234,33 @@ Provide 2 short sentences: (1) describe notable distribution patterns; (2) sugge
 
   // Auto-generate consolidated insight if missing or data changed
   useEffect(() => {
+    if (!hydrated) return; // wait for local cache to load
     const key = 'consolidatedinsight';
     const currentHash = computeConsolidatedDataHash();
     const existing = insights[key];
-    const needsGeneration = !existing || existing.dataHash !== currentHash;
+    const needsGeneration = !existing ? true : (existing.dataHash ? existing.dataHash !== currentHash : false);
     if (needsGeneration && !loadingStates[key]) {
       // Fire and forget; errors are handled inside and displayed via error state
       generateConsolidatedInsight();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typedDashboardData.ageDistribution.lastUpdated, typedDashboardData.careerStage.lastUpdated, typedDashboardData.lifeStage.lastUpdated]);
+  }, [
+    hydrated,
+    insights,
+    typedDashboardData.ageDistribution.lastUpdated,
+    typedDashboardData.careerStage.lastUpdated,
+    typedDashboardData.lifeStage.lastUpdated,
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 text-left">
             Employee Value Perception Study
           </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-gray-600 text-left max-w-none leading-relaxed">
             Interactive dashboard showing demographic insights from our comprehensive employee survey (n=4,939).
             AI-powered analysis helps identify key patterns and actionable recommendations.
           </p>
@@ -248,7 +307,9 @@ Provide 2 short sentences: (1) describe notable distribution patterns; (2) sugge
           <ChartInsight
             insight={insights['consolidatedinsight']}
             onInsightGenerate={generateConsolidatedInsight}
+            onInsightAdjust={handleInsightAdjust}
             onInsightUpdate={handleInsightUpdate}
+            onDiscardChanges={() => { try { showToast('success', 'Changes discarded'); } catch {} }}
             isGenerating={loadingStates['consolidatedinsight']}
             error={errors['consolidatedinsight']}
           />

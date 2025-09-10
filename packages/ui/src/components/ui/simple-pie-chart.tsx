@@ -48,16 +48,15 @@ export function SimplePieChart({
   showLegend = true,
   showTooltip = true,
   innerRadius = 0,
-  // Slightly reduce default radius so legend space doesn't collide
-  // with the chart at compact densities.
-  outerRadius = 110,
+  // Slightly larger radius with added container height for boardroom readability
+  outerRadius = 140,
   // Reserve more space for multi-row legends
-  legendHeight = 96,
+  legendHeight = 120,
 }: SimplePieChartProps) {
   return (
-    <Card density="compact" className={className}>
-      <CardHeader density="compact">
-        <CardTitle>{title}</CardTitle>
+    <Card density="dense" className={className}>
+      <CardHeader density="compact" className="pb-2">
+        <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
       </CardHeader>
       <CardContent density="compact">
         {/*
@@ -67,7 +66,8 @@ export function SimplePieChart({
           Increasing max height here prevents legend overlap without
           forcing page-level spacing changes.
         */}
-        <ChartContainer className="mx-auto aspect-square max-h-[420px] md:max-h-[500px]">
+        {/* Per Tailwind v4 guide: set explicit height at component layer; no fixed aspect ratio */}
+        <ChartContainer className="mx-auto h-[500px] md:h-[600px]">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
               <Pie
