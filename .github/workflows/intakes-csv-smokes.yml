@@ -1,13 +1,11 @@
-name: "Intakes & CSV Smokes"
+name: "Intakes and CSV Smokes"
 
 on:
   workflow_dispatch: {}
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   smokes:
@@ -31,17 +29,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run Intakes smoke (SDK)
-        if: ${{ secrets.NEXT_PUBLIC_CONVEX_URL != '' }}
+        if: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
         env:
           NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
         run: pnpm smoke:intakes
 
       - name: Run CSV/Uploads smoke (HTTP)
-        if: ${{ secrets.NEXT_PUBLIC_CONVEX_URL != '' }}
+        if: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
         env:
           NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
         run: pnpm smoke:csv
 
       - name: Skip notice (missing NEXT_PUBLIC_CONVEX_URL)
-        if: ${{ secrets.NEXT_PUBLIC_CONVEX_URL == '' }}
-        run: echo "Skipping smokes: NEXT_PUBLIC_CONVEX_URL secret not set or not available for this event (e.g. forked PR)."
+        if: ${{ !secrets.NEXT_PUBLIC_CONVEX_URL }}
+        run: echo "Skipping smokes: NEXT_PUBLIC_CONVEX_URL not set"
+
