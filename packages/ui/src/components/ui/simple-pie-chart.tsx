@@ -19,6 +19,7 @@ export interface SimplePieChartProps {
   showTooltip?: boolean
   innerRadius?: number
   outerRadius?: number
+  legendHeight?: number
 }
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -50,6 +51,8 @@ export function SimplePieChart({
   // Slightly reduce default radius so legend space doesn't collide
   // with the chart at compact densities.
   outerRadius = 110,
+  // Reserve more space for multi-row legends
+  legendHeight = 64,
 }: SimplePieChartProps) {
   return (
     <Card density="compact" className={className}>
@@ -64,7 +67,7 @@ export function SimplePieChart({
           Increasing max height here prevents legend overlap without
           forcing page-level spacing changes.
         */}
-        <ChartContainer className="mx-auto aspect-square max-h-[320px] md:max-h-[340px]">
+        <ChartContainer className="mx-auto aspect-square max-h-[360px] md:max-h-[420px]">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
               <Pie
@@ -86,7 +89,7 @@ export function SimplePieChart({
                 <Legend
                   content={<ChartLegend />}
                   verticalAlign="bottom"
-                  height={36}
+                  height={legendHeight}
                 />
               )}
             </RechartsPieChart>
