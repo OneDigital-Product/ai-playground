@@ -47,7 +47,9 @@ export function SimplePieChart({
   showLegend = true,
   showTooltip = true,
   innerRadius = 0,
-  outerRadius = 120,
+  // Slightly reduce default radius so legend space doesn't collide
+  // with the chart at compact densities.
+  outerRadius = 110,
 }: SimplePieChartProps) {
   return (
     <Card density="compact" className={className}>
@@ -55,7 +57,14 @@ export function SimplePieChart({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent density="compact">
-        <ChartContainer className="mx-auto aspect-square max-h-[250px]">
+        {/*
+          Tailwind v4 spacing guidance: prefer compact density at the
+          component level and ensure the inner chart container has
+          enough height to accommodate the legend rendered by Recharts.
+          Increasing max height here prevents legend overlap without
+          forcing page-level spacing changes.
+        */}
+        <ChartContainer className="mx-auto aspect-square max-h-[320px] md:max-h-[340px]">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
               <Pie
