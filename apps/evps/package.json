@@ -9,10 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@ai-sdk/azure": "^1.1.9",
+    "@ai-sdk/azure": "^2.0.27",
     "@repo/backend": "workspace:^",
     "@repo/ui": "workspace:*",
-    "ai": "^5.1.19",
+    "ai": "^5.0.39",
     "convex": "^1.16.0",
     "neverthrow": "^8.1.0",
     "next": "15.5.2",
