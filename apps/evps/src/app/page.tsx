@@ -113,14 +113,22 @@ export default function Dashboard() {
   }, []);
 
   const handleInsightUpdate = useCallback((insightId: string, newText: string) => {
-    setInsights(prev => ({
-      ...prev,
-      [insightId]: {
-        ...prev[insightId],
-        text: newText,
-        isEdited: true,
+    setInsights(prev => {
+      const existingInsight = prev[insightId];
+      if (!existingInsight) {
+        console.warn('Attempting to update non-existent insight:', insightId);
+        return prev;
       }
-    }));
+      
+      return {
+        ...prev,
+        [insightId]: {
+          ...existingInsight,
+          text: newText,
+          isEdited: true,
+        }
+      };
+    });
   }, []);
 
   const generateConsolidatedInsight = useCallback(async (): Promise<void> => {
