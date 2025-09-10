@@ -52,7 +52,7 @@ export function SimplePieChart({
   // with the chart at compact densities.
   outerRadius = 110,
   // Reserve more space for multi-row legends
-  legendHeight = 64,
+  legendHeight = 96,
 }: SimplePieChartProps) {
   return (
     <Card density="compact" className={className}>
@@ -67,7 +67,7 @@ export function SimplePieChart({
           Increasing max height here prevents legend overlap without
           forcing page-level spacing changes.
         */}
-        <ChartContainer className="mx-auto aspect-square max-h-[360px] md:max-h-[420px]">
+        <ChartContainer className="mx-auto aspect-square max-h-[420px] md:max-h-[500px]">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
               <Pie
