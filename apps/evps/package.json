@@ -9,12 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/azure": "^1.1.9",
     "@repo/backend": "workspace:^",
+    "@repo/ui": "workspace:*",
+    "ai": "^5.1.19",
     "convex": "^1.16.0",
     "neverthrow": "^8.1.0",
     "next": "15.5.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
