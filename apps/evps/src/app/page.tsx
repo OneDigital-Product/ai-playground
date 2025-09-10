@@ -81,8 +81,8 @@ export default function Dashboard() {
     }
   }, []);
 
-  const generateInsightForChart = useCallback(async (chartKey: string, data: SimplePieChartData[], title: string) => {
-    return handleInsightGenerate(data, title);
+  const generateInsightForChart = useCallback(async (chartKey: string, data: SimplePieChartData[], title: string): Promise<void> => {
+    await handleInsightGenerate(data, title);
   }, [handleInsightGenerate]);
 
   return (
