@@ -3,12 +3,12 @@
     "title": "Age Distribution",
     "description": "Demographic breakdown by age groups from EVPS survey (n=4,939)",
     "data": [
-      { "name": "35-44", "value": 28.6, "color": "#3b82f6" },
-      { "name": "45-54", "value": 24.3, "color": "#06b6d4" },
-      { "name": "26-34", "value": 23.8, "color": "#10b981" },
-      { "name": "55-64", "value": 17.5, "color": "#84cc16" },
-      { "name": "18-25", "value": 3.4, "color": "#f59e0b" },
-      { "name": "65+", "value": 2.4, "color": "#ef4444" }
+      { "name": "35-44", "value": 28.6, "color": "#1e40af" },
+      { "name": "45-54", "value": 24.3, "color": "#0ea5e9" },
+      { "name": "26-34", "value": 23.8, "color": "#059669" },
+      { "name": "55-64", "value": 17.5, "color": "#65a30d" },
+      { "name": "18-25", "value": 3.4, "color": "#d97706" },
+      { "name": "65+", "value": 2.4, "color": "#eab308" }
     ],
     "lastUpdated": "2025-01-10T10:30:00Z"
   },
@@ -16,12 +16,12 @@
     "title": "Career Stage Distribution", 
     "description": "Employee career progression levels from EVPS survey (n=4,939)",
     "data": [
-      { "name": "Advanced", "value": 25.2, "color": "#3b82f6" },
-      { "name": "Management", "value": 24.6, "color": "#06b6d4" },
-      { "name": "Intermediate", "value": 19.4, "color": "#10b981" },
-      { "name": "Executive", "value": 15.5, "color": "#84cc16" },
-      { "name": "Support/Administrative", "value": 8.0, "color": "#f59e0b" },
-      { "name": "Entry", "value": 7.3, "color": "#ef4444" }
+      { "name": "Advanced", "value": 25.2, "color": "#1e40af" },
+      { "name": "Management", "value": 24.6, "color": "#0ea5e9" },
+      { "name": "Intermediate", "value": 19.4, "color": "#059669" },
+      { "name": "Executive", "value": 15.5, "color": "#65a30d" },
+      { "name": "Support/Administrative", "value": 8.0, "color": "#d97706" },
+      { "name": "Entry", "value": 7.3, "color": "#eab308" }
     ],
     "lastUpdated": "2025-01-10T09:15:00Z"
   },
@@ -29,11 +29,11 @@
     "title": "Life Stage Distribution",
     "description": "Personal life circumstances of survey respondents (n=4,939)", 
     "data": [
-      { "name": "Married with Children", "value": 42.97, "color": "#3b82f6" },
-      { "name": "Dual Income", "value": 24.25, "color": "#06b6d4" },
-      { "name": "Single over 45", "value": 14.5, "color": "#10b981" },
-      { "name": "Single under 45", "value": 11.95, "color": "#84cc16" },
-      { "name": "Single Parents", "value": 5.33, "color": "#f59e0b" }
+      { "name": "Married with Children", "value": 42.97, "color": "#1e40af" },
+      { "name": "Dual Income", "value": 24.25, "color": "#0ea5e9" },
+      { "name": "Single over 45", "value": 14.5, "color": "#059669" },
+      { "name": "Single under 45", "value": 11.95, "color": "#65a30d" },
+      { "name": "Single Parents", "value": 5.33, "color": "#d97706" }
     ],
     "lastUpdated": "2025-01-10T08:45:00Z"
   }

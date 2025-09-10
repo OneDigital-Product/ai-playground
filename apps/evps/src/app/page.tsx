@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { ChartWithInsight, type ChartInsight } from '@repo/ui/components/ui/chart-with-insight';
+import { SimplePieChart, type SimplePieChartData } from '@repo/ui/components/ui/simple-pie-chart';
+import { ChartInsight, type ChartInsight as ChartInsightType } from '@repo/ui/components/ui/chart-insight';
 import type { DashboardData, ChartDataPoint } from '@/types/dashboard';
 import dashboardData from '@/data/dashboard-data.json';
 
@@ -9,7 +10,7 @@ import dashboardData from '@/data/dashboard-data.json';
 const typedDashboardData = dashboardData as DashboardData;
 
 export default function Dashboard() {
-  const [insights, setInsights] = useState<Record<string, ChartInsight>>({});
+  const [insights, setInsights] = useState<Record<string, ChartInsightType>>({});
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -80,25 +81,9 @@ export default function Dashboard() {
     }
   }, []);
 
-  const handleInsightUpdate = useCallback((insightId: string, newText: string) => {
-    setInsights(prev => {
-      const updatedInsights = { ...prev };
-      
-      // Find and update the insight with the matching ID
-      for (const [key, insight] of Object.entries(updatedInsights)) {
-        if (insight.id === insightId) {
-          updatedInsights[key] = {
-            ...insight,
-            text: newText,
-            isEdited: true,
-          };
-          break;
-        }
-      }
-      
-      return updatedInsights;
-    });
-  }, []);
+  const generateInsightForChart = useCallback(async (chartKey: string, data: SimplePieChartData[], title: string) => {
+    return handleInsightGenerate(data, title);
+  }, [handleInsightGenerate]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -118,71 +103,62 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Age Distribution Chart */}
           <div className="lg:col-span-1">
-            <ChartWithInsight
-              data={typedDashboardData.ageDistribution.data}
-              title={typedDashboardData.ageDistribution.title}
-              insight={insights['agedistribution']}
-              onInsightGenerate={handleInsightGenerate}
-              onInsightUpdate={handleInsightUpdate}
-              isGenerating={loadingStates['agedistribution']}
-              error={errors['agedistribution']}
-              showLegend={true}
-              showTooltip={true}
-              className="h-full"
-            />
+            <div className="space-y-4">
+              <SimplePieChart
+                data={typedDashboardData.ageDistribution.data}
+                title={typedDashboardData.ageDistribution.title}
+                showLegend={true}
+                showTooltip={true}
+                className="h-full"
+              />
+              <ChartInsight
+                insight={insights['agedistribution']}
+                onInsightGenerate={() => generateInsightForChart('agedistribution', typedDashboardData.ageDistribution.data, typedDashboardData.ageDistribution.title)}
+                isGenerating={loadingStates['agedistribution']}
+                error={errors['agedistribution']}
+              />
+            </div>
           </div>
 
           {/* Career Stage Chart */}
           <div className="lg:col-span-1">
-            <ChartWithInsight
-              data={typedDashboardData.careerStage.data}
-              title={typedDashboardData.careerStage.title}
-              insight={insights['careerstagedistribution']}
-              onInsightGenerate={handleInsightGenerate}
-              onInsightUpdate={handleInsightUpdate}
-              isGenerating={loadingStates['careerstagedistribution']}
-              error={errors['careerstagedistribution']}
-              showLegend={true}
-              showTooltip={true}
-              className="h-full"
-            />
+            <div className="space-y-4">
+              <SimplePieChart
+                data={typedDashboardData.careerStage.data}
+                title={typedDashboardData.careerStage.title}
+                showLegend={true}
+                showTooltip={true}
+                className="h-full"
+              />
+              <ChartInsight
+                insight={insights['careerstagedistribution']}
+                onInsightGenerate={() => generateInsightForChart('careerstagedistribution', typedDashboardData.careerStage.data, typedDashboardData.careerStage.title)}
+                isGenerating={loadingStates['careerstagedistribution']}
+                error={errors['careerstagedistribution']}
+              />
+            </div>
           </div>
 
           {/* Life Stage Chart */}
           <div className="lg:col-span-2 xl:col-span-1">
-            <ChartWithInsight
-              data={typedDashboardData.lifeStage.data}
-              title={typedDashboardData.lifeStage.title}
-              insight={insights['lifestagedistribution']}
-              onInsightGenerate={handleInsightGenerate}
-              onInsightUpdate={handleInsightUpdate}
-              isGenerating={loadingStates['lifestagedistribution']}
-              error={errors['lifestagedistribution']}
-              showLegend={true}
-              showTooltip={true}
-              className="h-full"
-            />
+            <div className="space-y-4">
+              <SimplePieChart
+                data={typedDashboardData.lifeStage.data}
+                title={typedDashboardData.lifeStage.title}
+                showLegend={true}
+                showTooltip={true}
+                className="h-full"
+              />
+              <ChartInsight
+                insight={insights['lifestagedistribution']}
+                onInsightGenerate={() => generateInsightForChart('lifestagedistribution', typedDashboardData.lifeStage.data, typedDashboardData.lifeStage.title)}
+                isGenerating={loadingStates['lifestagedistribution']}
+                error={errors['lifestagedistribution']}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Survey Information */}
-        <div className="mt-12 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Survey Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">4,939</div>
-              <div className="text-sm text-gray-600">Total Respondents</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">3</div>
-              <div className="text-sm text-gray-600">Key Demographics</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">AI</div>
-              <div className="text-sm text-gray-600">Powered Insights</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
