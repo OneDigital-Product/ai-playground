@@ -3,9 +3,9 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../convex/_generated/api.js';
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL;
 if (!convexUrl) {
-  console.error('ERROR: NEXT_PUBLIC_CONVEX_URL is not set');
+  console.error('ERROR: NEXT_PUBLIC_CONVEX_URL/CONVEX_URL is not set');
   process.exit(1);
 }
 
