@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { SimplePieChart } from '@repo/ui/components/ui/simple-pie-chart';
 import { ChartInsight, type ChartInsight as ChartInsightType } from '@repo/ui/components/ui/chart-insight';
-import type { DashboardData, ChartDataPoint } from '@/types/dashboard';
+import type { ChartDataPoint } from '@/types/dashboard';
 import evpsDemoData from '@repo/ui/lib/evps-demo-data';
 import { useToast } from '@/components/toast';
 
 // Base data from shared package (color-agnostic)
 const baseDashboardData = evpsDemoData;
+
 
 // Storage key for insights
 const INSIGHTS_STORAGE_KEY = 'evps-insights';
@@ -22,34 +23,37 @@ export default function Dashboard() {
   const [hydrated, setHydrated] = useState(false);
   const { showToast } = useToast();
 
-  // Theme-driven chart colors so palette updates reflect automatically
-  const chartColors = [
-    'var(--chart-1)',
-    'var(--chart-2)',
-    'var(--chart-3)',
-    'var(--chart-4)',
-    'var(--chart-5)',
-    'var(--chart-6)',
-  ] as const;
 
-  const ageChartData = baseDashboardData.ageDistribution.data.map((d, i) => ({
+  // Theme-driven chart colors so palette updates reflect automatically
+  const chartColors = useMemo(() => (
+    [
+      'var(--chart-1)',
+      'var(--chart-2)',
+      'var(--chart-3)',
+      'var(--chart-4)',
+      'var(--chart-5)',
+      'var(--chart-6)',
+    ] as const
+  ), []);
+
+  const ageChartData: ChartDataPoint[] = useMemo(() => baseDashboardData.ageDistribution.data.map((d, i) => ({
     name: d.name,
     value: d.value,
-    color: chartColors[i % chartColors.length],
-  }));
-  const careerChartData = baseDashboardData.careerStage.data.map((d, i) => ({
+    color: chartColors[i % chartColors.length] ?? 'var(--chart-1)',
+  })), [chartColors]);
+  const careerChartData: ChartDataPoint[] = useMemo(() => baseDashboardData.careerStage.data.map((d, i) => ({
     name: d.name,
     value: d.value,
-    color: chartColors[i % chartColors.length],
-  }));
-  const lifeChartData = baseDashboardData.lifeStage.data.map((d, i) => ({
+    color: chartColors[i % chartColors.length] ?? 'var(--chart-1)',
+  })), [chartColors]);
+  const lifeChartData: ChartDataPoint[] = useMemo(() => baseDashboardData.lifeStage.data.map((d, i) => ({
     name: d.name,
     value: d.value,
-    color: chartColors[i % chartColors.length],
-  }));
+    color: chartColors[i % chartColors.length] ?? 'var(--chart-1)',
+  })), [chartColors]);
 
   // Compute a stable hash for the consolidated dataset to support cache invalidation
-  const computeConsolidatedDataHash = (): string => {
+  const computeConsolidatedDataHash = useCallback((): string => {
     const payload = {
       age: {
         title: baseDashboardData.ageDistribution.title,
@@ -75,7 +79,11 @@ export default function Dashboard() {
       h = (h >>> 0) * 0x01000193;
     }
     return `v1_${(h >>> 0).toString(16)}`;
-  };
+  }, [
+    ageChartData,
+    careerChartData,
+    lifeChartData,
+  ]);
 
   // Load insights from localStorage on mount
   useEffect(() => {
@@ -114,10 +122,10 @@ export default function Dashboard() {
     dataHash?: string,
   ): Promise<string> => {
     const chartKey = title === "Employee Demographics Overview" ? "consolidatedinsight" : title.replace(/\s+/g, '').toLowerCase();
-    
+
     setLoadingStates(prev => ({ ...prev, [chartKey]: true }));
     setErrors(prev => ({ ...prev, [chartKey]: '' }));
-    
+
     try {
       const response = await fetch('/evps/api/insights/generate', {
         method: 'POST',
@@ -257,7 +265,7 @@ Provide 2 short sentences: (1) describe notable distribution patterns; (2) sugge
     } catch (error) {
       console.error('Failed to generate consolidated insight:', error);
     }
-  }, [handleInsightGenerate]);
+  }, [handleInsightGenerate, computeConsolidatedDataHash, ageChartData, careerChartData, lifeChartData]);
 
   // Auto-generate consolidated insight if missing or data changed
   useEffect(() => {
