@@ -4,11 +4,11 @@ import { useState, useCallback, useEffect } from 'react';
 import { SimplePieChart } from '@repo/ui/components/ui/simple-pie-chart';
 import { ChartInsight, type ChartInsight as ChartInsightType } from '@repo/ui/components/ui/chart-insight';
 import type { DashboardData, ChartDataPoint } from '@/types/dashboard';
-import dashboardData from '@/data/dashboard-data.json';
+import evpsDemoData from '@repo/ui/lib/evps-demo-data';
 import { useToast } from '@/components/toast';
 
-// Convert JSON data to typed data
-const typedDashboardData = dashboardData as DashboardData;
+// Base data from shared package (color-agnostic)
+const baseDashboardData = evpsDemoData;
 
 // Storage key for insights
 const INSIGHTS_STORAGE_KEY = 'evps-insights';
@@ -22,23 +22,49 @@ export default function Dashboard() {
   const [hydrated, setHydrated] = useState(false);
   const { showToast } = useToast();
 
+  // Theme-driven chart colors so palette updates reflect automatically
+  const chartColors = [
+    'var(--chart-1)',
+    'var(--chart-2)',
+    'var(--chart-3)',
+    'var(--chart-4)',
+    'var(--chart-5)',
+    'var(--chart-6)',
+  ] as const;
+
+  const ageChartData = baseDashboardData.ageDistribution.data.map((d, i) => ({
+    name: d.name,
+    value: d.value,
+    color: chartColors[i % chartColors.length],
+  }));
+  const careerChartData = baseDashboardData.careerStage.data.map((d, i) => ({
+    name: d.name,
+    value: d.value,
+    color: chartColors[i % chartColors.length],
+  }));
+  const lifeChartData = baseDashboardData.lifeStage.data.map((d, i) => ({
+    name: d.name,
+    value: d.value,
+    color: chartColors[i % chartColors.length],
+  }));
+
   // Compute a stable hash for the consolidated dataset to support cache invalidation
   const computeConsolidatedDataHash = (): string => {
     const payload = {
       age: {
-        title: typedDashboardData.ageDistribution.title,
-        lastUpdated: typedDashboardData.ageDistribution.lastUpdated,
-        data: typedDashboardData.ageDistribution.data.map(d => ({ name: d.name, value: d.value, color: d.color })),
+        title: baseDashboardData.ageDistribution.title,
+        lastUpdated: baseDashboardData.ageDistribution.lastUpdated,
+        data: ageChartData.map(d => ({ name: d.name, value: d.value, color: d.color })),
       },
       career: {
-        title: typedDashboardData.careerStage.title,
-        lastUpdated: typedDashboardData.careerStage.lastUpdated,
-        data: typedDashboardData.careerStage.data.map(d => ({ name: d.name, value: d.value, color: d.color })),
+        title: baseDashboardData.careerStage.title,
+        lastUpdated: baseDashboardData.careerStage.lastUpdated,
+        data: careerChartData.map(d => ({ name: d.name, value: d.value, color: d.color })),
       },
       life: {
-        title: typedDashboardData.lifeStage.title,
-        lastUpdated: typedDashboardData.lifeStage.lastUpdated,
-        data: typedDashboardData.lifeStage.data.map(d => ({ name: d.name, value: d.value, color: d.color })),
+        title: baseDashboardData.lifeStage.title,
+        lastUpdated: baseDashboardData.lifeStage.lastUpdated,
+        data: lifeChartData.map(d => ({ name: d.name, value: d.value, color: d.color })),
       },
     };
     const str = JSON.stringify(payload);
@@ -215,9 +241,9 @@ export default function Dashboard() {
   const generateConsolidatedInsight = useCallback(async (customPrompt?: string): Promise<void> => {
     try {
       const combined = [
-        ...typedDashboardData.ageDistribution.data,
-        ...typedDashboardData.careerStage.data,
-        ...typedDashboardData.lifeStage.data,
+        ...ageChartData,
+        ...careerChartData,
+        ...lifeChartData,
       ];
       const dataHash = computeConsolidatedDataHash();
       await handleInsightGenerate(
@@ -248,9 +274,9 @@ Provide 2 short sentences: (1) describe notable distribution patterns; (2) sugge
   }, [
     hydrated,
     insights,
-    typedDashboardData.ageDistribution.lastUpdated,
-    typedDashboardData.careerStage.lastUpdated,
-    typedDashboardData.lifeStage.lastUpdated,
+    baseDashboardData.ageDistribution.lastUpdated,
+    baseDashboardData.careerStage.lastUpdated,
+    baseDashboardData.lifeStage.lastUpdated,
   ]);
 
   return (
@@ -272,8 +298,8 @@ Provide 2 short sentences: (1) describe notable distribution patterns; (2) sugge
           {/* Age Distribution Chart */}
           <div className="lg:col-span-1">
             <SimplePieChart
-              data={typedDashboardData.ageDistribution.data}
-              title={typedDashboardData.ageDistribution.title}
+              data={ageChartData}
+              title={baseDashboardData.ageDistribution.title}
               showLegend={true}
               showTooltip={true}
               className=""
@@ -283,8 +309,8 @@ Provide 2 short sentences: (1) describe notable distribution patterns; (2) sugge
           {/* Career Stage Chart */}
           <div className="lg:col-span-1">
             <SimplePieChart
-              data={typedDashboardData.careerStage.data}
-              title={typedDashboardData.careerStage.title}
+              data={careerChartData}
+              title={baseDashboardData.careerStage.title}
               showLegend={true}
               showTooltip={true}
               className=""
@@ -294,8 +320,8 @@ Provide 2 short sentences: (1) describe notable distribution patterns; (2) sugge
           {/* Life Stage Chart */}
           <div className="lg:col-span-2 xl:col-span-1">
             <SimplePieChart
-              data={typedDashboardData.lifeStage.data}
-              title={typedDashboardData.lifeStage.title}
+              data={lifeChartData}
+              title={baseDashboardData.lifeStage.title}
               showLegend={true}
               showTooltip={true}
               className=""

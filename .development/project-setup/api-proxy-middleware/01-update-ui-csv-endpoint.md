@@ -30,6 +30,3 @@ window.open(url.toString(), "_self");
 - No browser CORS errors in preview environment.
 - Monorepo lint and type-check pass.
 
-## Notes
-- Consider feature flagging (temporary) to switch between old and new endpoints during verification, then remove once validated.
-
