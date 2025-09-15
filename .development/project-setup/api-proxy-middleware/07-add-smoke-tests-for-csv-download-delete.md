@@ -29,4 +29,3 @@ curl -X DELETE -i "$CONVEX_URL/enrollment/uploads?id=UPLOAD_ID"
 ## Acceptance Criteria
 - Tests pass locally and in CI.
 - Failures produce actionable messages.
-
