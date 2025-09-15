@@ -268,6 +268,32 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  stewardshipItems: {
+    document: {
+      description: string;
+      month: number;
+      year: number;
+      category?: string;
+      metadata?: { notes?: string };
+      _id: Id<"stewardshipItems">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "category"
+      | "description"
+      | "metadata.notes"
+      | "month"
+      | "year";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_year_month: ["year", "month", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
 };
 
 /**

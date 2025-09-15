@@ -252,6 +252,48 @@ export declare const api: {
       >;
       list: FunctionReference<"query", "public", {}, any>;
     };
+    stewardship: {
+      list: FunctionReference<
+        "query",
+        "public",
+        {
+          end?: { month: number; year: number };
+          start?: { month: number; year: number };
+        },
+        any
+      >;
+      create: FunctionReference<
+        "mutation",
+        "public",
+        {
+          description: string;
+          month: number;
+          year: number;
+          category?: string;
+          metadata?: { notes?: string };
+        },
+        any
+      >;
+      update: FunctionReference<
+        "mutation",
+        "public",
+        {
+          id: Id<"stewardshipItems">;
+          description: string;
+          month: number;
+          year: number;
+          category?: string;
+          metadata?: { notes?: string };
+        },
+        any
+      >;
+      remove: FunctionReference<
+        "mutation",
+        "public",
+        { id: Id<"stewardshipItems"> },
+        any
+      >;
+    };
     sections: {
       upsert: FunctionReference<
         "mutation",

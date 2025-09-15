@@ -18,23 +18,26 @@ export default defineSchema({
     planYear: v.number(),
     requestorName: v.string(),
     payrollStorageUrl: v.string(),
-    guideType: v.union(v.literal("Update Existing Guide"), v.literal("New Guide Build")),
+    guideType: v.union(
+      v.literal("Update Existing Guide"),
+      v.literal("New Guide Build"),
+    ),
     communicationsAddOns: v.array(
       v.union(
         v.literal("OE Letter"),
         v.literal("OE Presentation"),
         v.literal("Other"),
-        v.object({ type: v.literal("Other"), text: v.string() })
-      )
+        v.object({ type: v.literal("Other"), text: v.string() }),
+      ),
     ),
     requestedProductionTime: v.union(v.literal("Standard"), v.literal("Rush")),
     notesGeneral: v.optional(v.string()),
     status: v.union(
-      v.literal("NOT_STARTED"), 
-      v.literal("STARTED"), 
-      v.literal("ROADBLOCK"), 
-      v.literal("READY_FOR_QA"), 
-      v.literal("DELIVERED_TO_CONSULTANT")
+      v.literal("NOT_STARTED"),
+      v.literal("STARTED"),
+      v.literal("ROADBLOCK"),
+      v.literal("READY_FOR_QA"),
+      v.literal("DELIVERED_TO_CONSULTANT"),
     ),
     sectionsChangedFlags: v.object({
       A: v.boolean(),
@@ -76,10 +79,10 @@ export default defineSchema({
     }),
     complexityScore: v.number(),
     complexityBand: v.union(
-      v.literal("Minimal"), 
-      v.literal("Low"), 
-      v.literal("Medium"), 
-      v.literal("High")
+      v.literal("Minimal"),
+      v.literal("Low"),
+      v.literal("Medium"),
+      v.literal("High"),
     ),
     dateReceived: v.string(),
     createdAt: v.string(),
@@ -95,10 +98,23 @@ export default defineSchema({
   section_details: defineTable({
     intakeId: v.string(),
     sectionCode: v.union(
-      v.literal("A"), v.literal("B"), v.literal("C"), v.literal("D"), v.literal("E"), 
-      v.literal("F"), v.literal("G"), v.literal("H"), v.literal("I"), v.literal("J"), 
-      v.literal("K"), v.literal("L"), v.literal("M"), v.literal("N"), v.literal("O"), 
-      v.literal("P"), v.literal("Q")
+      v.literal("A"),
+      v.literal("B"),
+      v.literal("C"),
+      v.literal("D"),
+      v.literal("E"),
+      v.literal("F"),
+      v.literal("G"),
+      v.literal("H"),
+      v.literal("I"),
+      v.literal("J"),
+      v.literal("K"),
+      v.literal("L"),
+      v.literal("M"),
+      v.literal("N"),
+      v.literal("O"),
+      v.literal("P"),
+      v.literal("Q"),
     ),
     payload: v.object({
       change_description: v.optional(v.string()),
@@ -111,16 +127,26 @@ export default defineSchema({
   uploads: defineTable({
     intakeId: v.string(),
     kind: v.union(
-      v.literal("GUIDE"), 
-      v.literal("PLAN_DOC"), 
-      v.literal("PAYROLL_SCREEN"), 
-      v.literal("OTHER")
+      v.literal("GUIDE"),
+      v.literal("PLAN_DOC"),
+      v.literal("PAYROLL_SCREEN"),
+      v.literal("OTHER"),
     ),
     originalName: v.string(),
     mimeType: v.string(),
     bytes: v.number(),
     storedKey: v.string(),
     createdAt: v.string(),
-  })
-    .index("by_intakeId", ["intakeId"]),
+  }).index("by_intakeId", ["intakeId"]),
+  stewardshipItems: defineTable({
+    description: v.string(),
+    month: v.number(),
+    year: v.number(),
+    category: v.optional(v.string()),
+    metadata: v.optional(
+      v.object({
+        notes: v.optional(v.string()),
+      }),
+    ),
+  }).index("by_year_month", ["year", "month"]),
 });
