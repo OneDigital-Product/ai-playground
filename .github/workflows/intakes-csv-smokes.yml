@@ -36,6 +36,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Deploy Convex and export URL (when deploy key present)
+        if: ${{ env.NEXT_PUBLIC_CONVEX_URL == '' && secrets.CONVEX_DEPLOY_KEY != '' }}
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+        run: |
+          pnpm --filter @repo/backend exec npx convex deploy \
+            --cmd "bash -lc 'echo NEXT_PUBLIC_CONVEX_URL=$NEXT_PUBLIC_CONVEX_URL >> $GITHUB_ENV'" \
+            --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL
+
       - name: Run Intakes smoke (SDK)
         if: ${{ env.NEXT_PUBLIC_CONVEX_URL != '' }}
         run: pnpm smoke:intakes
@@ -44,6 +53,6 @@ jobs:
         if: ${{ env.NEXT_PUBLIC_CONVEX_URL != '' }}
         run: pnpm smoke:csv
 
-      - name: Skip notice (missing NEXT_PUBLIC_CONVEX_URL)
-        if: ${{ env.NEXT_PUBLIC_CONVEX_URL == '' }}
-        run: echo Skipping smokes - NEXT_PUBLIC_CONVEX_URL not set
+      - name: Skip notice (missing NEXT_PUBLIC_CONVEX_URL and no deploy key)
+        if: ${{ env.NEXT_PUBLIC_CONVEX_URL == '' && secrets.CONVEX_DEPLOY_KEY == '' }}
+        run: echo "Skipping smokes - NEXT_PUBLIC_CONVEX_URL not set and CONVEX_DEPLOY_KEY not provided"
